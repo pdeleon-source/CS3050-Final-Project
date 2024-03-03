@@ -2,6 +2,7 @@
 # for bishops, both values must change
 import board
 
+"""
 class Pawn:
     def __init__(self, allegiance, board, current_row, current_col):
         points = 1
@@ -88,6 +89,7 @@ class Knight:
             print(f"{self} is already there")
             return False
         # L-shape move?
+"""
 
 
 class Bishop:
@@ -100,41 +102,32 @@ class Bishop:
         self.board = board
         self.board[self.current_row][self.current_col] = self
 
-
-
     def move(self, new_row, new_col) -> bool:
         """
-        TODO: Check all squares in between source and destination
-        Bishop cannot jump over pieces
-        If piece in the way, move invalid
+        TODO: Check path between new position and old position for other pieces
         """
-        # Cannot move to same position
-        if new_row == self.current_row and new_col == self.current_col:
-            print(f"{self} is already in that position!")
+        if (new_row, new_col) not in self.available_moves():
+            print("INVALID MOVE")
             return False
-        # If Bishop is moving diagonally
-        elif (new_row + new_col) % 2 == 0:
-            destination = self.board[new_row][new_col]
-            # Set previous spot to empty
-            if destination is not None and destination.allegiance != self.allegiance:
-                print(f"Captured {destination} at position ({new_row}, {new_col})!")
-            elif destination is not None:
-                print("Cannot capture that piece!")
-                return False
 
-            print(f"Moved {self} to position ({new_row}, {new_col})")
-
-            self.board[self.current_row][self.current_col] = None
-            self.board[new_row][new_col] = self
-
-            # Update variables
-            self.moves += 1
-            self.current_row = new_row
-            self.current_col = new_col
-            return True
-        else:
-            print("Invalid move!")
+        destination = self.board[new_row][new_col]
+        if destination is not None and destination.allegiance != self.allegiance:
+            print(f"Captured {destination} at position ({new_row}, {new_col})")
+        elif destination is not None:
+            print(f"Cannot capture {destination}!")
             return False
+
+        # All conditions passed so move Bishop piece
+        print(f"Moved {self} to position ({new_row}, {new_col})")
+
+        self.board[self.current_row][self.current_col] = None
+        self.board[new_row][new_col] = self
+
+        # Update variables
+        self.moves += 1
+        self.current_row = new_row
+        self.current_col = new_col
+        return True
 
     def available_moves(self):
         movements = []
@@ -164,32 +157,25 @@ class Queen:
         self.board = board
         self.board[self.current_row][self.current_col] = self
 
-    def move(self, new_row, new_col):
-        if new_row == self.current_row and new_col == self.current_col:
-            print(f"{self} is already in that position!")
+    def move(self, new_row, new_col) -> bool:
+        if (new_row, new_col) not in self.available_moves():
+            print("INVALID MOVE!")
             return False
+        destination = self.board[new_row][new_col]
+        if destination is not None and destination.allegiance != self.allegiance:
+            print(f"Captured {destination} at position ({new_row}, {new_col})")
+        elif destination is not None:
+            print("Cannot capture that piece!")
 
-        # Move diagonally
-        elif (new_row + new_col) % 2 == 0 or self.current_row == new_row or self.current_col == new_col:
-            destination = self.board[new_row][new_col]
-            if destination is not None and destination.allegiance != self.allegiance:
-                print(f"Captured {destination} at position ({new_row}, {new_col})")
-            elif destination is not None:
-                print("Cannot capture that piece!")
-                return False
+        print(f"Moved {self} to position ({new_row}, {new_col})")
+        self.board[self.current_row][self.current_col] = None
+        self.board[new_row][new_col] = self
 
-            print(f"Moved {self} to position ({new_row}, {new_col})")
-            self.board[self.current_row][self.current_col] = None
-            self.board[new_row][new_col] = self
-
-            # Update variables
-            self.moves += 1
-            self.current_row = new_row
-            self.current_col = new_col
-            return True
-        else:
-            print("Invalid move!")
-            return False
+        # Update variables
+        self.moves += 1
+        self.current_row = new_row
+        self.current_col = new_col
+        return True
 
     def available_moves(self):
         movements = []
@@ -225,19 +211,16 @@ class King:
         self.current_col = current_pos[1]
         self.board[self.current_row][self.current_col] = self
 
-    def move(self, new_row, new_col):
-        destination = self.board[new_row][new_col]
-        if new_row == self.current_row and abs(new_col - self.current_col) == 1 or new_col == self.current_col and abs(
-                new_row - self.current_row) == 1 or abs(new_row - self.current_row) == 1 and abs(
-                new_col - self.current_col) == 1:
-            if destination is not None and destination.allegiance != self.allegiance:
-                print(f"Captured {destination} at position ({new_row}, {new_col})")
-            elif destination is not None:
-                print("Cannot capture that piece!")
-                return False
-        else:
-            print("Invalid move!")
+    def move(self, new_row, new_col) -> bool:
+        if (new_row, new_col) not in self.available_moves():
+            print("INVALID MOVE!")
             return False
+
+        destination = self.board[new_row][new_col]
+        if destination is not None and destination.allegiance != self.allegiance:
+            print(f"Captured {destination} at position ({new_row}, {new_col})")
+        elif destination is not None:
+            print("Cannot capture that piece!")
 
         print(f"Moved {self} to position ({new_row}, {new_col})")
         self.board[self.current_row][self.current_col] = None
@@ -273,15 +256,16 @@ class King:
 if __name__ == "__main__":
     chess_board = [[None for _ in range(8)] for _ in range(8)]
 
-    # bish = Bishop("Black", chess_board, 0, 0)
-    #bish = Bishop("White", chess_board, [3, 3])
+    bish = Bishop("Black", chess_board, [3, 3])
+    bish2 = Bishop("White", chess_board, [3, 4])
     king = King("Black", chess_board, [1, 2])
     #king = King("White", chess_board, 2, 2)
 
     for row in chess_board:
         print(row)
 
-    print(king.available_moves())
+    print(bish.available_moves())
+    print(bish.move(5, 2))
 
     for row in chess_board:
         print(row)
