@@ -120,6 +120,7 @@ class Board(arcade.Window):
 
         # If a piece is selected
         if any(self.selected[row][col] for row in range(ROWS) for col in range(COLS)):
+
             # If the clicked spot is a valid move
             if (row, col) in self.valid_moves:
                 # Move the selected piece to the clicked spot
@@ -155,7 +156,6 @@ class Board(arcade.Window):
         # print("===============================")
         # self.print_board()
         # print("===============================\n\n")
-
 
 
     def print_board(self):
