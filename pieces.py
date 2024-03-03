@@ -1,17 +1,21 @@
 # for rooks in each turn, one value in the coordinate cannot change
 # for bishops, both values must change
 import board
-
+import arcade
 
 class Bishop:
-    def __init__(self, allegiance, board, current_row, current_col):
+    def __init__(self, allegiance, board, current_pos):
         points = 3
         self.moves = 0
         self.allegiance = allegiance
-        self.current_row = current_row
-        self.current_col = current_col
+        self.current_row = current_pos[0]
+        self.current_col = current_pos[1]
         self.board = board
-        self.board[self.current_col][self.current_row] = self
+        #self.board[self.current_col][self.current_row] = self
+        if allegiance == 'black':
+            self.texture = arcade.load_texture('pieces_png/black-bishop.png')
+        else:
+            self.texture = arcade.load_texture('pieces_png/white-bishop.png')
 
     def move(self, new_row, new_col) -> bool:
         """
@@ -52,14 +56,18 @@ class Bishop:
 
 
 class Queen:
-    def __init__(self, allegiance, board, current_row, current_col):
+    def __init__(self, allegiance, board, current_pos):
         points = 4
         self.moves = 0
         self.allegiance = allegiance
-        self.current_row = current_row
-        self.current_col = current_col
+        self.current_row = current_pos[0]
+        self.current_col = current_pos[1]
         self.board = board
-        self.board[self.current_col][self.current_row] = self
+        # self.board[self.current_col][self.current_row] = self
+        if allegiance == 'black':
+            self.texture = arcade.load_texture('pieces_png/black-queen.png')
+        else:
+            self.texture = arcade.load_texture('pieces_png/white-queen.png')
 
     def move(self, new_row, new_col):
         if new_row == self.current_row and new_col == self.current_col:
@@ -93,15 +101,18 @@ class Queen:
 
 
 class King:
-    def __init__(self, allegiance, board, current_row, current_col):
+    def __init__(self, allegiance, board, current_pos):
         points = 4
         self.moves = 0
         self.allegiance = allegiance
         self.board = board
-        self.current_row = current_row
-        self.current_col = current_col
-        self.board[self.current_col][self.current_row] = self
-
+        self.current_row = current_pos[0]
+        self.current_col = current_pos[1]
+        # self.board[self.current_col][self.current_row] = self
+        if allegiance == 'black':
+            self.texture = arcade.load_texture('pieces_png/black-king.png')
+        else:
+            self.texture = arcade.load_texture('pieces_png/white-king.png')
     def move(self, new_row, new_col):
         destination = self.board[new_row][new_col]
         # Can only move one square
