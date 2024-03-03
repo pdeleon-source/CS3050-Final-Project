@@ -53,8 +53,11 @@ class Rook:
             print(f"{self} is already in that position!")
             return False
         # horizontal movement
-        elif
-
+        elif new_row != self.current_row and new_col == self.current_col:
+            destination = self.board[new_row][new_col]
+        # vertical movement
+        elif new_row == self.current_row and new_col != self.current_col:
+            destination = self.board[new_row][new_col]
 class Bishop:
     def __init__(self, allegiance, board, current_row, current_col):
         points = 3
