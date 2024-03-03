@@ -3,11 +3,11 @@
 import board
 import arcade
 
-class Piece:
-    def blank(self):
-        print("hi")
+class Piece():
+    def something(self):
+        print("something")
 
-class Pawn:
+class Pawn(Piece):
     def __init__(self, allegiance, board, current_row, current_col):
         points = 1
         self.moves = 0
@@ -15,7 +15,7 @@ class Pawn:
         self.current_row = current_row
         self.current_col = current_col
         self.board = board
-        self.board[self.current_col][self.current_row] = self
+        #self.board[self.current_col][self.current_row] = self
 
     def move(self, new_row, new_col):
         if new_row == self.current_row and new_col == self.current_col:
@@ -33,12 +33,12 @@ class Pawn:
             if destination is not None and destination.allegiance != self.allegiance:
                 print(f"Captured {destination} at position ({new_row}, {new_col})!")
             # en passant-hard as hell, how do I get the space under the destination block?
-            elif destination[new_row] -  :
+            elif destination[new_row]:
                 print(f"Captured {destination} at position ({new_row}, {new_col})!")
                 return False
 
     def available_moves(self):
-
+        return []
     def __repr__(self):
         return f"{self.allegiance} Pawn"
 
