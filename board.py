@@ -152,9 +152,10 @@ class Board(arcade.Window):
                 self.valid_moves = self.check_valid_moves(piece.available_moves())
 
         # Print out Console Board with toggled Squares
-        print("===============================")
-        self.print_board()
-        print("===============================\n\n")
+        # print("===============================")
+        # self.print_board()
+        # print("===============================\n\n")
+
 
 
     def print_board(self):
