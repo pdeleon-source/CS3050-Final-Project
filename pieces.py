@@ -3,7 +3,10 @@
 import board
 import arcade
 
-class Bishop:
+class Piece:
+    def blank(self):
+        print("hi")
+class Bishop(Piece):
     def __init__(self, allegiance, board, current_pos):
         points = 3
         self.moves = 0
