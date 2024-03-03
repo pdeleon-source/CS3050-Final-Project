@@ -88,6 +88,7 @@ class Board(arcade.Window):
                 y = row * square_height
                 if self.selected[row][col]:
                     color = SELECTED_SQUARE_COLOR
+                    print(self.board[row][col].get_movement_pattern())
                 elif (row + col) % 2 == 0:
                     color = LIGHT_SQUARE_COLOR
                 else:
