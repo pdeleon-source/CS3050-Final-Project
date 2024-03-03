@@ -3,6 +3,10 @@
 import board
 import arcade
 
+class Piece:
+    def blank(self):
+        print("hi")
+
 class Pawn:
     def __init__(self, allegiance, board, current_row, current_col):
         points = 1
@@ -59,7 +63,7 @@ class Rook:
         # vertical movement
         elif new_row == self.current_row and new_col != self.current_col:
             destination = self.board[new_row][new_col]
-class Bishop:
+class Bishop(Piece):
     def __init__(self, allegiance, board, current_pos):
         points = 3
         self.moves = 0
