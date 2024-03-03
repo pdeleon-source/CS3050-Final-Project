@@ -1,9 +1,13 @@
 # for rooks in each turn, one value in the coordinate cannot change
 # for bishops, both values must change
 import board
+import arcade
 
-"""
-class Pawn:
+class Piece():
+    def something(self):
+        print("something")
+
+class Pawn(Piece):
     def __init__(self, allegiance, board, current_row, current_col):
         points = 1
         self.moves = 0
@@ -34,7 +38,7 @@ class Pawn:
                 return False
 
     def available_moves(self):
-
+        return []
     def __repr__(self):
         return f"{self.allegiance} Pawn"
 
@@ -63,17 +67,8 @@ class Rook:
                 return False
         # vertical movement
         elif new_row == self.current_row and new_col != self.current_col:
-            destination = self.board[new_col]
-            if destination is not None and destination.allegiance != self.allegiance:
-                print(f"Captured {destination} at position ({new_row}, {new_col})!")
-            elif destination is not None:
-                print("Cannot capture!")
-                return False
-
-    def __repr__(self):
-        return f"{self.allegiance} Rook"
-
-class Knight:
+            destination = self.board[new_row][new_col]
+class Bishop(Piece):
     def __init__(self, allegiance, board, current_pos):
         points = 3
         self.moves = 0
@@ -81,26 +76,11 @@ class Knight:
         self.current_row = current_pos[0]
         self.current_col = current_pos[1]
         self.board = board
-        self.board[self.current_row][self.current_col] = self
-
-    def move(self, new_row, new_col):
-        # Cannot move to same position
-        if new_row == self.current_row and new_col == self.current_col:
-            print(f"{self} is already there")
-            return False
-        # L-shape move?
-"""
-
-
-class Bishop:
-    def __init__(self, allegiance, board, current_pos):
-        points = 3
-        self.moves = 0
-        self.allegiance = allegiance
-        self.current_row = current_pos[0]
-        self.current_col = current_pos[1]
-        self.board = board
-        self.board[self.current_row][self.current_col] = self
+        #self.board[self.current_col][self.current_row] = self
+        if allegiance == 'Black':
+            self.texture = arcade.load_texture('pieces_png/black-bishop.png')
+        else:
+            self.texture = arcade.load_texture('pieces_png/white-bishop.png')
 
     def move(self, new_row, new_col) -> bool:
         """
@@ -144,10 +124,12 @@ class Bishop:
         return movements
 
     def __repr__(self):
-        return f"{self.allegiance} Bishop"
+        if self.allegiance == 'Black':
+            return '♝'
+        return '♗'
 
 
-class Queen:
+class Queen(Piece):
     def __init__(self, allegiance, board, current_pos):
         points = 4
         self.moves = 0
@@ -155,7 +137,11 @@ class Queen:
         self.current_row = current_pos[0]
         self.current_col = current_pos[1]
         self.board = board
-        self.board[self.current_row][self.current_col] = self
+        # self.board[self.current_col][self.current_row] = self
+        if allegiance == 'black':
+            self.texture = arcade.load_texture('pieces_png/black-queen.png')
+        else:
+            self.texture = arcade.load_texture('pieces_png/white-queen.png')
 
     def move(self, new_row, new_col) -> bool:
         if (new_row, new_col) not in self.available_moves():
@@ -198,7 +184,11 @@ class Queen:
         return movements
 
     def __repr__(self):
-        return f"{self.allegiance} Queen"
+        if self.allegiance == 'Black':
+            return '♛'
+        return '♕'
+
+        # return f"{self.allegiance} Queen"
 
 
 class King:
@@ -210,6 +200,10 @@ class King:
         self.current_row = current_pos[0]
         self.current_col = current_pos[1]
         self.board[self.current_row][self.current_col] = self
+        if allegiance == 'black':
+            self.texture = arcade.load_texture('pieces_png/black-king.png')
+        else:
+            self.texture = arcade.load_texture('pieces_png/white-king.png')
 
     def move(self, new_row, new_col) -> bool:
         if (new_row, new_col) not in self.available_moves():
@@ -250,22 +244,25 @@ class King:
         return movements
 
     def __repr__(self):
-        return f"{self.allegiance} King"
+        if self.allegiance == 'Black':
+            return '♚'
+        return '♔'
+
+        # return f"{self.allegiance} King"
 
 
 if __name__ == "__main__":
     chess_board = [[None for _ in range(8)] for _ in range(8)]
 
-    bish = Bishop("Black", chess_board, [3, 3])
-    bish2 = Bishop("White", chess_board, [3, 4])
+    # bish = Bishop("Black", chess_board, 0, 0)
+    #bish = Bishop("White", chess_board, [3, 3])
     king = King("Black", chess_board, [1, 2])
     #king = King("White", chess_board, 2, 2)
 
     for row in chess_board:
         print(row)
 
-    print(bish.available_moves())
-    print(bish.move(5, 2))
+    print(king.available_moves())
 
     for row in chess_board:
         print(row)
