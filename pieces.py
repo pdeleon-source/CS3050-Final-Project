@@ -1,63 +1,8 @@
 # for rooks in each turn, one value in the coordinate cannot change
 # for bishops, both values must change
 import board
+import arcade
 
-class Pawn:
-    def __init__(self, allegiance, board, current_row, current_col):
-        points = 1
-        self.moves = 0
-        self.allegiance = allegiance
-        self.current_row = current_row
-        self.current_col = current_col
-        self.board = board
-        self.board[self.current_col][self.current_row] = self
-
-    def move(self, new_row, new_col):
-        if new_row == self.current_row and new_col == self.current_col:
-            print(f"{self} is already in that position!")
-            return False
-        # account for two block move on the first turn
-        elif self.moves == 0 and new_row - self.current_row == 2 and new_col == self.current_col:
-            destination = self.board[new_row][new_col]
-        # now account for a normal move
-        elif self.moves >= 1 and new_row - self.current_row == 1 and new_col == self.current_col:
-            destination = self.board[new_row][new_col]
-        # now account for captures-a diagonal movement
-        elif (new_row + new_col) % 2 == 0:
-            destination = self.board[new_row][new_col]
-            if destination is not None and destination.allegiance != self.allegiance:
-                print(f"Captured {destination} at position ({new_row}, {new_col})!")
-            # en passant-hard as hell, how do I get the space under the destination block?
-            elif destination[new_row] -  :
-                print(f"Captured {destination} at position ({new_row}, {new_col})!")
-                return False
-
-    def available_moves(self):
-
-    def __repr__(self):
-        return f"{self.allegiance} Pawn"
-
-class Rook:
-    def __init__(self, allegiance, board, current_row, current_col):
-        points = 5
-        self.moves = 0
-        self.allegiance = allegiance
-        self.current_row = current_row
-        self.current_col = current_col
-        self.board = board
-        self.board[self.current_col][self.current_row] = self
-
-    def move(self, new_row, new_col):
-        # Cannot move to same position
-        if new_row == self.current_row and new_col == self.current_col:
-            print(f"{self} is already in that position!")
-            return False
-        # horizontal movement
-        elif new_row != self.current_row and new_col == self.current_col:
-            destination = self.board[new_row][new_col]
-        # vertical movement
-        elif new_row == self.current_row and new_col != self.current_col:
-            destination = self.board[new_row][new_col]
 class Bishop:
     def __init__(self, allegiance, board, current_pos):
         points = 3
@@ -66,9 +11,11 @@ class Bishop:
         self.current_row = current_pos[0]
         self.current_col = current_pos[1]
         self.board = board
-        self.board[self.current_row][self.current_col] = self
-
-
+        #self.board[self.current_col][self.current_row] = self
+        if allegiance == 'black':
+            self.texture = arcade.load_texture('pieces_png/black-bishop.png')
+        else:
+            self.texture = arcade.load_texture('pieces_png/white-bishop.png')
 
     def move(self, new_row, new_col) -> bool:
         """
@@ -130,7 +77,11 @@ class Queen:
         self.current_row = current_pos[0]
         self.current_col = current_pos[1]
         self.board = board
-        self.board[self.current_row][self.current_col] = self
+        # self.board[self.current_col][self.current_row] = self
+        if allegiance == 'black':
+            self.texture = arcade.load_texture('pieces_png/black-queen.png')
+        else:
+            self.texture = arcade.load_texture('pieces_png/white-queen.png')
 
     def move(self, new_row, new_col):
         if new_row == self.current_row and new_col == self.current_col:
@@ -191,8 +142,11 @@ class King:
         self.board = board
         self.current_row = current_pos[0]
         self.current_col = current_pos[1]
-        self.board[self.current_row][self.current_col] = self
-
+        # self.board[self.current_col][self.current_row] = self
+        if allegiance == 'black':
+            self.texture = arcade.load_texture('pieces_png/black-king.png')
+        else:
+            self.texture = arcade.load_texture('pieces_png/white-king.png')
     def move(self, new_row, new_col):
         destination = self.board[new_row][new_col]
         if new_row == self.current_row and abs(new_col - self.current_col) == 1 or new_col == self.current_col and abs(
