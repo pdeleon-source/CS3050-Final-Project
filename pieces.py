@@ -141,7 +141,7 @@ class Queen(Piece):
         self.current_col = current_pos[1]
         self.board = board
         # self.board[self.current_col][self.current_row] = self
-        if allegiance == 'black':
+        if allegiance == 'Black':
             self.texture = arcade.load_texture('pieces_png/black-queen.png')
         else:
             self.texture = arcade.load_texture('pieces_png/white-queen.png')
@@ -210,7 +210,7 @@ class King:
         self.current_row = current_pos[0]
         self.current_col = current_pos[1]
         # self.board[self.current_col][self.current_row] = self
-        if allegiance == 'black':
+        if allegiance == 'Black':
             self.texture = arcade.load_texture('pieces_png/black-king.png')
         else:
             self.texture = arcade.load_texture('pieces_png/white-king.png')
