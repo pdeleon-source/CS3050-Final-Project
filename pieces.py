@@ -3,9 +3,66 @@
 import board
 import arcade
 
-class Piece:
-    def blank(self):
-        print("hi")
+class Piece():
+    def something(self):
+        print("something")
+
+class Pawn(Piece):
+    def __init__(self, allegiance, board, current_row, current_col):
+        points = 1
+        self.moves = 0
+        self.allegiance = allegiance
+        self.current_row = current_row
+        self.current_col = current_col
+        self.board = board
+        #self.board[self.current_col][self.current_row] = self
+
+    def move(self, new_row, new_col):
+        if new_row == self.current_row and new_col == self.current_col:
+            print(f"{self} is already in that position!")
+            return False
+        # account for two block move on the first turn
+        elif self.moves == 0 and new_row - self.current_row == 2 and new_col == self.current_col:
+            destination = self.board[new_row][new_col]
+        # now account for a normal move
+        elif self.moves >= 1 and new_row - self.current_row == 1 and new_col == self.current_col:
+            destination = self.board[new_row][new_col]
+        # now account for captures-a diagonal movement
+        elif (new_row + new_col) % 2 == 0:
+            destination = self.board[new_row][new_col]
+            if destination is not None and destination.allegiance != self.allegiance:
+                print(f"Captured {destination} at position ({new_row}, {new_col})!")
+            # en passant-hard as hell, how do I get the space under the destination block?
+            elif destination[new_row]:
+                print(f"Captured {destination} at position ({new_row}, {new_col})!")
+                return False
+
+    def available_moves(self):
+        return []
+    def __repr__(self):
+        return f"{self.allegiance} Pawn"
+
+class Rook:
+    def __init__(self, allegiance, board, current_row, current_col):
+        points = 5
+        self.moves = 0
+        self.allegiance = allegiance
+        self.current_row = current_row
+        self.current_col = current_col
+        self.board = board
+        self.board[self.current_col][self.current_row] = self
+
+    def move(self, new_row, new_col):
+        # Cannot move to same position
+        if new_row == self.current_row and new_col == self.current_col:
+            print(f"{self} is already in that position!")
+            return False
+        # horizontal movement
+        elif new_row != self.current_row and new_col == self.current_col:
+            destination = self.board[new_row][new_col]
+        # vertical movement
+        elif new_row == self.current_row and new_col != self.current_col:
+            destination = self.board[new_row][new_col]
 class Bishop(Piece):
     def __init__(self, allegiance, board, current_pos):
         points = 3
@@ -75,22 +132,7 @@ class Bishop(Piece):
 
         # return f"{self.allegiance} Bishop"
 
-    def get_movement_pattern(self):
-        movements = []
-
-        # Bishop moves diagonally, so we check all four diagonal directions
-        for diagonal_row, diagonal_col in [(-1, -1), (-1, 1), (1, -1), (1, 1)]:
-            row, col = self.current_row + diagonal_row, self.current_col + diagonal_col
-            while 0 <= row < 8 and 0 <= col < 8:
-                movements.append((row, col))
-
-                row += diagonal_row
-                col += diagonal_col
-
-        return movements
-
-
-class Queen:
+class Queen(Piece):
     def __init__(self, allegiance, board, current_pos):
         points = 4
         self.moves = 0
