@@ -3,22 +3,6 @@
 import board
 
 
-class Pawn:
-    def __init__(self, allegiance, board, current_row, current_col):
-        points = 3
-        self.moves = 0
-        self.allegiance = allegiance
-        self.current_row = current_row
-        self.current_col = current_col
-        self.board = board
-        self.board[self.current_col][self.current_row] = self
-
-    def move(self, new_row, new_col):
-        if new_row == self.current_row and new_col == self.current_col:
-            print(f"{self} is already in that position!")
-            return False
-
-    
 class Bishop:
     def __init__(self, allegiance, board, current_row, current_col):
         points = 3
