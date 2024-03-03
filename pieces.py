@@ -1,6 +1,7 @@
 # for rooks in each turn, one value in the coordinate cannot change
 # for bishops, both values must change
 import board
+import arcade
 
 class Pawn:
     def __init__(self, allegiance, board, current_row, current_col):
@@ -50,46 +51,14 @@ class Rook:
     def move(self, new_row, new_col):
         # Cannot move to same position
         if new_row == self.current_row and new_col == self.current_col:
-            print(f"{self} is already there")
+            print(f"{self} is already in that position!")
             return False
         # horizontal movement
         elif new_row != self.current_row and new_col == self.current_col:
-            destination = self.board[new_row]
-            if destination is not None and destination.allegiance != self.allegiance:
-                print(f"Captured {destination} at position ({new_row}, {new_col})!")
-            elif destination is not None:
-                print("Cannot capture")
-                return False
+            destination = self.board[new_row][new_col]
         # vertical movement
         elif new_row == self.current_row and new_col != self.current_col:
-            destination = self.board[new_col]
-            if destination is not None and destination.allegiance != self.allegiance:
-                print(f"Captured {destination} at position ({new_row}, {new_col})!")
-            elif destination is not None:
-                print("Cannot capture!")
-                return False
-
-    def __repr__(self):
-        return f"{self.allegiance} Rook"
-
-class Knight:
-    def __init__(self, allegiance, board, current_pos):
-        points = 3
-        self.moves = 0
-        self.allegiance = allegiance
-        self.current_row = current_pos[0]
-        self.current_col = current_pos[1]
-        self.board = board
-        self.board[self.current_row][self.current_col] = self
-
-    def move(self, new_row, new_col):
-        # Cannot move to same position
-        if new_row == self.current_row and new_col == self.current_col:
-            print(f"{self} is already there")
-            return False
-        # L-shape move?
-
-
+            destination = self.board[new_row][new_col]
 class Bishop:
     def __init__(self, allegiance, board, current_pos):
         points = 3
@@ -98,9 +67,11 @@ class Bishop:
         self.current_row = current_pos[0]
         self.current_col = current_pos[1]
         self.board = board
-        self.board[self.current_row][self.current_col] = self
-
-
+        #self.board[self.current_col][self.current_row] = self
+        if allegiance == 'black':
+            self.texture = arcade.load_texture('pieces_png/black-bishop.png')
+        else:
+            self.texture = arcade.load_texture('pieces_png/white-bishop.png')
 
     def move(self, new_row, new_col) -> bool:
         """
@@ -162,7 +133,11 @@ class Queen:
         self.current_row = current_pos[0]
         self.current_col = current_pos[1]
         self.board = board
-        self.board[self.current_row][self.current_col] = self
+        # self.board[self.current_col][self.current_row] = self
+        if allegiance == 'black':
+            self.texture = arcade.load_texture('pieces_png/black-queen.png')
+        else:
+            self.texture = arcade.load_texture('pieces_png/white-queen.png')
 
     def move(self, new_row, new_col):
         if new_row == self.current_row and new_col == self.current_col:
@@ -223,8 +198,11 @@ class King:
         self.board = board
         self.current_row = current_pos[0]
         self.current_col = current_pos[1]
-        self.board[self.current_row][self.current_col] = self
-
+        # self.board[self.current_col][self.current_row] = self
+        if allegiance == 'black':
+            self.texture = arcade.load_texture('pieces_png/black-king.png')
+        else:
+            self.texture = arcade.load_texture('pieces_png/white-king.png')
     def move(self, new_row, new_col):
         destination = self.board[new_row][new_col]
         if new_row == self.current_row and abs(new_col - self.current_col) == 1 or new_col == self.current_col and abs(
@@ -275,13 +253,13 @@ if __name__ == "__main__":
 
     # bish = Bishop("Black", chess_board, 0, 0)
     #bish = Bishop("White", chess_board, [3, 3])
-    king = King("Black", chess_board, [1, 2])
+    queen = Queen("Black", chess_board, [5, 3])
     #king = King("White", chess_board, 2, 2)
 
     for row in chess_board:
         print(row)
 
-    print(king.available_moves())
+    print(queen.available_moves())
 
     for row in chess_board:
         print(row)

@@ -1,7 +1,6 @@
 # Board Class
 
 import arcade
-
 import pieces as p
 
 # Set the dimensions of the chessboard
@@ -34,6 +33,24 @@ WHT_POS = {
 }
 
 #p = pieces.Piece
+
+
+# Set containing all black piece default positions
+BLK_POS = {
+    "bishop": [[0, 2], [0, 5]],
+    "knight": [[0, 1], [0, 6]],
+    "rook": [[0, 0], [0, 7]],
+    "queen": [0, 3],
+    "king": [0, 4]
+}
+
+WHT_POS = {
+    "bishop": [[7, 2], [7, 5]],
+    "knight": [[7, 1], [7, 6]],
+    "rook": [[7, 0], [7, 7]],
+    "queen": [7, 3],
+    "king": [7, 4]
+}
 
 
 class Board(arcade.Window):
