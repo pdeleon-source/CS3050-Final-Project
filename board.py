@@ -44,6 +44,7 @@ class Board(arcade.Window):
 
         arcade.set_background_color(arcade.color.WHITE)
         self.board = [['_' for _ in range(COLS)] for _ in range(ROWS)]
+        self.selected_piece = None
 
         # 2D list to keep track of whether each square is selected
         # I made this separate from the board array, since the board array
@@ -117,19 +118,42 @@ class Board(arcade.Window):
         col = x // square_width
         row = y // square_height
 
-        if isinstance(self.board[row][col], p.Piece):
-            piece = self.board[row][col]
-            self.valid_moves = self.check_valid_moves(piece.available_moves())
-            print("piece found")
+        # If a piece is selected
+        if any(self.selected[row][col] for row in range(ROWS) for col in range(COLS)):
 
-            # Toggle the selected state of the clicked square
-            self.selected[row][col] = not self.selected[row][col]
+            # If the clicked spot is a valid move
+            if (row, col) in self.valid_moves:
+                # Move the selected piece to the clicked spot
+                self.move_piece(row, col)
+
+            # If the clicked spot is another piece
+            elif isinstance(self.board[row][col], p.Piece):
+                # Deselect the previously selected piece
+                self.deselect_all()
+                # Select the new piece
+                self.selected[row][col] = True
+                # Find valid moves for the new piece
+                piece = self.board[row][col]
+                self.valid_moves = self.check_valid_moves(piece.available_moves())
+
+            # If the clicked spot is neither a valid move nor another piece, deselect all squares
+            else:
+                self.deselect_all()
+        # If no piece is selected
+        else:
+            # If the clicked spot contains a piece
+            if isinstance(self.board[row][col], p.Piece):
+                # Select the piece
+                self.selected[row][col] = True
+                self.selected_piece = self.board[row][col]
+                # Find valid moves for the selected piece
+                piece = self.board[row][col]
+                self.valid_moves = self.check_valid_moves(piece.available_moves())
 
         # Print out Console Board with toggled Squares
         # print("===============================")
         # self.print_board()
         # print("===============================\n\n")
-
 
 
     def print_board(self):
@@ -185,4 +209,12 @@ class Board(arcade.Window):
                 valid_moves.append(move)
         return valid_moves
 
+    def deselect_all(self):
+        # Deselect all squares
+        for row in range(ROWS):
+            for col in range(COLS):
+                self.selected[row][col] = False
+
+    def move_piece(self, row, col):
+        self.selected_piece.move(row, col)
 
