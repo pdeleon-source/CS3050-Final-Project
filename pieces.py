@@ -4,18 +4,7 @@ import board
 
 class Pawn:
     def __init__(self, allegiance, board, current_row, current_col):
-        points = 3
-        self.moves = 0
-        self.allegiance = allegiance
-        self.current_row = current_row
-        self.current_col = current_col
-        self.board = board
-        self.board[self.current_col][self.current_row] = self
-
-
-class Bishop:
-    def __init__(self, allegiance, board, current_row, current_col):
-        points = 3
+        points = 1
         self.moves = 0
         self.allegiance = allegiance
         self.current_row = current_row
@@ -38,10 +27,45 @@ class Bishop:
             destination = self.board[new_row][new_col]
             if destination is not None and destination.allegiance != self.allegiance:
                 print(f"Captured {destination} at position ({new_row}, {new_col})!")
-            # en passant
-            elif destination :
-                print("Cannot capture that piece!")
+            # en passant-hard as hell, how do I get the space under the destination block?
+            elif destination[new_row] -  :
+                print(f"Captured {destination} at position ({new_row}, {new_col})!")
                 return False
+
+    def available_moves(self):
+
+    def __repr__(self):
+        return f"{self.allegiance} Pawn"
+
+class Rook:
+    def __init__(self, allegiance, board, current_row, current_col):
+        points = 5
+        self.moves = 0
+        self.allegiance = allegiance
+        self.current_row = current_row
+        self.current_col = current_col
+        self.board = board
+        self.board[self.current_col][self.current_row] = self
+
+    def move(self, new_row, new_col):
+        # Cannot move to same position
+        if new_row == self.current_row and new_col == self.current_col:
+            print(f"{self} is already in that position!")
+            return False
+        # horizontal movement
+        elif
+
+class Bishop:
+    def __init__(self, allegiance, board, current_row, current_col):
+        points = 3
+        self.moves = 0
+        self.allegiance = allegiance
+        self.current_row = current_row
+        self.current_col = current_col
+        self.board = board
+        self.board[self.current_col][self.current_row] = self
+
+
 
     def move(self, new_row, new_col) -> bool:
         """
