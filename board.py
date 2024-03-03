@@ -1,6 +1,7 @@
 # Board Class
 
 import arcade
+
 import pieces as p
 
 # Set the dimensions of the chessboard
@@ -13,6 +14,7 @@ COLS = 8
 LIGHT_SQUARE_COLOR = arcade.color.ALMOND
 DARK_SQUARE_COLOR = arcade.color.SADDLE_BROWN
 SELECTED_SQUARE_COLOR = arcade.color.CYAN
+VALID_MOVE_COLOR = arcade.color.GREEN
 
 # Set containing all black piece default positions
 BLK_POS = {
@@ -31,10 +33,14 @@ WHT_POS = {
     "king": [7, 4]
 }
 
+#p = pieces.Piece
+
 
 class Board(arcade.Window):
     def __init__(self, width, height):
         super().__init__(width, height, "Chessboard")
+
+        self.valid_moves = []
 
         arcade.set_background_color(arcade.color.WHITE)
         self.board = [['_' for _ in range(COLS)] for _ in range(ROWS)]
@@ -65,7 +71,6 @@ class Board(arcade.Window):
                 y = row * square_height
                 if self.selected[row][col]:
                     color = SELECTED_SQUARE_COLOR
-                    print(self.board[row][col].get_movement_pattern())
                 elif (row + col) % 2 == 0:
                     color = LIGHT_SQUARE_COLOR
                 else:
@@ -79,19 +84,28 @@ class Board(arcade.Window):
                     arcade.draw_texture_rectangle(x + square_width // 2, y + square_height // 2, square_width,
                                                   square_height, piece.texture)
 
-            # Draw labels for columns (a-h)
-            for col in range(COLS):
-                label = chr(ord('a') + col)  # Convert column index to corresponding letter
-                x = col * square_width + square_width // 2
-                y = SCREEN_HEIGHT - 20
-                arcade.draw_text(label, x, y, arcade.color.BLACK, 12, anchor_x="center")
+        # Draw green squares for valid moves
+        for move in self.valid_moves:
+            row, col = move
+            x = col * square_width
+            y = row * square_height
+            arcade.draw_rectangle_filled(x + square_width // 2, y + square_height // 2, square_width, square_height,
+                                         VALID_MOVE_COLOR)
 
-            # Draw labels for rows (1-8)
-            for row in range(ROWS):
-                label = str(row + 1)  # Convert row index to corresponding number
-                x = SCREEN_WIDTH - 20
-                y = row * square_height + square_height // 2
-                arcade.draw_text(label, x, y, arcade.color.BLACK, 12, anchor_x="center", anchor_y="center")
+
+        # Draw labels for columns (a-h)
+        for col in range(COLS):
+            label = chr(ord('a') + col)  # Convert column index to corresponding letter
+            x = col * square_width + square_width // 2
+            y = SCREEN_HEIGHT - 20
+            arcade.draw_text(label, x, y, arcade.color.BLACK, 12, anchor_x="center")
+
+        # Draw labels for rows (1-8)
+        for row in range(ROWS):
+            label = str(row + 1)  # Convert row index to corresponding number
+            x = SCREEN_WIDTH - 20
+            y = row * square_height + square_height // 2
+            arcade.draw_text(label, x, y, arcade.color.BLACK, 12, anchor_x="center", anchor_y="center")
 
     def on_mouse_press(self, x, y, button, modifiers):
 
@@ -103,13 +117,20 @@ class Board(arcade.Window):
         col = x // square_width
         row = y // square_height
 
+        if isinstance(self.board[row][col], p.Piece):
+            piece = self.board[row][col]
+            self.valid_moves = self.check_valid_moves(piece.get_movement_pattern())
+            print("piece found")
+
         # Toggle the selected state of the clicked square
         self.selected[row][col] = not self.selected[row][col]
 
         # Print out Console Board with toggled Squares
-        print("===============================")
-        self.print_board()
-        print("===============================\n\n")
+        # print("===============================")
+        # self.print_board()
+        # print("===============================\n\n")
+
+
 
     def print_board(self):
         [print(row) for row in reversed(self.board)]
@@ -156,5 +177,12 @@ class Board(arcade.Window):
         self.add_to_board(king, WHT_POS['king'])
 
         return bishop_1, bishop_2
+
+    def check_valid_moves(self, movement):
+        valid_moves = []
+        for move in movement:
+            if isinstance(self.board[move[0]][move[1]], str):
+                valid_moves.append(move)
+        return valid_moves
 
 
