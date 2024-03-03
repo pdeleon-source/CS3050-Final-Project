@@ -2,8 +2,6 @@
 # for bishops, both values must change
 import board
 
-"""
-
 class Pawn:
     def __init__(self, allegiance, board, current_row, current_col):
         points = 1
@@ -52,15 +50,46 @@ class Rook:
     def move(self, new_row, new_col):
         # Cannot move to same position
         if new_row == self.current_row and new_col == self.current_col:
-            print(f"{self} is already in that position!")
+            print(f"{self} is already there")
             return False
         # horizontal movement
         elif new_row != self.current_row and new_col == self.current_col:
-            destination = self.board[new_row][new_col]
+            destination = self.board[new_row]
+            if destination is not None and destination.allegiance != self.allegiance:
+                print(f"Captured {destination} at position ({new_row}, {new_col})!")
+            elif destination is not None:
+                print("Cannot capture")
+                return False
         # vertical movement
         elif new_row == self.current_row and new_col != self.current_col:
-            destination = self.board[new_row][new_col]
-"""
+            destination = self.board[new_col]
+            if destination is not None and destination.allegiance != self.allegiance:
+                print(f"Captured {destination} at position ({new_row}, {new_col})!")
+            elif destination is not None:
+                print("Cannot capture!")
+                return False
+
+    def __repr__(self):
+        return f"{self.allegiance} Rook"
+
+class Knight:
+    def __init__(self, allegiance, board, current_pos):
+        points = 3
+        self.moves = 0
+        self.allegiance = allegiance
+        self.current_row = current_pos[0]
+        self.current_col = current_pos[1]
+        self.board = board
+        self.board[self.current_row][self.current_col] = self
+
+    def move(self, new_row, new_col):
+        # Cannot move to same position
+        if new_row == self.current_row and new_col == self.current_col:
+            print(f"{self} is already there")
+            return False
+        # L-shape move?
+
+
 class Bishop:
     def __init__(self, allegiance, board, current_pos):
         points = 3
@@ -71,12 +100,14 @@ class Bishop:
         self.board = board
         self.board[self.current_row][self.current_col] = self
 
+
+
     def move(self, new_row, new_col) -> bool:
         """
         TODO: Check all squares in between source and destination
         Bishop cannot jump over pieces
         If piece in the way, move invalid
-
+        """
         # Cannot move to same position
         if new_row == self.current_row and new_col == self.current_col:
             print(f"{self} is already in that position!")
@@ -104,7 +135,7 @@ class Bishop:
         else:
             print("Invalid move!")
             return False
-        """
+
     def available_moves(self):
         movements = []
 
