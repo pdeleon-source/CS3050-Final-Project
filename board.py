@@ -119,11 +119,11 @@ class Board(arcade.Window):
 
         if isinstance(self.board[row][col], p.Piece):
             piece = self.board[row][col]
-            self.valid_moves = self.check_valid_moves(piece.get_movement_pattern())
+            self.valid_moves = self.check_valid_moves(piece.available_moves())
             print("piece found")
 
-        # Toggle the selected state of the clicked square
-        self.selected[row][col] = not self.selected[row][col]
+            # Toggle the selected state of the clicked square
+            self.selected[row][col] = not self.selected[row][col]
 
         # Print out Console Board with toggled Squares
         # print("===============================")
