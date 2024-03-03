@@ -132,22 +132,7 @@ class Bishop(Piece):
 
         # return f"{self.allegiance} Bishop"
 
-    def get_movement_pattern(self):
-        movements = []
-
-        # Bishop moves diagonally, so we check all four diagonal directions
-        for diagonal_row, diagonal_col in [(-1, -1), (-1, 1), (1, -1), (1, 1)]:
-            row, col = self.current_row + diagonal_row, self.current_col + diagonal_col
-            while 0 <= row < 8 and 0 <= col < 8:
-                movements.append((row, col))
-
-                row += diagonal_row
-                col += diagonal_col
-
-        return movements
-
-
-class Queen:
+class Queen(Piece):
     def __init__(self, allegiance, board, current_pos):
         points = 4
         self.moves = 0
@@ -255,20 +240,6 @@ class King:
 
     def available_moves(self):
         movements = []
-
-        movements.append((self.current_row - 1, self.current_col))
-        movements.append((self.current_row - 1, self.current_col + 1))
-        movements.append((self.current_row - 1, self.current_col - 1))
-
-        movements.append((self.current_row, self.current_col))
-        movements.append((self.current_row, self.current_col + 1))
-        movements.append((self.current_row, self.current_col - 1))
-
-        movements.append((self.current_row + 1, self.current_col))
-        movements.append((self.current_row + 1, self.current_col + 1))
-        movements.append((self.current_row + 1, self.current_col - 1))
-
-        return movements
 
     def __repr__(self):
         if self.allegiance == 'Black':
