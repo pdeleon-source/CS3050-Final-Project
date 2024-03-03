@@ -2,6 +2,8 @@
 # for bishops, both values must change
 import board
 
+"""
+
 class Pawn:
     def __init__(self, allegiance, board, current_row, current_col):
         points = 1
@@ -58,6 +60,7 @@ class Rook:
         # vertical movement
         elif new_row == self.current_row and new_col != self.current_col:
             destination = self.board[new_row][new_col]
+"""
 class Bishop:
     def __init__(self, allegiance, board, current_pos):
         points = 3
@@ -68,14 +71,12 @@ class Bishop:
         self.board = board
         self.board[self.current_row][self.current_col] = self
 
-
-
     def move(self, new_row, new_col) -> bool:
         """
         TODO: Check all squares in between source and destination
         Bishop cannot jump over pieces
         If piece in the way, move invalid
-        """
+
         # Cannot move to same position
         if new_row == self.current_row and new_col == self.current_col:
             print(f"{self} is already in that position!")
@@ -103,7 +104,7 @@ class Bishop:
         else:
             print("Invalid move!")
             return False
-
+        """
     def available_moves(self):
         movements = []
 
@@ -220,6 +221,20 @@ class King:
     def available_moves(self):
         movements = []
 
+        movements.append((self.current_row - 1, self.current_col))
+        movements.append((self.current_row - 1, self.current_col + 1))
+        movements.append((self.current_row - 1, self.current_col - 1))
+
+        movements.append((self.current_row, self.current_col))
+        movements.append((self.current_row, self.current_col + 1))
+        movements.append((self.current_row, self.current_col - 1))
+
+        movements.append((self.current_row + 1, self.current_col))
+        movements.append((self.current_row + 1, self.current_col + 1))
+        movements.append((self.current_row + 1, self.current_col - 1))
+
+        return movements
+
     def __repr__(self):
         return f"{self.allegiance} King"
 
@@ -229,13 +244,13 @@ if __name__ == "__main__":
 
     # bish = Bishop("Black", chess_board, 0, 0)
     #bish = Bishop("White", chess_board, [3, 3])
-    queen = Queen("Black", chess_board, [5, 3])
+    king = King("Black", chess_board, [1, 2])
     #king = King("White", chess_board, 2, 2)
 
     for row in chess_board:
         print(row)
 
-    print(queen.available_moves())
+    print(king.available_moves())
 
     for row in chess_board:
         print(row)
