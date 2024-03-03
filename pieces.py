@@ -33,11 +33,13 @@ class Bishop:
         # now account for a normal move
         elif self.moves >= 1 and new_row - self.current_row == 1 and new_col == self.current_col:
             destination = self.board[new_row][new_col]
-        # now account for captures
-
+        # now account for captures-a diagonal movement
+        elif (new_row + new_col) % 2 == 0:
+            destination = self.board[new_row][new_col]
             if destination is not None and destination.allegiance != self.allegiance:
                 print(f"Captured {destination} at position ({new_row}, {new_col})!")
-            elif destination is not None:
+            # en passant
+            elif destination :
                 print("Cannot capture that piece!")
                 return False
 
