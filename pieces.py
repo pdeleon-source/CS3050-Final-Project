@@ -12,7 +12,7 @@ class Bishop:
         self.current_col = current_pos[1]
         self.board = board
         #self.board[self.current_col][self.current_row] = self
-        if allegiance == 'black':
+        if allegiance == 'Black':
             self.texture = arcade.load_texture('pieces_png/black-bishop.png')
         else:
             self.texture = arcade.load_texture('pieces_png/white-bishop.png')
@@ -52,7 +52,25 @@ class Bishop:
             return False
 
     def __repr__(self):
-        return f"{self.allegiance} Bishop"
+        if self.allegiance == 'Black':
+            return '♝'
+        return '♗'
+
+        # return f"{self.allegiance} Bishop"
+
+    def get_movement_pattern(self):
+        movements = []
+
+        # Bishop moves diagonally, so we check all four diagonal directions
+        for diagonal_row, diagonal_col in [(-1, -1), (-1, 1), (1, -1), (1, 1)]:
+            row, col = self.current_row + diagonal_row, self.current_col + diagonal_col
+            while 0 <= row < 8 and 0 <= col < 8:
+                movements.append((row, col))
+
+                row += diagonal_row
+                col += diagonal_col
+
+        return movements
 
 
 class Queen:
@@ -97,7 +115,11 @@ class Queen:
             return False
 
     def __repr__(self):
-        return f"{self.allegiance} Queen"
+        if self.allegiance == 'Black':
+            return '♛'
+        return '♕'
+
+        # return f"{self.allegiance} Queen"
 
 
 class King:
@@ -145,7 +167,11 @@ class King:
 
 
     def __repr__(self):
-        return f"{self.allegiance} King"
+        if self.allegiance == 'Black':
+            return '♚'
+        return '♔'
+
+        # return f"{self.allegiance} King"
 
 
 if __name__ == "__main__":
