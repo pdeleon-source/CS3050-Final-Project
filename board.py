@@ -37,7 +37,7 @@ class Board(arcade.Window):
         super().__init__(width, height, "Chessboard")
 
         arcade.set_background_color(arcade.color.WHITE)
-        self.board = [['0' for _ in range(COLS)] for _ in range(ROWS)]
+        self.board = [['_' for _ in range(COLS)] for _ in range(ROWS)]
 
         # 2D list to keep track of whether each square is selected
         # I made this separate from the board array, since the board array
@@ -65,6 +65,7 @@ class Board(arcade.Window):
                 y = row * square_height
                 if self.selected[row][col]:
                     color = SELECTED_SQUARE_COLOR
+                    print(self.board[row][col].get_movement_pattern())
                 elif (row + col) % 2 == 0:
                     color = LIGHT_SQUARE_COLOR
                 else:
@@ -117,7 +118,7 @@ class Board(arcade.Window):
         self.board[pos[0]][pos[1]] = piece
 
     def make_black_set(self):
-        allegiance = 'black'
+        allegiance = 'Black'
 
         # Bishops in Column 2, 4 Row 0
         bishop_1 = p.Bishop(allegiance, self, BLK_POS['bishop'][0])
@@ -138,7 +139,7 @@ class Board(arcade.Window):
 
     def make_white_set(self):
         # Bishops in Column 2, 4 Row 0
-        allegiance = 'white'
+        allegiance = 'White'
 
         bishop_1 = p.Bishop(allegiance, self, WHT_POS['bishop'][0])
         self.add_to_board(bishop_1, WHT_POS['bishop'][0])
