@@ -42,7 +42,7 @@ class Board(arcade.Window):
         self.valid_moves = []
 
         arcade.set_background_color(arcade.color.WHITE)
-        self.board = [['0' for _ in range(COLS)] for _ in range(ROWS)]
+        self.board = [['_' for _ in range(COLS)] for _ in range(ROWS)]
 
         # 2D list to keep track of whether each square is selected
         # I made this separate from the board array, since the board array
@@ -70,6 +70,7 @@ class Board(arcade.Window):
                 y = row * square_height
                 if self.selected[row][col]:
                     color = SELECTED_SQUARE_COLOR
+                    print(self.board[row][col].get_movement_pattern())
                 elif (row + col) % 2 == 0:
                     color = LIGHT_SQUARE_COLOR
                 else:
