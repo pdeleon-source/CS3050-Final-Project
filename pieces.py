@@ -69,10 +69,25 @@ class Rook:
                 print("Cannot capture!")
                 return False
 
-
-
     def __repr__(self):
         return f"{self.allegiance} Rook"
+
+class Knight:
+    def __init__(self, allegiance, board, current_pos):
+        points = 3
+        self.moves = 0
+        self.allegiance = allegiance
+        self.current_row = current_pos[0]
+        self.current_col = current_pos[1]
+        self.board = board
+        self.board[self.current_row][self.current_col] = self
+
+    def move(self, new_row, new_col):
+        # Cannot move to same position
+        if new_row == self.current_row and new_col == self.current_col:
+            print(f"{self} is already there")
+            return False
+        # L-shape move?
 
 
 class Bishop:
