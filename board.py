@@ -1,6 +1,7 @@
 # Board Class
 
 import arcade
+
 import pieces as p
 
 # Set the dimensions of the chessboard
@@ -70,7 +71,6 @@ class Board(arcade.Window):
                 y = row * square_height
                 if self.selected[row][col]:
                     color = SELECTED_SQUARE_COLOR
-                    print(self.board[row][col].get_movement_pattern())
                 elif (row + col) % 2 == 0:
                     color = LIGHT_SQUARE_COLOR
                 else:
@@ -84,19 +84,28 @@ class Board(arcade.Window):
                     arcade.draw_texture_rectangle(x + square_width // 2, y + square_height // 2, square_width,
                                                   square_height, piece.texture)
 
-            # Draw labels for columns (a-h)
-            for col in range(COLS):
-                label = chr(ord('a') + col)  # Convert column index to corresponding letter
-                x = col * square_width + square_width // 2
-                y = SCREEN_HEIGHT - 20
-                arcade.draw_text(label, x, y, arcade.color.BLACK, 12, anchor_x="center")
+        # Draw green squares for valid moves
+        for move in self.valid_moves:
+            row, col = move
+            x = col * square_width
+            y = row * square_height
+            arcade.draw_rectangle_filled(x + square_width // 2, y + square_height // 2, square_width, square_height,
+                                         VALID_MOVE_COLOR)
 
-            # Draw labels for rows (1-8)
-            for row in range(ROWS):
-                label = str(row + 1)  # Convert row index to corresponding number
-                x = SCREEN_WIDTH - 20
-                y = row * square_height + square_height // 2
-                arcade.draw_text(label, x, y, arcade.color.BLACK, 12, anchor_x="center", anchor_y="center")
+
+        # Draw labels for columns (a-h)
+        for col in range(COLS):
+            label = chr(ord('a') + col)  # Convert column index to corresponding letter
+            x = col * square_width + square_width // 2
+            y = SCREEN_HEIGHT - 20
+            arcade.draw_text(label, x, y, arcade.color.BLACK, 12, anchor_x="center")
+
+        # Draw labels for rows (1-8)
+        for row in range(ROWS):
+            label = str(row + 1)  # Convert row index to corresponding number
+            x = SCREEN_WIDTH - 20
+            y = row * square_height + square_height // 2
+            arcade.draw_text(label, x, y, arcade.color.BLACK, 12, anchor_x="center", anchor_y="center")
 
     def on_mouse_press(self, x, y, button, modifiers):
 
