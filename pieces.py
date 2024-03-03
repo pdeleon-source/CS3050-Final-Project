@@ -50,14 +50,31 @@ class Rook:
     def move(self, new_row, new_col):
         # Cannot move to same position
         if new_row == self.current_row and new_col == self.current_col:
-            print(f"{self} is already in that position!")
+            print(f"{self} is already there")
             return False
         # horizontal movement
         elif new_row != self.current_row and new_col == self.current_col:
-            destination = self.board[new_row][new_col]
+            destination = self.board[new_row]
+            if destination is not None and destination.allegiance != self.allegiance:
+                print(f"Captured {destination} at position ({new_row}, {new_col})!")
+            elif destination is not None:
+                print("Cannot capture")
+                return False
         # vertical movement
         elif new_row == self.current_row and new_col != self.current_col:
-            destination = self.board[new_row][new_col]
+            destination = self.board[new_col]
+            if destination is not None and destination.allegiance != self.allegiance:
+                print(f"Captured {destination} at position ({new_row}, {new_col})!")
+            elif destination is not None:
+                print("Cannot capture!")
+                return False
+
+
+
+    def __repr__(self):
+        return f"{self.allegiance} Rook"
+
+
 class Bishop:
     def __init__(self, allegiance, board, current_row, current_col):
         points = 3
@@ -78,7 +95,7 @@ class Bishop:
         """
         # Cannot move to same position
         if new_row == self.current_row and new_col == self.current_col:
-            print(f"{self} is already in that position!")
+            print(f"{self} is already in there")
             return False
         # If Bishop is moving diagonally
         elif (new_row + new_col) % 2 == 0:
@@ -87,7 +104,7 @@ class Bishop:
             if destination is not None and destination.allegiance != self.allegiance:
                 print(f"Captured {destination} at position ({new_row}, {new_col})!")
             elif destination is not None:
-                print("Cannot capture that piece!")
+                print("Cannot capture the piece")
                 return False
 
             print(f"Moved {self} to position ({new_row}, {new_col})")
