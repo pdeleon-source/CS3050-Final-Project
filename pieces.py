@@ -23,6 +23,24 @@ class Bishop:
         self.board = board
         self.board[self.current_col][self.current_row] = self
 
+    def move(self, new_row, new_col):
+        if new_row == self.current_row and new_col == self.current_col:
+            print(f"{self} is already in that position!")
+            return False
+        # account for two block move on the first turn
+        elif self.moves == 0 and new_row - self.current_row == 2 and new_col == self.current_col:
+            destination = self.board[new_row][new_col]
+        # now account for a normal move
+        elif self.moves >= 1 and new_row - self.current_row == 1 and new_col == self.current_col:
+            destination = self.board[new_row][new_col]
+        # now account for captures
+
+            if destination is not None and destination.allegiance != self.allegiance:
+                print(f"Captured {destination} at position ({new_row}, {new_col})!")
+            elif destination is not None:
+                print("Cannot capture that piece!")
+                return False
+
     def move(self, new_row, new_col) -> bool:
         """
         TODO: Check all squares in between source and destination
