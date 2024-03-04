@@ -8,14 +8,17 @@ class Piece():
         print("something")
 
 class Pawn(Piece):
-    def __init__(self, allegiance, board, current_row, current_col):
+    def __init__(self, allegiance, board, current_pos):
         points = 1
         self.moves = 0
         self.allegiance = allegiance
-        self.current_row = current_row
-        self.current_col = current_col
+        self.current_row = current_pos[0]
+        self.current_col = current_pos[1]
         self.board = board
-        self.board[self.current_col][self.current_row] = self
+        if allegiance == 'Black':
+            self.texture = arcade.load_texture('pieces_png/black-pawn.png')
+        else:
+            self.texture = arcade.load_texture('pieces_png/white-pawn.png')
 
     def move(self, new_row, new_col):
         if new_row == self.current_row and new_col == self.current_col:
@@ -33,7 +36,7 @@ class Pawn(Piece):
             if destination is not None and destination.allegiance != self.allegiance:
                 print(f"Captured {destination} at position ({new_row}, {new_col})!")
             # en passant-hard as hell, how do I get the space under the destination block?
-            elif destination[new_row] -  :
+            elif destination[new_row]:
                 print(f"Captured {destination} at position ({new_row}, {new_col})!")
                 return False
 
@@ -42,15 +45,18 @@ class Pawn(Piece):
     def __repr__(self):
         return f"{self.allegiance} Pawn"
 
-class Rook:
-    def __init__(self, allegiance, board, current_row, current_col):
+class Rook(Piece):
+    def __init__(self, allegiance, board, current_pos):
         points = 5
         self.moves = 0
         self.allegiance = allegiance
-        self.current_row = current_row
-        self.current_col = current_col
+        self.current_row = current_pos[0]
+        self.current_col = current_pos[1]
         self.board = board
-        self.board[self.current_col][self.current_row] = self
+        if allegiance == 'Black':
+            self.texture = arcade.load_texture('pieces_png/black-rook.png')
+        else:
+            self.texture = arcade.load_texture('pieces_png/white-rook.png')
 
     def move(self, new_row, new_col):
         # Cannot move to same position
@@ -76,21 +82,22 @@ class Bishop(Piece):
         self.current_row = current_pos[0]
         self.current_col = current_pos[1]
         self.board = board
-        #self.board[self.current_col][self.current_row] = self
         if allegiance == 'Black':
             self.texture = arcade.load_texture('pieces_png/black-bishop.png')
         else:
             self.texture = arcade.load_texture('pieces_png/white-bishop.png')
 
-    def move(self, new_row, new_col) -> bool:
+    def move(self, new_row, new_col, board) -> bool:
         """
         TODO: Check path between new position and old position for other pieces
         """
+        self.board = board
         if (new_row, new_col) not in self.available_moves():
             print("INVALID MOVE")
             return False
 
         destination = self.board[new_row][new_col]
+        print(destination)
         if destination is not None and destination.allegiance != self.allegiance:
             print(f"Captured {destination} at position ({new_row}, {new_col})")
         elif destination is not None:
@@ -116,10 +123,12 @@ class Bishop(Piece):
         for diagonal_row, diagonal_col in [(-1, -1), (-1, 1), (1, -1), (1, 1)]:
             row, col = self.current_row + diagonal_row, self.current_col + diagonal_col
             while 0 <= row < 8 and 0 <= col < 8:
-                movements.append((row, col))
-
-                row += diagonal_row
-                col += diagonal_col
+                if self.board[row][col] is None:
+                    movements.append((row, col))
+                    row += diagonal_row
+                    col += diagonal_col
+                else:
+                    break
 
         return movements
 
@@ -138,7 +147,7 @@ class Queen(Piece):
         self.current_col = current_pos[1]
         self.board = board
         # self.board[self.current_col][self.current_row] = self
-        if allegiance == 'black':
+        if allegiance == 'Black':
             self.texture = arcade.load_texture('pieces_png/black-queen.png')
         else:
             self.texture = arcade.load_texture('pieces_png/white-queen.png')
@@ -154,6 +163,7 @@ class Queen(Piece):
             print("Cannot capture that piece!")
 
         print(f"Moved {self} to position ({new_row}, {new_col})")
+
         self.board[self.current_row][self.current_col] = None
         self.board[new_row][new_col] = self
 
@@ -191,7 +201,7 @@ class Queen(Piece):
         # return f"{self.allegiance} Queen"
 
 
-class King:
+class King(Piece):
     def __init__(self, allegiance, board, current_pos):
         points = 4
         self.moves = 0
@@ -199,8 +209,8 @@ class King:
         self.board = board
         self.current_row = current_pos[0]
         self.current_col = current_pos[1]
-        self.board[self.current_row][self.current_col] = self
-        if allegiance == 'black':
+        #self.board[self.current_row][self.current_col] = self
+        if allegiance == 'Black':
             self.texture = arcade.load_texture('pieces_png/black-king.png')
         else:
             self.texture = arcade.load_texture('pieces_png/white-king.png')

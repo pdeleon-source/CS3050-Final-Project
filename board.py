@@ -43,8 +43,10 @@ class Board(arcade.Window):
         self.valid_moves = []
 
         arcade.set_background_color(arcade.color.WHITE)
-        self.board = [['_' for _ in range(COLS)] for _ in range(ROWS)]
+        self.board = [[None for _ in range(COLS)] for _ in range(ROWS)]
         self.selected_piece = None
+        self.selected_row = None
+        self.selected_col = None
 
         # 2D list to keep track of whether each square is selected
         # I made this separate from the board array, since the board array
@@ -64,8 +66,6 @@ class Board(arcade.Window):
         square_width = SCREEN_WIDTH // COLS
         square_height = SCREEN_HEIGHT // ROWS
 
-
-
         for row in range(ROWS):
             for col in range(COLS):
                 x = col * square_width
@@ -81,7 +81,7 @@ class Board(arcade.Window):
 
                 # Draw the piece if it exists at this position
                 piece = self.board[row][col]
-                if not isinstance(piece, str):
+                if isinstance(piece, p.Piece):
                     arcade.draw_texture_rectangle(x + square_width // 2, y + square_height // 2, square_width,
                                                   square_height, piece.texture)
 
@@ -120,7 +120,6 @@ class Board(arcade.Window):
 
         # If a piece is selected
         if any(self.selected[row][col] for row in range(ROWS) for col in range(COLS)):
-
             # If the clicked spot is a valid move
             if (row, col) in self.valid_moves:
                 # Move the selected piece to the clicked spot
@@ -146,14 +145,16 @@ class Board(arcade.Window):
                 # Select the piece
                 self.selected[row][col] = True
                 self.selected_piece = self.board[row][col]
+                self.selected_row = row
+                self.selected_col = col
                 # Find valid moves for the selected piece
                 piece = self.board[row][col]
                 self.valid_moves = self.check_valid_moves(piece.available_moves())
 
         # Print out Console Board with toggled Squares
-        # print("===============================")
-        # self.print_board()
-        # print("===============================\n\n")
+        print("===============================")
+        self.print_board()
+        print("===============================\n\n")
 
 
     def print_board(self):
@@ -166,46 +167,69 @@ class Board(arcade.Window):
         allegiance = 'Black'
 
         # Bishops in Column 2, 4 Row 0
-        bishop_1 = p.Bishop(allegiance, self, BLK_POS['bishop'][0])
+        bishop_1 = p.Bishop(allegiance, self.board, BLK_POS['bishop'][0])
         self.add_to_board(bishop_1, BLK_POS['bishop'][0])
 
-        bishop_2 = p.Bishop(allegiance, self, BLK_POS['bishop'][1])
+        bishop_2 = p.Bishop(allegiance, self.board, BLK_POS['bishop'][1])
         self.add_to_board(bishop_2, BLK_POS['bishop'][1])
 
         # Queen
-        queen = p.Queen(allegiance, self, BLK_POS['queen'])
+        queen = p.Queen(allegiance, self.board, BLK_POS['queen'])
         self.add_to_board(queen, BLK_POS['queen'])
 
         # King
-        king = p.King(allegiance, self, BLK_POS['king'])
+        king = p.King(allegiance, self.board, BLK_POS['king'])
         self.add_to_board(king, BLK_POS['king'])
 
-        return bishop_1, bishop_2
+        # Rooks
+        rook1 = p.Rook(allegiance, self.board, BLK_POS['rook'][0])
+        self.add_to_board(rook1, BLK_POS['rook'][0])
+
+        rook2 = p.Rook(allegiance, self.board, BLK_POS['rook'][1])
+        self.add_to_board(rook2, BLK_POS['rook'][1])
+
+        #Pawn
+        for col in range(COLS):
+            pawn = p.Pawn(allegiance, self.board, [1, col])
+            self.add_to_board(pawn, [1, col])
 
     def make_white_set(self):
         # Bishops in Column 2, 4 Row 0
         allegiance = 'White'
 
-        bishop_1 = p.Bishop(allegiance, self, WHT_POS['bishop'][0])
+        bishop_1 = p.Bishop(allegiance, self.board, WHT_POS['bishop'][0])
         self.add_to_board(bishop_1, WHT_POS['bishop'][0])
 
-        bishop_2 = p.Bishop(allegiance, self, WHT_POS['bishop'][1])
+        bishop_2 = p.Bishop(allegiance, self.board, WHT_POS['bishop'][1])
         self.add_to_board(bishop_2, WHT_POS['bishop'][1])
 
         # Queen
-        queen = p.Queen(allegiance, self, WHT_POS['queen'])
+        queen = p.Queen(allegiance, self.board, WHT_POS['queen'])
         self.add_to_board(queen, WHT_POS['queen'])
 
         # King
-        king = p.King(allegiance, self, WHT_POS['king'])
+        king = p.King(allegiance, self.board, WHT_POS['king'])
         self.add_to_board(king, WHT_POS['king'])
 
-        return bishop_1, bishop_2
+        # Rooks
+        rook1 = p.Rook(allegiance, self.board, WHT_POS['rook'][0])
+        self.add_to_board(rook1, WHT_POS['rook'][0])
+
+        rook2 = p.Rook(allegiance, self.board, WHT_POS['rook'][1])
+        self.add_to_board(rook2, WHT_POS['rook'][1])
+
+        # Pawn
+        # for col in range(COLS):
+        #     pawn = p.Pawn(allegiance, self.board, [6, col])
+        #     self.add_to_board(pawn, [6, col])
+        pawn = p.Pawn(allegiance, self.board, [3, 4])
+        self.add_to_board(pawn, [4, 5])
+
 
     def check_valid_moves(self, movement):
         valid_moves = []
         for move in movement:
-            if isinstance(self.board[move[0]][move[1]], str):
+            if not isinstance(self.board[move[0]][move[1]], p.Piece):
                 valid_moves.append(move)
         return valid_moves
 
@@ -215,6 +239,11 @@ class Board(arcade.Window):
             for col in range(COLS):
                 self.selected[row][col] = False
 
+
     def move_piece(self, row, col):
-        self.selected_piece.move(row, col)
+        self.valid_moves = []
+        self.selected_piece.move(row, col, self.board)
+        self.board[self.selected_row][self.selected_col] = None
+        self.board[row][col] = self.selected_piece
+        self.deselect_all()
 
