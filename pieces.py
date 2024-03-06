@@ -5,15 +5,13 @@ import arcade
 
 
 class Piece:
-    def __init__(self, allegiance, board, current_pos, texture):
+    def __init__(self, allegiance, board, current_pos):
         self.moves = 0
         self.allegiance = allegiance
         self.board = board
         self.current_row = current_pos[0]
         self.current_col = current_pos[1]
         self.board[self.current_row][self.current_col] = self
-
-        self.texture = arcade.load_texture(texture)
 
     def move(self, new_pos) -> bool:
         new_row = new_pos[0]
@@ -44,14 +42,17 @@ class Piece:
 
 """
 class Pawn(Piece):
-    def __init__(self, allegiance, board, current_row, current_col):
+    def __init__(self, allegiance, board, current_pos):
         points = 1
         self.moves = 0
         self.allegiance = allegiance
-        self.current_row = current_row
-        self.current_col = current_col
+        self.current_row = current_pos[0]
+        self.current_col = current_pos[1]
         self.board = board
-        self.board[self.current_col][self.current_row] = self
+        if allegiance == 'Black':
+            self.texture = arcade.load_texture('pieces_png/black-pawn.png')
+        else:
+            self.texture = arcade.load_texture('pieces_png/white-pawn.png')
 
     def move(self, new_row, new_col):
         if new_row == self.current_row and new_col == self.current_col:
@@ -109,7 +110,24 @@ class Rook(Piece):
 
 class Bishop(Piece):
 
+    def __init__(self, allegiance, board, current_pos):
+        """
+        Extended Constructor for Bishop Piece, adds the texture based on the allegiance of the piece
+        :param allegiance: String
+        :param board: Board
+        :param current_pos: [Int, Int]
+        """
+        super().__init__(allegiance, board, current_pos)
+        if self.allegiance == 'Black':
+            self.texture = arcade.load_texture("pieces_png/black-bishop.png")
+        else:
+            self.texture = arcade.load_texture("pieces_png/white-bishop.png")
+
     def available_moves(self):
+        """
+        TODO: Check squares in between positions for pieces
+        Store in such a way that it shows all indices in between?
+        """
         movements = []
 
         # Bishop moves diagonally, so we check all four diagonal directions
@@ -137,6 +155,18 @@ class Bishop(Piece):
 
 
 class Queen(Piece):
+    def __init__(self, allegiance, board, current_pos):
+        """
+        Extended Constructor for Queen Piece, adds the texture based on the allegiance of the piece
+        :param allegiance: String
+        :param board: Board
+        :param current_pos: [Int, Int]
+        """
+        super().__init__(allegiance, board, current_pos)
+        if self.allegiance == 'Black':
+            self.texture = arcade.load_texture("pieces_png/black-queen.png")
+        else:
+            self.texture = arcade.load_texture("pieces_png/white-queen.png")
     def available_moves(self):
         movements = []
 
@@ -166,6 +196,18 @@ class Queen(Piece):
 
 
 class King(Piece):
+    def __init__(self, allegiance, board, current_pos):
+        """
+        Extended Constructor for King Piece, adds the texture based on the allegiance of the piece
+        :param allegiance: String
+        :param board: Board
+        :param current_pos: [Int, Int]
+        """
+        super().__init__(allegiance, board, current_pos)
+        if self.allegiance == 'Black':
+            self.texture = arcade.load_texture("pieces_png/black-king.png")
+        else:
+            self.texture = arcade.load_texture("pieces_png/white-king.png")
     """
     TODO: King needs to see the available moves of the other pieces
     If piece has the potential to put the king in check, do not allow
@@ -195,8 +237,8 @@ if __name__ == "__main__":
 
     # bish = Bishop("Black", chess_board, 0, 0)
     #bish = Bishop("White", chess_board, [3, 3])
-    king = King("Black", chess_board, [1, 2], "pieces_png/black-king.png")
-    queen = Queen("White", chess_board, [2, 2], "pieces_png/white-queen.png")
+    king = King("Black", chess_board, [1, 2])
+    queen = Queen("White", chess_board, [2, 2])
     #king = King("White", chess_board, 2, 2)
 
     for row in chess_board:
