@@ -82,6 +82,7 @@ class Bishop(Piece):
         self.current_row = current_pos[0]
         self.current_col = current_pos[1]
         self.board = board
+        #self.board[self.current_col][self.current_row] = self
         if allegiance == 'Black':
             self.texture = arcade.load_texture('pieces_png/black-bishop.png')
         else:
@@ -89,7 +90,9 @@ class Bishop(Piece):
 
     def move(self, new_row, new_col, board) -> bool:
         """
-        TODO: Check path between new position and old position for other pieces
+        TODO: Check all squares in between source and destination
+        Bishop cannot jump over pieces
+        If piece in the way, move invalid
         """
         self.board = board
         if (new_row, new_col) not in self.available_moves():
