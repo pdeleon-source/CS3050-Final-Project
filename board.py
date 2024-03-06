@@ -183,16 +183,16 @@ class Board(arcade.Window):
         self.add_to_board(king, BLK_POS['king'])
 
         # Rooks
-        rook1 = p.Rook(allegiance, self.board, BLK_POS['rook'][0])
-        self.add_to_board(rook1, BLK_POS['rook'][0])
-
-        rook2 = p.Rook(allegiance, self.board, BLK_POS['rook'][1])
-        self.add_to_board(rook2, BLK_POS['rook'][1])
+        # rook1 = p.Rook(allegiance, self.board, BLK_POS['rook'][0])
+        # self.add_to_board(rook1, BLK_POS['rook'][0])
+        #
+        # rook2 = p.Rook(allegiance, self.board, BLK_POS['rook'][1])
+        # self.add_to_board(rook2, BLK_POS['rook'][1])
 
         #Pawn
-        for col in range(COLS):
-            pawn = p.Pawn(allegiance, self.board, [1, col])
-            self.add_to_board(pawn, [1, col])
+        # for col in range(COLS):
+        #     pawn = p.Pawn(allegiance, self.board, [1, col])
+        #     self.add_to_board(pawn, [1, col])
 
     def make_white_set(self):
         # Bishops in Column 2, 4 Row 0
@@ -213,18 +213,17 @@ class Board(arcade.Window):
         self.add_to_board(king, WHT_POS['king'])
 
         # Rooks
-        rook1 = p.Rook(allegiance, self.board, WHT_POS['rook'][0])
-        self.add_to_board(rook1, WHT_POS['rook'][0])
+        # rook1 = p.Rook(allegiance, self.board, WHT_POS['rook'][0])
+        # self.add_to_board(rook1, WHT_POS['rook'][0])
 
-        rook2 = p.Rook(allegiance, self.board, WHT_POS['rook'][1])
-        self.add_to_board(rook2, WHT_POS['rook'][1])
+        # rook2 = p.Rook(allegiance, self.board, WHT_POS['rook'][1])
+        # self.add_to_board(rook2, WHT_POS['rook'][1])
 
         # Pawn
         # for col in range(COLS):
         #     pawn = p.Pawn(allegiance, self.board, [6, col])
         #     self.add_to_board(pawn, [6, col])
-        pawn = p.Pawn(allegiance, self.board, [3, 4])
-        self.add_to_board(pawn, [4, 5])
+        # self.add_to_board(pawn, [4, 5])
 
 
     def check_valid_moves(self, movement):
@@ -245,7 +244,7 @@ class Board(arcade.Window):
 
     def move_piece(self, row, col):
         self.valid_moves = []
-        self.selected_piece.move(row, col, self.board)
+        self.selected_piece.move([row, col])
         self.board[self.selected_row][self.selected_col] = None
         self.board[row][col] = self.selected_piece
         self.deselect_all()
