@@ -13,7 +13,7 @@ class Piece:
         self.current_col = current_pos[1]
         self.board[self.current_row][self.current_col] = self
 
-    def move(self, new_pos, board) -> bool:
+    def move(self, new_pos) -> bool:
         new_row = new_pos[0]
         new_col = new_pos[1]
 
@@ -40,7 +40,6 @@ class Piece:
         self.moves += 1
         self.current_row = new_row
         self.current_col = new_col
-        self.board = board
         return True
 
 # class Pawn(Piece):
