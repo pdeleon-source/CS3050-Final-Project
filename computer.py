@@ -30,15 +30,26 @@ class Computer:
     # computer player will move a piece
     # use select_piece() and feed it in to the piece param
     def move_piece(self, piece: Piece):
+        # TODO: Uncomment this when pieces "invalid move" stmt is fixed
+        # valid_move = False
+        # while not valid_move:
+
         # get the piece's moves
-        possible_moves = piece.available_moves()
+        possible_moves = piece.available_moves()[0]
+        possible_captures = piece.available_moves()[1]
+
+        all_moves = possible_moves + possible_captures
         # if the piece cannot move, return error code 4
-        if possible_moves == []:
+        if all_moves == []:
             return 4
         # select a random square
-        random_move_square = random.randrange(0, len(possible_moves))
+        random_move_square = random.randrange(0, len(all_moves))
         # get the coords of that square
-        move_coords = [possible_moves[random_move_square][0], possible_moves[random_move_square][1]]
+        # print(all_moves)
+        # print("MOVE SQUARE: ", all_moves[random_move_square])
+        move_coords = [all_moves[random_move_square][0], all_moves[random_move_square][1]]
         # move piece to square
-        piece.move(move_coords)
+
+        valid_move = piece.move(move_coords, self.board_array)
+
         return 0
