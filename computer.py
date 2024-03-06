@@ -31,25 +31,25 @@ class Computer:
     # use select_piece() and feed it in to the piece param
     def move_piece(self, piece: Piece):
         # TODO: Uncomment this when pieces "invalid move" stmt is fixed
-        # valid_move = False
-        # while not valid_move:
+        valid_move = False
+        while not valid_move:
 
-        # get the piece's moves
-        possible_moves = piece.available_moves()[0]
-        possible_captures = piece.available_moves()[1]
+            # get the piece's moves
+            possible_moves = piece.available_moves()[0]
+            possible_captures = piece.available_moves()[1]
 
-        all_moves = possible_moves + possible_captures
-        # if the piece cannot move, return error code 4
-        if all_moves == []:
-            return 4
-        # select a random square
-        random_move_square = random.randrange(0, len(all_moves))
-        # get the coords of that square
-        # print(all_moves)
-        # print("MOVE SQUARE: ", all_moves[random_move_square])
-        move_coords = [all_moves[random_move_square][0], all_moves[random_move_square][1]]
-        # move piece to square
+            all_moves = possible_moves + possible_captures
+            # if the piece cannot move, return error code 4
+            if all_moves == []:
+                return 4
+            # select a random square
+            random_move_square = random.randrange(0, len(all_moves))
+            # get the coords of that square
+            # print(all_moves)
+            # print("MOVE SQUARE: ", all_moves[random_move_square])
+            move_coords = [all_moves[random_move_square][0], all_moves[random_move_square][1]]
+            # move piece to square
 
-        valid_move = piece.move(move_coords, self.board_array)
+            valid_move = piece.move(move_coords, self.board_array)
 
         return 0
