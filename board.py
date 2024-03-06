@@ -139,6 +139,9 @@ class Board(arcade.Window):
                 self.deselect_all()
                 # Select the new piece
                 self.selected[row][col] = True
+                self.selected_row = row
+                self.selected_col = col
+                self.selected_piece = self.board[row][col]
                 # Find valid moves for the new piece
                 piece = self.board[row][col]
                 self.valid_moves, self.capture_moves = piece.available_moves()
@@ -153,7 +156,7 @@ class Board(arcade.Window):
             # If the clicked spot contains a piece
             if isinstance(self.board[row][col], p.Piece):
                 # Select the piece
-                self.selected[self.selected_row][self.selected_col] = False
+                self.deselect_all()
                 self.selected[row][col] = True
                 self.selected_piece = self.board[row][col]
                 self.selected_row = row
@@ -251,13 +254,15 @@ class Board(arcade.Window):
             for col in range(COLS):
                 self.selected[row][col] = False
 
+        self.selected_col = None
+        self.selected_row = None
+
 
     def move_piece(self, row, col):
         self.valid_moves = []
         self.capture_moves = []
-
-        self.selected_piece.move([row, col])
         self.board[self.selected_row][self.selected_col] = None
         self.board[row][col] = self.selected_piece
+        self.selected_piece.move([row, col], self.board)
         self.deselect_all()
 
