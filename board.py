@@ -47,8 +47,8 @@ class Board(arcade.Window):
         arcade.set_background_color(arcade.color.WHITE)
         self.board = [[None for _ in range(COLS)] for _ in range(ROWS)]
         self.selected_piece = None
-        self.selected_row = None
-        self.selected_col = None
+        self.selected_row = 0
+        self.selected_col = 0
 
         # 2D list to keep track of whether each square is selected
         # I made this separate from the board array, since the board array
@@ -153,6 +153,7 @@ class Board(arcade.Window):
             # If the clicked spot contains a piece
             if isinstance(self.board[row][col], p.Piece):
                 # Select the piece
+                self.selected[self.selected_row][self.selected_col] = False
                 self.selected[row][col] = True
                 self.selected_piece = self.board[row][col]
                 self.selected_row = row
