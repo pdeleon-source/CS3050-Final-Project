@@ -94,7 +94,8 @@ class Bishop(Piece):
         Bishop cannot jump over pieces
         If piece in the way, move invalid
         """
-        self.board = board
+        # self.board = board
+
         if (new_row, new_col) not in self.available_moves():
             print("INVALID MOVE")
             return False
@@ -131,6 +132,7 @@ class Bishop(Piece):
                     row += diagonal_row
                     col += diagonal_col
                 else:
+                    movements.append((row, col))
                     break
 
         return movements

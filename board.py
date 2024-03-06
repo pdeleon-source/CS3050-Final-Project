@@ -53,11 +53,11 @@ class Board(arcade.Window):
         # will have piece classes. We can change this later if needed
         self.selected = [[False for _ in range(COLS)] for _ in range(ROWS)]
 
-        # Create Pieces
+        # Create Pieces and add pieces to board
         self.make_black_set()
         self.make_white_set()
 
-        # Add Pieces To board
+        # Give player pieces
 
     def on_draw(self):
         arcade.start_render()
@@ -231,6 +231,8 @@ class Board(arcade.Window):
         valid_moves = []
         for move in movement:
             if not isinstance(self.board[move[0]][move[1]], p.Piece):
+                valid_moves.append(move)
+            elif self.board[move[0]][move[1]].allegiance != self.selected_piece.allegiance:
                 valid_moves.append(move)
         return valid_moves
 
