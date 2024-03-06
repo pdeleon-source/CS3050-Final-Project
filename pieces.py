@@ -109,7 +109,6 @@ class Rook(Piece):
 
 
 class Bishop(Piece):
-
     def __init__(self, allegiance, board, current_pos):
         """
         Extended Constructor for Bishop Piece, adds the texture based on the allegiance of the piece
@@ -124,10 +123,6 @@ class Bishop(Piece):
             self.texture = arcade.load_texture("pieces_png/white-bishop.png")
 
     def available_moves(self):
-        """
-        TODO: Check squares in between positions for pieces
-        Store in such a way that it shows all indices in between?
-        """
         movements = []
 
         # Bishop moves diagonally, so we check all four diagonal directions
@@ -138,6 +133,7 @@ class Bishop(Piece):
                     if self.board[row][col].allegiance == self.allegiance:
                         break
                     else:
+                        # Can capture piece but cannot move past it so exit loop
                         movements.append((row, col))
                         break
                 else:
@@ -167,6 +163,7 @@ class Queen(Piece):
             self.texture = arcade.load_texture("pieces_png/black-queen.png")
         else:
             self.texture = arcade.load_texture("pieces_png/white-queen.png")
+
     def available_moves(self):
         movements = []
 
@@ -208,23 +205,36 @@ class King(Piece):
             self.texture = arcade.load_texture("pieces_png/black-king.png")
         else:
             self.texture = arcade.load_texture("pieces_png/white-king.png")
-    """
-    TODO: King needs to see the available moves of the other pieces
-    If piece has the potential to put the king in check, do not allow
-    """
+
     def available_moves(self):
         movements = []
+        visited = []
         for move_row, move_col in [(-1, -1), (-1, 1), (1, -1), (1, 1), (-1, 0), (0, -1), (1, 0), (0, 1)]:
             row, col = self.current_row + move_row, self.current_col + move_col
             if 0 <= row < 8 and 0 <= col < 8:
                 # If king won't go into check add to movements
-                if self.board[row][col] is None or self.board[row][col].allegiance == self.allegiance:
+                if not self.under_attack(row, col):
                     movements.append((row, col))
 
                 row += move_row
                 col += move_col
 
         return movements
+
+    def under_attack(self, row, col) -> bool:
+        """
+        Checks if the given move will put the king under attack
+        :param row:
+        :param col:
+        :param visited:
+        :return:
+        """
+        for r in range(8):
+            for c in range(8):
+                if self.board[r][c] is not None and self.board[r][c].allegiance != self.allegiance:
+                    if (row, col) in self.board[r][c].available_moves():
+                        return True
+        return False
 
     def __repr__(self):
         if self.allegiance == 'Black':
@@ -236,17 +246,17 @@ if __name__ == "__main__":
     chess_board = [[None for _ in range(8)] for _ in range(8)]
 
     # bish = Bishop("Black", chess_board, 0, 0)
-    #bish = Bishop("White", chess_board, [3, 3])
-    king = King("Black", chess_board, [1, 2])
+    bish = Bishop("White", chess_board, [3, 3])
+    king = King("Black", chess_board, [0, 1])
     queen = Queen("White", chess_board, [2, 2])
     #king = King("White", chess_board, 2, 2)
 
     for row in chess_board:
         print(row)
 
-    print(queen.available_moves())
-    print(queen.move([1, 2]))
-    move = queen.available_moves()
+    print(king.available_moves())
+    print(king.move([1, 0]))
+    move = king.available_moves()
     print(move)
     for r, c in move:
         print(chess_board[r][c])
