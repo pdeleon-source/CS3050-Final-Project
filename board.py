@@ -52,7 +52,7 @@ class Board(arcade.Window):
         self.selected_piece = None
         self.selected_row = None
         self.selected_col = None
-        
+
         # testing Computer
         # this takes in an allegiance and the board array containing pieces
         self.computer = computer.Computer('Black', self.board)
@@ -275,7 +275,7 @@ class Board(arcade.Window):
 
         self.selected_col = None
         self.selected_row = None
-        self.selected_piece = None
+        # self.selected_piece = None
         self.valid_moves = []
         self.capture_moves = []
 
@@ -284,3 +284,4 @@ class Board(arcade.Window):
         # self.board[row][col] = self.selected_piece
         self.selected_piece.move([row, col])
         self.deselect_all()
+
