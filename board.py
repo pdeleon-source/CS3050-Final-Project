@@ -36,6 +36,7 @@ WHT_POS = {
 #p = pieces.Piece
 
 
+
 class Board(arcade.Window):
     def __init__(self, width, height):
         super().__init__(width, height, "Chessboard")
@@ -160,6 +161,7 @@ class Board(arcade.Window):
 
     def print_board(self):
         [print(row) for row in reversed(self.board)]
+
 
     def add_to_board(self, piece, pos):
         self.board[pos[0]][pos[1]] = piece
