@@ -13,22 +13,13 @@ class Piece:
         self.current_col = current_pos[1]
         self.board[self.current_row][self.current_col] = self
 
-    def move(self, new_pos, board) -> bool:
-
-
+    def move(self, new_pos) -> bool:
         new_row = new_pos[0]
         new_col = new_pos[1]
-
-        if (new_row, new_col) not in self.available_moves():
-            print("INVALID MOVE")
-            return False
 
         destination = self.board[new_row][new_col]
         if destination is not None and destination.allegiance != self.allegiance:
             print(f"Captured {destination} at position ({new_row}, {new_col})")
-        elif destination is not None:
-            print(f"Cannot capture {destination}!")
-            return False
 
         # All conditions passed so move Bishop piece
         print(f"Moved {self} to position ({new_row}, {new_col})")
@@ -40,7 +31,6 @@ class Piece:
         self.moves += 1
         self.current_row = new_row
         self.current_col = new_col
-        self.board = board
         return True
 
 """

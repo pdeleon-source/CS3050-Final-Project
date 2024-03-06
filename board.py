@@ -265,6 +265,6 @@ class Board(arcade.Window):
         self.capture_moves = []
         self.board[self.selected_row][self.selected_col] = None
         self.board[row][col] = self.selected_piece
-        self.selected_piece.move([row, col], self.board)
+        self.selected_piece.move([row, col])
         self.deselect_all()
 
