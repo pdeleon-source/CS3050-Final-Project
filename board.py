@@ -15,6 +15,7 @@ LIGHT_SQUARE_COLOR = arcade.color.ALMOND
 DARK_SQUARE_COLOR = arcade.color.SADDLE_BROWN
 SELECTED_SQUARE_COLOR = arcade.color.CYAN
 VALID_MOVE_COLOR = arcade.color.GREEN
+VALID_CAPTURE_COLOR = arcade.color.RED
 
 # Set containing all black piece default positions
 BLK_POS = {
@@ -41,6 +42,7 @@ class Board(arcade.Window):
         super().__init__(width, height, "Chessboard")
 
         self.valid_moves = []
+        self.capture_moves = []
 
         arcade.set_background_color(arcade.color.WHITE)
         self.board = [[None for _ in range(COLS)] for _ in range(ROWS)]
@@ -70,7 +72,12 @@ class Board(arcade.Window):
             for col in range(COLS):
                 x = col * square_width
                 y = row * square_height
-                if self.selected[row][col]:
+
+                if (row, col) in self.capture_moves:
+                    color = VALID_CAPTURE_COLOR
+                elif (row, col) in self.valid_moves:
+                    color = VALID_MOVE_COLOR
+                elif self.selected[row][col]:
                     color = SELECTED_SQUARE_COLOR
                 elif (row + col) % 2 == 0:
                     color = LIGHT_SQUARE_COLOR
@@ -85,13 +92,13 @@ class Board(arcade.Window):
                     arcade.draw_texture_rectangle(x + square_width // 2, y + square_height // 2, square_width,
                                                   square_height, piece.texture)
 
-        # Draw green squares for valid moves
-        for move in self.valid_moves:
-            row, col = move
-            x = col * square_width
-            y = row * square_height
-            arcade.draw_rectangle_filled(x + square_width // 2, y + square_height // 2, square_width, square_height,
-                                         VALID_MOVE_COLOR)
+        # # Draw green squares for valid moves
+        # for move in self.valid_moves:
+        #     row, col = move
+        #     x = col * square_width
+        #     y = row * square_height
+        #     arcade.draw_rectangle_filled(x + square_width // 2, y + square_height // 2, square_width, square_height,
+        #                                  VALID_MOVE_COLOR)
 
 
         # Draw labels for columns (a-h)
@@ -134,11 +141,13 @@ class Board(arcade.Window):
                 self.selected[row][col] = True
                 # Find valid moves for the new piece
                 piece = self.board[row][col]
-                self.valid_moves = self.check_valid_moves(piece.available_moves())
+                self.valid_moves, self.capture_moves = piece.available_moves()
 
             # If the clicked spot is neither a valid move nor another piece, deselect all squares
             else:
                 self.deselect_all()
+                self.valid_moves = []
+                self.capture_moves = []
         # If no piece is selected
         else:
             # If the clicked spot contains a piece
@@ -150,7 +159,7 @@ class Board(arcade.Window):
                 self.selected_col = col
                 # Find valid moves for the selected piece
                 piece = self.board[row][col]
-                self.valid_moves = self.check_valid_moves(piece.available_moves())
+                self.valid_moves, self.capture_moves = piece.available_moves()
 
         # Print out Console Board with toggled Squares
         # print("===============================")
@@ -226,14 +235,14 @@ class Board(arcade.Window):
         # self.add_to_board(pawn, [4, 5])
 
 
-    def check_valid_moves(self, movement):
-        valid_moves = []
-        for move in movement:
-            if not isinstance(self.board[move[0]][move[1]], p.Piece):
-                valid_moves.append(move)
-            elif self.board[move[0]][move[1]].allegiance != self.selected_piece.allegiance:
-                valid_moves.append(move)
-        return valid_moves
+    # def check_valid_moves(self, movement):
+    #     valid_moves = []
+    #     for move in movement:
+    #         if not isinstance(self.board[move[0]][move[1]], p.Piece):
+    #             valid_moves.append(move)
+    #         elif self.board[move[0]][move[1]].allegiance != self.selected_piece.allegiance:
+    #             valid_moves.append(move)
+    #     return valid_moves
 
     def deselect_all(self):
         # Deselect all squares
@@ -244,6 +253,8 @@ class Board(arcade.Window):
 
     def move_piece(self, row, col):
         self.valid_moves = []
+        self.capture_moves = []
+
         self.selected_piece.move([row, col])
         self.board[self.selected_row][self.selected_col] = None
         self.board[row][col] = self.selected_piece
