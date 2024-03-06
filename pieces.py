@@ -16,6 +16,10 @@ class Pawn(Piece):
         self.current_col = current_col
         self.board = board
         self.board[self.current_col][self.current_row] = self
+        if allegiance == 'black':
+            self.texture = arcade.load_texture('pieces_png/black-pawn.png')
+        else:
+            self.texture = arcade.load_texture('pieces_png/white-pawn.png')
 
     def move(self, new_row, new_col):
         if new_row == self.current_row and new_col == self.current_col:
@@ -51,6 +55,10 @@ class Rook:
         self.current_col = current_col
         self.board = board
         self.board[self.current_col][self.current_row] = self
+        if allegiance == 'black':
+            self.texture = arcade.load_texture('pieces_png/black-rook.png')
+        else:
+            self.texture = arcade.load_texture('pieces_png/white-rook.png')
 
     def move(self, new_row, new_col):
         # Cannot move to same position
@@ -68,6 +76,18 @@ class Rook:
         # vertical movement
         elif new_row == self.current_row and new_col != self.current_col:
             destination = self.board[new_row][new_col]
+
+    def available_moves(self):
+        for horiz_row, horiz_col in [(-1, 0), (1, 0)]:
+            row, col = self.current_row + horiz_row, self.current_col + horiz_col
+        for vert_row, vert_col in [(0, -1), (0, 1)]:
+            row, col = self.current_row + vert_row, self.current_col + vert_col
+
+        while 0 <= row < 8 and 0 <= col < 8:
+            movements.append((row, col))
+            row += horiz_row
+            col += horiz_col
+
 class Bishop(Piece):
     def __init__(self, allegiance, board, current_pos):
         points = 3
@@ -128,6 +148,51 @@ class Bishop(Piece):
             return '♝'
         return '♗'
 
+class Knight:
+    def __init__(self, allegiance, board, current_pos):
+        points = 4
+        self.moves = 0
+        self.allegiance = allegiance
+        self.current_row = current_pos[0]
+        self.current_col = current_pos[1]
+        self.board = board
+        # self.board[self.current_col][self.current_row] = self
+        if allegiance == 'black':
+            self.texture = arcade.load_texture('pieces_png/black-knight.png')
+        else:
+            self.texture = arcade.load_texture('pieces_png/white-knight.png')
+
+        def move(self, new_row, new_col) -> bool:
+            if (new_row, new_col) not in self.available_moves():
+                print("INVALID MOVE!")
+                return False
+
+            destination = self.board[new_row][new_col]
+            if destination is not None and destination.allegiance != self.allegiance:
+                print(f"Captured {destination} at position ({new_row}, {new_col})")
+            elif destination is not None:
+                print("Cannot capture that piece!")
+
+            print(f"Moved {self} to position ({new_row}, {new_col})")
+            self.board[self.current_row][self.current_col] = None
+            self.board[new_row][new_col] = self
+
+            # Update variables
+            self.moves += 1
+            self.current_row = new_row
+            self.current_col = new_col
+            return True
+
+        def available_moves(self):
+            for horiz_row, horiz_col in [(-1, 0), (1, 0)]:
+                row, col = self.current_row + horiz_row, self.current_col + horiz_col
+            for vert_row, vert_col in [(0, -1), (0, 1)]:
+                row, col = self.current_row + vert_row, self.current_col + vert_col
+
+            while 0 <= row < 8 and 0 <= col < 8:
+                movements.append((row, col))
+                row += horiz_row
+                col += horiz_col
 
 class Queen(Piece):
     def __init__(self, allegiance, board, current_pos):
