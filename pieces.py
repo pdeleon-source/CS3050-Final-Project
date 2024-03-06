@@ -4,7 +4,7 @@ import board
 import arcade
 
 
-class Piece():
+class Piece:
     def __init__(self, allegiance, board, current_pos, texture):
         self.moves = 0
         self.allegiance = allegiance
@@ -110,17 +110,20 @@ class Rook(Piece):
 class Bishop(Piece):
 
     def available_moves(self):
-        """
-        TODO: Check squares in between positions for pieces
-        Store in such a way that it shows all indices in between?
-        """
         movements = []
 
         # Bishop moves diagonally, so we check all four diagonal directions
         for diagonal_row, diagonal_col in [(-1, -1), (-1, 1), (1, -1), (1, 1)]:
             row, col = self.current_row + diagonal_row, self.current_col + diagonal_col
             while 0 <= row < 8 and 0 <= col < 8:
-                movements.append((row, col))
+                if self.board[row][col] is not None:
+                    if self.board[row][col].allegiance == self.allegiance:
+                        break
+                    else:
+                        movements.append((row, col))
+                        break
+                else:
+                    movements.append((row, col))
 
                 row += diagonal_row
                 col += diagonal_col
@@ -163,12 +166,16 @@ class Queen(Piece):
 
 
 class King(Piece):
+    """
+    TODO: King needs to see the available moves of the other pieces
+    If piece has the potential to put the king in check, do not allow
+    """
     def available_moves(self):
         movements = []
         for move_row, move_col in [(-1, -1), (-1, 1), (1, -1), (1, 1), (-1, 0), (0, -1), (1, 0), (0, 1)]:
             row, col = self.current_row + move_row, self.current_col + move_col
             if 0 <= row < 8 and 0 <= col < 8:
-                # If king wont go into check add to movements
+                # If king won't go into check add to movements
                 if self.board[row][col] is None or self.board[row][col].allegiance == self.allegiance:
                     movements.append((row, col))
 
