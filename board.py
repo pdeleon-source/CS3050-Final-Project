@@ -4,6 +4,8 @@ import arcade
 
 import pieces as p
 
+import computer
+
 # Set the dimensions of the chessboard
 SCREEN_WIDTH = 400
 SCREEN_HEIGHT = 400
@@ -47,6 +49,10 @@ class Board(arcade.Window):
         self.selected_piece = None
         self.selected_row = None
         self.selected_col = None
+        
+        # testing Computer
+        # this takes in an allegiance and the board array containing pieces
+        self.computer = computer.Computer('Black', self.board)
 
         # 2D list to keep track of whether each square is selected
         # I made this separate from the board array, since the board array
@@ -125,6 +131,17 @@ class Board(arcade.Window):
             if (row, col) in self.valid_moves:
                 # Move the selected piece to the clicked spot
                 self.move_piece(row, col)
+
+                computer_moved = False
+                while not computer_moved:
+                    # computer should move a piece after a player moves a piece
+                    # select a random piece
+                    computer_piece = self.computer.select_piece()
+                    # move that piece to a random position
+                    check_if_moved = self.computer.move_piece(computer_piece)
+                    if check_if_moved == 0:
+                        computer_moved = True
+
 
             # If the clicked spot is another piece
             elif isinstance(self.board[row][col], p.Piece):
