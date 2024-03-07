@@ -14,8 +14,6 @@ class Piece:
         self.board[self.current_row][self.current_col] = self
 
     def move(self, new_pos, board) -> bool:
-
-
         new_row = new_pos[0]
         new_col = new_pos[1]
 
@@ -44,7 +42,6 @@ class Piece:
         self.current_col = new_col
         self.board = board
         return True
-
 
 class Pawn(Piece):
     def __init__(self, allegiance, board, current_pos):
@@ -144,8 +141,6 @@ class Rook(Piece):
                 col += vert_col
 
         return moves, caps
-
-
 
 class Bishop(Piece):
     def __init__(self, allegiance, board, current_pos):
@@ -248,16 +243,23 @@ class King(Piece):
             self.texture = arcade.load_texture("pieces_png/white-king.png")
 
     def available_moves(self):
+        """
+        TODO: allow capture if King in check
+        """
         movements = []
         captures = []
         for move_row, move_col in [(-1, -1), (-1, 1), (1, -1), (1, 1), (-1, 0), (0, -1), (1, 0), (0, 1)]:
             row, col = self.current_row + move_row, self.current_col + move_col
             if 0 <= row < 8 and 0 <= col < 8:
                 # If king won't go into check add to movements
-                if not self.under_attack(row, col) and self.board[row][col] is None:
+                if not self.under_attack(row, col):
                     if self.board[row][col] is None:
                         movements.append((row, col))
                     elif self.board[row][col].allegiance != self.allegiance:
+                        captures.append((row, col))
+                # King is under attack - try to capture
+                else:
+                    if self.board[row][col] is not None and self.board[row][col].allegiance != self.allegiance:
                         captures.append((row, col))
 
                 row += move_row
@@ -296,18 +298,38 @@ if __name__ == "__main__":
     chess_board = [[None for _ in range(8)] for _ in range(8)]
 
     # bish = Bishop("Black", chess_board, 0, 0)
-    bish = Bishop("White", chess_board, [3, 3])
+    #bish = Bishop("White", chess_board, [3, 3])
     king = King("Black", chess_board, [0, 1])
     queen = Queen("White", chess_board, [2, 2])
+    kween = Queen("White", chess_board, [3, 3])
     #king = King("White", chess_board, 2, 2)
 
     for row in chess_board:
         print(row)
-
     print(king.available_moves())
     print(queen.available_moves())
     queen.move([1, 2], chess_board)
+    print("QUEEN MOVES")
+    for row in chess_board:
+        print(row)
+    #bish.move([2, 2], chess_board)
+
+    print("KING MOVES")
+    king.move([1, 2], chess_board)
+
+    for row in chess_board:
+        print(row)
+
+    kween.move([2, 2], chess_board)
+    print("KWEEN MOVES")
+    for row in chess_board:
+        print(row)
+    print("King's moves.....")
     print(king.available_moves())
 
+
+
+    print("KING CAPTURES")
+    king.move([2, 2], chess_board)
     for row in chess_board:
         print(row)
