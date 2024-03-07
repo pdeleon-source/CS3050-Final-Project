@@ -19,7 +19,9 @@ class Piece:
         new_row = new_pos[0]
         new_col = new_pos[1]
 
-        if (new_row, new_col) not in self.available_moves():
+        possible_moves = self.available_moves()[0] + self.available_moves()[1]
+
+        if (new_row, new_col) not in possible_moves:
             print("INVALID MOVE")
             return False
 
