@@ -15,11 +15,11 @@ class Piece:
 
     def move(self, new_pos, board) -> bool:
 
-
         new_row = new_pos[0]
         new_col = new_pos[1]
 
-        if (new_row, new_col) not in self.available_moves():
+        movements, captures = self.available_moves()
+        if (new_row, new_col) not in movements and (new_row, new_col) not in captures:
             print("INVALID MOVE")
             return False
 
@@ -219,12 +219,14 @@ class King(Piece):
             if 0 <= row < 8 and 0 <= col < 8:
                 # If king won't go into check add to movements
                 if not self.under_attack(row, col) and self.board[row][col] is None:
-                    movements.append((row, col))
+                    if self.board[row][col] is None:
+                        movements.append((row, col))
+                    elif self.board[row][col].allegiance != self.allegiance:
+                        captures.append((row, col))
 
                 row += move_row
                 col += move_col
 
-        print(movements)
         return movements, captures
 
     def under_attack(self, row, col) -> bool:
@@ -232,7 +234,6 @@ class King(Piece):
         Checks if the given move will put the king under attack
         :param row:
         :param col:
-        :param visited:
         :return:
         """
 
@@ -244,12 +245,10 @@ class King(Piece):
                     if not isinstance(self.board[r][c], King):
                         # Checks if move would put king in check of another piece
                         movement, captures = self.board[r][c].available_moves()
-                        print(captures)
                         if (row, col) in captures or (row, col) in movement:
                             # If not, it gets added to the kings available moves
                             return True
         return False
-
 
     def __repr__(self):
         if self.allegiance == 'Black':
@@ -270,11 +269,9 @@ if __name__ == "__main__":
         print(row)
 
     print(king.available_moves())
-    print(king.move([1, 0]))
-    move = king.available_moves()
-    print(move)
-    for r, c in move:
-        print(chess_board[r][c])
+    print(queen.available_moves())
+    queen.move([1, 2], chess_board)
+    print(king.available_moves())
 
     for row in chess_board:
         print(row)
