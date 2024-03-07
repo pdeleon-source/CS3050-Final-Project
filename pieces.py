@@ -1,15 +1,37 @@
 # for rooks in each turn, one value in the coordinate cannot change
 # for bishops, both values must change
 import arcade
+import copy
 
-class Piece:
+class Piece(arcade.AnimatedTimeBasedSprite):
     def __init__(self, allegiance, board, current_pos):
+        super().__init__()
         self.moves = 0
         self.allegiance = allegiance
         self.board = board
         self.current_row = current_pos[0]
         self.current_col = current_pos[1]
+        self.position = (self.current_col, self.current_row)
         self.board[self.current_row][self.current_col] = self
+
+    def draw(self):
+        arcade.start_render()
+        # Make even squares
+        square_width = 400 // 8
+        square_height = 400 // 8
+
+        # Draw the piece on the game board
+        x = self.position[0] * square_width
+        y = self.position[1] * square_height
+
+        # arcade.draw_texture_rectangle(self.position[0], self.position[1], self.texture.width, self.texture.height, self.texture)
+        # arcade.draw_texture_rectangle(x + square_width // 2, y + square_height // 2, square_width,
+
+        arcade.draw_texture_rectangle(self.current_col * square_width + square_width // 2,
+                                      self.current_row * square_height + square_height // 2,
+                                      square_width, square_height,
+                                      self.texture)
+
 
     def move(self, new_pos) -> bool:
         new_row = new_pos[0]
@@ -39,6 +61,28 @@ class Piece:
         self.current_row = new_row
         self.current_col = new_col
         return True
+
+    def move_piece(self, new_position):
+        start_position = (self.current_row, self.current_col)
+        end_position = new_position
+        total_frames = 60  # Total frames for animation
+        current_frame = 0
+
+        # Calculate the distance to move each frame
+        dx = (end_position[1] - start_position[1]) / total_frames
+        dy = (end_position[0] - start_position[0]) / total_frames
+
+        # Update position gradually over each frame
+        while current_frame < total_frames:
+            self.current_col = start_position[1] + dx * current_frame
+            self.current_row = start_position[0] + dy * current_frame
+            current_frame += 1
+            arcade.start_render()  # Ensure rendering occurs each frame
+            # Draw the updated position of the piece
+            self.draw()
+            print(self.board)
+        self.current_row, self.current_col = new_position
+
 
 """
 class Pawn(Piece):
@@ -144,6 +188,12 @@ class Rook(Piece):
 
         return moves, caps
 
+    def __repr__(self):
+        if self.allegiance == 'Black':
+            return '♝'
+        return '♗'
+
+
 class Bishop(Piece):
     def __init__(self, allegiance, board, current_pos):
         """
@@ -166,6 +216,7 @@ class Bishop(Piece):
         for diagonal_row, diagonal_col in [(-1, -1), (-1, 1), (1, -1), (1, 1)]:
             row, col = self.current_row + diagonal_row, self.current_col + diagonal_col
             while 0 <= row < 8 and 0 <= col < 8:
+                print(f"{row} {col}")
                 if self.board[row][col] is not None:
                     if self.board[row][col].allegiance == self.allegiance:
                         break
