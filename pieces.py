@@ -1,8 +1,6 @@
 # for rooks in each turn, one value in the coordinate cannot change
 # for bishops, both values must change
-import board
 import arcade
-
 
 class Piece:
     def __init__(self, allegiance, board, current_pos):
@@ -42,7 +40,7 @@ class Piece:
         self.current_col = new_col
         return True
 
-
+"""
 class Pawn(Piece):
     def __init__(self, allegiance, board, current_pos):
         super().__init__(allegiance, board, current_pos)
@@ -67,7 +65,7 @@ class Pawn(Piece):
             if destination is not None and destination.allegiance != self.allegiance:
                 print(f"Captured {destination} at position ({new_row}, {new_col})!")
             # en passant-hard as hell, how do I get the space under the destination block?
-            elif destination[new_row] -  :
+            elif destination[new_row]:
                 print(f"Captured {destination} at position ({new_row}, {new_col})!")
                 return False
 
@@ -79,6 +77,7 @@ class Pawn(Piece):
     def __repr__(self):
         return f"{self.allegiance} Pawn"
 
+"""
 class Rook(Piece):
     def __init__(self, allegiance, board, current_pos):
         super().__init__(allegiance, board, current_pos)
@@ -86,23 +85,26 @@ class Rook(Piece):
             self.texture = arcade.load_texture("pieces_png/black-rook.png")
         else:
             self.texture = arcade.load_texture("pieces_png/white-rook.png")
-
-    def move(self, new_row, new_col):
-        # Cannot move to same position
-        if new_row == self.current_row and new_col == self.current_col:
-            print(f"{self} is already there")
-            return False
-        # horizontal movement
-        elif new_row != self.current_row and new_col == self.current_col:
-            destination = self.board[new_row]
-            if destination is not None and destination.allegiance != self.allegiance:
-                print(f"Captured {destination} at position ({new_row}, {new_col})!")
-            elif destination is not None:
-                print("Cannot capture")
-                return False
-        # vertical movement
-        elif new_row == self.current_row and new_col != self.current_col:
-            destination = self.board[new_row][new_col]
+    #
+    # def move(self, new_pos):
+    #     # Cannot move to same position
+    #     new_row = new_pos[0]
+    #     new_col = new_pos[1]
+    #
+    #     if new_row == self.current_row and new_col == self.current_col:
+    #         print(f"{self} is already there")
+    #         return False
+    #     # horizontal movement
+    #     elif new_row != self.current_row and new_col == self.current_col:
+    #         destination = self.board[new_row]
+    #         if destination is not None and destination.allegiance != self.allegiance:
+    #             print(f"Captured {destination} at position ({new_row}, {new_col})!")
+    #         elif destination is not None:
+    #             print("Cannot capture")
+    #             return False
+    #     # vertical movement
+    #     elif new_row == self.current_row and new_col != self.current_col:
+    #         destination = self.board[new_row][new_col]
 
     def available_moves(self):
         moves = []
@@ -141,8 +143,6 @@ class Rook(Piece):
                 col += vert_col
 
         return moves, caps
-
-
 
 class Bishop(Piece):
     def __init__(self, allegiance, board, current_pos):
