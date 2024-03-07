@@ -52,7 +52,7 @@ class Board(arcade.Window):
         self.selected_piece = None
         self.selected_row = None
         self.selected_col = None
-        
+
         # testing Computer
         # this takes in an allegiance and the board array containing pieces
         self.computer = computer.Computer('Black', self.board)
@@ -106,6 +106,7 @@ class Board(arcade.Window):
         #     y = row * square_height
         #     arcade.draw_rectangle_filled(x + square_width // 2, y + square_height // 2, square_width, square_height,
         #                                  VALID_MOVE_COLOR)
+
 
         # Draw labels for columns (a-h)
         for col in range(COLS):
