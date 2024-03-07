@@ -36,8 +36,8 @@ WHT_POS = {
     "king": [7, 4]
 }
 
-#p = pieces.Piece
 
+# p = pieces.Piece
 
 
 class Board(arcade.Window):
@@ -107,7 +107,6 @@ class Board(arcade.Window):
         #     arcade.draw_rectangle_filled(x + square_width // 2, y + square_height // 2, square_width, square_height,
         #                                  VALID_MOVE_COLOR)
 
-
         # Draw labels for columns (a-h)
         for col in range(COLS):
             label = chr(ord('a') + col)  # Convert column index to corresponding letter
@@ -139,6 +138,11 @@ class Board(arcade.Window):
             if (row, col) in self.valid_moves:
                 # Move the selected piece to the clicked spot
                 self.move_piece(row, col)
+            # If the clicked spot is a capture move
+            elif (row, col) in self.capture_moves:
+                # Move the selected piece to the clicked spot
+                self.move_piece(row, col)
+                # TODO: Remove piece from Player
 
                 computer_moved = False
                 while not computer_moved:
@@ -167,8 +171,7 @@ class Board(arcade.Window):
             # If the clicked spot is neither a valid move nor another piece, deselect all squares
             else:
                 self.deselect_all()
-                self.valid_moves = []
-                self.capture_moves = []
+
         # If no piece is selected
         else:
             # If the clicked spot contains a piece
@@ -188,10 +191,8 @@ class Board(arcade.Window):
         # self.print_board()
         # print("===============================\n\n")
 
-
     def print_board(self):
         [print(row) for row in reversed(self.board)]
-
 
     def add_to_board(self, piece, pos):
         self.board[pos[0]][pos[1]] = piece
@@ -221,7 +222,7 @@ class Board(arcade.Window):
         # rook2 = p.Rook(allegiance, self.board, BLK_POS['rook'][1])
         # self.add_to_board(rook2, BLK_POS['rook'][1])
 
-        #Pawn
+        # Pawn
         # for col in range(COLS):
         #     pawn = p.Pawn(allegiance, self.board, [1, col])
         #     self.add_to_board(pawn, [1, col])
@@ -257,7 +258,6 @@ class Board(arcade.Window):
         #     self.add_to_board(pawn, [6, col])
         # self.add_to_board(pawn, [4, 5])
 
-
     # def check_valid_moves(self, movement):
     #     valid_moves = []
     #     for move in movement:
@@ -275,13 +275,12 @@ class Board(arcade.Window):
 
         self.selected_col = None
         self.selected_row = None
-
-
-    def move_piece(self, row, col):
+        self.selected_piece = None
         self.valid_moves = []
         self.capture_moves = []
-        self.board[self.selected_row][self.selected_col] = None
-        self.board[row][col] = self.selected_piece
+
+    def move_piece(self, row, col):
+        # self.board[self.selected_row][self.selected_col] = None
+        # self.board[row][col] = self.selected_piece
         self.selected_piece.move([row, col])
         self.deselect_all()
-
