@@ -50,6 +50,6 @@ class Computer:
             move_coords = [all_moves[random_move_square][0], all_moves[random_move_square][1]]
             # move piece to square
 
-            valid_move = piece.move(move_coords, self.board_array)
+            valid_move = piece.move(move_coords)
 
         return 0

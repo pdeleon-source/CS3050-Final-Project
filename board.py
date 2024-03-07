@@ -6,6 +6,14 @@ import pieces as p
 
 import computer
 
+import numpy as np
+
+import copy
+
+# How fast to move, and how fast to run the animation
+MOVEMENT_SPEED = 5
+UPDATES_PER_FRAME = 5
+
 # Set the dimensions of the chessboard
 SCREEN_WIDTH = 400
 SCREEN_HEIGHT = 400
@@ -20,7 +28,7 @@ VALID_MOVE_COLOR = arcade.color.GREEN
 VALID_CAPTURE_COLOR = arcade.color.RED
 
 # Set containing all black piece default positions
-BLK_POS = {
+WHT_POS = {
     "bishop": [[0, 2], [0, 5]],
     "knight": [[0, 1], [0, 6]],
     "rook": [[0, 0], [0, 7]],
@@ -28,7 +36,7 @@ BLK_POS = {
     "king": [0, 4]
 }
 
-WHT_POS = {
+BLK_POS = {
     "bishop": [[7, 2], [7, 5]],
     "knight": [[7, 1], [7, 6]],
     "rook": [[7, 0], [7, 7]],
@@ -38,17 +46,22 @@ WHT_POS = {
 
 
 # p = pieces.Piece
-
+white_allegiance = "White"
+black_allegiance = "Black"
 
 class Board(arcade.Window):
     def __init__(self, width, height):
         super().__init__(width, height, "Chessboard")
 
+        # Add a variable to track whose turn it is
+        self.current_turn = white_allegiance  # Start with white's turn
+
         self.valid_moves = []
         self.capture_moves = []
 
         arcade.set_background_color(arcade.color.WHITE)
-        self.board = [[None for _ in range(COLS)] for _ in range(ROWS)]
+        self.board = np.array([[None for _ in range(COLS)] for _ in range(ROWS)])
+        self.prev_board = copy.copy(self.board)
         self.selected_piece = None
         self.selected_row = None
         self.selected_col = None
@@ -95,9 +108,11 @@ class Board(arcade.Window):
 
                 # Draw the piece if it exists at this position
                 piece = self.board[row][col]
+
                 if isinstance(piece, p.Piece):
-                    arcade.draw_texture_rectangle(x + square_width // 2, y + square_height // 2, square_width,
-                                                  square_height, piece.texture)
+                    # arcade.draw_texture_rectangle(x + square_width // 2, y + square_height // 2, square_width,
+                    #                               square_height, piece.texture)
+                    piece.draw()
 
         # # Draw green squares for valid moves
         # for move in self.valid_moves:
@@ -133,64 +148,55 @@ class Board(arcade.Window):
         row = y // square_height
 
         # If a piece is selected
-        if any(self.selected[row][col] for row in range(ROWS) for col in range(COLS)):
+        if self.current_turn == white_allegiance:
+            if any(self.selected[row][col] for row in range(ROWS) for col in range(COLS)):
 
-            # If the clicked spot is a valid move
-            if (row, col) in self.valid_moves:
-                # Move the selected piece to the clicked spot
-                self.move_piece(row, col)
-            # If the clicked spot is a capture move
-            elif (row, col) in self.capture_moves:
-                # Move the selected piece to the clicked spot
-                self.move_piece(row, col)
-                # TODO: Remove piece from Player
+                # If the clicked spot is a valid move
+                if (row, col) in self.valid_moves:
+                    # Move the selected piece to the clicked spot
+                    self.move_piece(row, col)
+                # If the clicked spot is a capture move
+                elif (row, col) in self.capture_moves:
+                    # Move the selected piece to the clicked spot
+                    self.move_piece(row, col)
 
-                computer_moved = False
-                while not computer_moved:
-                    # computer should move a piece after a player moves a piece
-                    # select a random piece
-                    computer_piece = self.computer.select_piece()
-                    # move that piece to a random position
-                    check_if_moved = self.computer.move_piece(computer_piece)
-                    if check_if_moved == 0:
-                        computer_moved = True
+                # If the clicked spot is another piece
+                elif isinstance(self.board[row][col], p.Piece):
+                    if self.board[row][col].allegiance == self.current_turn:
+                        # Deselect the previously selected piece
+                        self.deselect_all()
+                        # Select the new piece
+                        self.selected[row][col] = True
+                        self.selected_row = row
+                        self.selected_col = col
+                        self.selected_piece = self.board[row][col]
+                        # Find valid moves for the new piece
+                        piece = self.board[row][col]
+                        self.valid_moves, self.capture_moves = piece.available_moves()
 
+                # If the clicked spot is neither a valid move nor another piece, deselect all squares
+                else:
+                    self.deselect_all()
 
-            # If the clicked spot is another piece
-            elif isinstance(self.board[row][col], p.Piece):
-                # Deselect the previously selected piece
-                self.deselect_all()
-                # Select the new piece
-                self.selected[row][col] = True
-                self.selected_row = row
-                self.selected_col = col
-                self.selected_piece = self.board[row][col]
-                # Find valid moves for the new piece
-                piece = self.board[row][col]
-                self.valid_moves, self.capture_moves = piece.available_moves()
-
-            # If the clicked spot is neither a valid move nor another piece, deselect all squares
+            # If no piece is selected
             else:
-                self.deselect_all()
-
-        # If no piece is selected
-        else:
-            # If the clicked spot contains a piece
-            if isinstance(self.board[row][col], p.Piece):
-                # Select the piece
-                self.deselect_all()
-                self.selected[row][col] = True
-                self.selected_piece = self.board[row][col]
-                self.selected_row = row
-                self.selected_col = col
-                # Find valid moves for the selected piece
-                piece = self.board[row][col]
-                self.valid_moves, self.capture_moves = piece.available_moves()
+                # If the clicked spot contains a piece
+                if isinstance(self.board[row][col], p.Piece):
+                    if self.board[row][col].allegiance == self.current_turn:
+                        # Select the piece
+                        self.deselect_all()
+                        self.selected[row][col] = True
+                        self.selected_piece = self.board[row][col]
+                        self.selected_row = row
+                        self.selected_col = col
+                        # Find valid moves for the selected piece
+                        piece = self.board[row][col]
+                        self.valid_moves, self.capture_moves = piece.available_moves()
 
         # Print out Console Board with toggled Squares
-        # print("===============================")
-        # self.print_board()
-        # print("===============================\n\n")
+        print("===============================")
+        self.print_board()
+        print("===============================\n\n")
 
     def print_board(self):
         [print(row) for row in reversed(self.board)]
@@ -281,7 +287,44 @@ class Board(arcade.Window):
         self.capture_moves = []
 
     def move_piece(self, row, col):
-        # self.board[self.selected_row][self.selected_col] = None
-        # self.board[row][col] = self.selected_piece
+        # Get the piece object
+        piece = self.board[self.selected_row][self.selected_col]
+
+        # Animate the movement of the piece
+        piece.move_piece((row, col))
+
+        # Update the piece's position
+        piece.position = (col, row)
+
+        # Deselect the piece and switch turn after animation is complete
+        self.board[self.selected_row][self.selected_col] = None
+        self.board[row][col] = piece
         self.selected_piece.move([row, col])
+
         self.deselect_all()
+        self.switch_turn()
+
+
+
+
+
+
+    def switch_turn(self):
+        # Switch the turn between white and black
+        if self.current_turn == white_allegiance:
+            self.current_turn = black_allegiance
+            self.handle_computer_turn()
+        else:
+            self.current_turn = white_allegiance
+
+    def handle_computer_turn(self):
+        # Handle computer input for black's turn
+        if self.current_turn == black_allegiance:
+            computer_moved = False
+            while not computer_moved:
+                computer_piece = self.computer.select_piece()
+                check_if_moved = self.computer.move_piece(computer_piece)
+                if check_if_moved == 0:
+                    computer_moved = True
+            self.switch_turn()
+
