@@ -245,12 +245,12 @@ class Board(arcade.Window):
         king = p.King(allegiance, self.board, WHT_POS['king'])
         self.add_to_board(king, WHT_POS['king'])
 
-        # Rooks
-        # rook1 = p.Rook(allegiance, self.board, WHT_POS['rook'][0])
-        # self.add_to_board(rook1, WHT_POS['rook'][0])
+        #Rooks
+        rook1 = p.Rook(allegiance, self.board, WHT_POS['rook'][0])
+        self.add_to_board(rook1, WHT_POS['rook'][0])
 
-        # rook2 = p.Rook(allegiance, self.board, WHT_POS['rook'][1])
-        # self.add_to_board(rook2, WHT_POS['rook'][1])
+        rook2 = p.Rook(allegiance, self.board, WHT_POS['rook'][1])
+        self.add_to_board(rook2, WHT_POS['rook'][1])
 
         # Pawn
         # for col in range(COLS):
