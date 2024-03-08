@@ -202,6 +202,7 @@ class Board(arcade.Window):
                         # Find valid moves for the selected piece
                         piece = self.board[row][col]
                         self.valid_moves, self.capture_moves = piece.available_moves()
+                        print(self.valid_moves, self.capture_moves)
 
         # Print out Console Board with toggled Squares
         # print("===============================")
@@ -242,9 +243,9 @@ class Board(arcade.Window):
         self.add_to_board(rook2, BLK_POS['rook'][1])
 
         # Pawn
-        # for col in range(COLS):
-        #     pawn = p.Pawn(allegiance, self.board, [1, col])
-        #     self.add_to_board(pawn, [1, col])
+        for col in range(COLS):
+            pawn = p.Pawn(allegiance, self.board, [6, col])
+            self.add_to_board(pawn, [1, col])
 
     def make_white_set(self):
         # Bishops in Column 2, 4 Row 0
@@ -272,9 +273,9 @@ class Board(arcade.Window):
         self.add_to_board(rook2, WHT_POS['rook'][1])
 
         # Pawn
-        # for col in range(COLS):
-        #     pawn = p.Pawn(allegiance, self.board, [6, col])
-        #     self.add_to_board(pawn, [6, col])
+        for col in range(COLS):
+            pawn = p.Pawn(allegiance, self.board, [1, col])
+            self.add_to_board(pawn, [1, col])
         # self.add_to_board(pawn, [4, 5])
 
     # def check_valid_moves(self, movement):
@@ -305,7 +306,7 @@ class Board(arcade.Window):
         self.selected_piece.on_click(col * SQUARE_WIDTH - 25, row * SQUARE_HEIGHT - 25)
 
         # Deselect the piece and switch turn after animation is complete
-        self.selected_piece.move((row, col))
+        self.selected_piece.move(row, col)
 
         self.board[self.selected_row][self.selected_col] = None
         self.board[row][col] = piece
