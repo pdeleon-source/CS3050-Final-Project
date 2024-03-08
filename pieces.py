@@ -148,22 +148,22 @@ class Pawn(Piece):
             return moves, caps
         else:
             for pawn_row, pawn_col in pawn_regular_moves:
-                row, col = self.current_row + diagonal_row, self.current_col + diagonal_col
+                row, col = self.current_row + pawn_row, self.current_col + pawn_col
                 while 0 <= row < 8 and 0 <= col < 8:
                     if self.board[row][col] is not None:
                         if self.board[row][col].allegiance == self.allegiance:
                             break
                         else:
                             # Can capture piece but cannot move past it so exit loop
-                            captures.append((row, col))
+                            caps.append((row, col))
                             break
                     else:
-                        movements.append((row, col))
+                        moves.append((row, col))
 
-                    row += diagonal_row
-                    col += diagonal_col
+                    row += pawn_row
+                    col += pawn_col
             # print(f"Moves: {movements + captures}")
-            return movements, captures
+            return moves, caps
 
     def __repr__(self):
         return f"{self.allegiance} Pawn"
