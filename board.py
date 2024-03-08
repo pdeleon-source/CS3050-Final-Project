@@ -19,6 +19,8 @@ SCREEN_WIDTH = 400
 SCREEN_HEIGHT = 400
 ROWS = 8
 COLS = 8
+SQUARE_WIDTH = 400 // 8
+SQUARE_HEIGHT = 400 // 8
 
 # Set the colors for the chessboard squares
 LIGHT_SQUARE_COLOR = arcade.color.ALMOND
@@ -63,6 +65,7 @@ class Board(arcade.Window):
         self.board = np.array([[None for _ in range(COLS)] for _ in range(ROWS)])
         self.prev_board = copy.copy(self.board)
         self.selected_piece = None
+        self.computer_piece = None
         self.selected_row = None
         self.selected_col = None
 
@@ -80,6 +83,13 @@ class Board(arcade.Window):
         self.make_white_set()
 
         # Give player pieces
+
+    def update(self, delta_time):
+        if self.selected_piece is not None:
+            self.selected_piece.update()
+            if self.selected_piece.x == self.selected_piece.target_x and self.selected_piece.y == self.selected_piece.target_y:
+                if self.computer_piece is not None:
+                    self.computer_piece.update()
 
     def on_draw(self):
         arcade.start_render()
@@ -103,15 +113,15 @@ class Board(arcade.Window):
                     color = LIGHT_SQUARE_COLOR
                 else:
                     color = DARK_SQUARE_COLOR
+
                 arcade.draw_rectangle_filled(x + square_width // 2, y + square_height // 2, square_width, square_height,
                                              color)
-
+        for row in range(ROWS):
+            for col in range(COLS):
                 # Draw the piece if it exists at this position
                 piece = self.board[row][col]
 
                 if isinstance(piece, p.Piece):
-                    # arcade.draw_texture_rectangle(x + square_width // 2, y + square_height // 2, square_width,
-                    #                               square_height, piece.texture)
                     piece.draw()
 
         # # Draw green squares for valid moves
@@ -194,12 +204,14 @@ class Board(arcade.Window):
                         self.valid_moves, self.capture_moves = piece.available_moves()
 
         # Print out Console Board with toggled Squares
-        print("===============================")
-        self.print_board()
-        print("===============================\n\n")
+        # print("===============================")
+        # self.print_board()
+        # print("===============================\n\n")
 
     def print_board(self):
-        [print(row) for row in reversed(self.board)]
+        for row in reversed(self.board):
+            printable_row = ['_' if square is None else square for square in row]
+            print(printable_row)
 
     def add_to_board(self, piece, pos):
         self.board[pos[0]][pos[1]] = piece
@@ -223,11 +235,11 @@ class Board(arcade.Window):
         self.add_to_board(king, BLK_POS['king'])
 
         # Rooks
-        # rook1 = p.Rook(allegiance, self.board, BLK_POS['rook'][0])
-        # self.add_to_board(rook1, BLK_POS['rook'][0])
-        #
-        # rook2 = p.Rook(allegiance, self.board, BLK_POS['rook'][1])
-        # self.add_to_board(rook2, BLK_POS['rook'][1])
+        rook1 = p.Rook(allegiance, self.board, BLK_POS['rook'][0])
+        self.add_to_board(rook1, BLK_POS['rook'][0])
+
+        rook2 = p.Rook(allegiance, self.board, BLK_POS['rook'][1])
+        self.add_to_board(rook2, BLK_POS['rook'][1])
 
         # Pawn
         # for col in range(COLS):
@@ -282,7 +294,7 @@ class Board(arcade.Window):
 
         self.selected_col = None
         self.selected_row = None
-        self.selected_piece = None
+        # self.selected_piece = None
         self.valid_moves = []
         self.capture_moves = []
 
@@ -290,24 +302,22 @@ class Board(arcade.Window):
         # Get the piece object
         piece = self.board[self.selected_row][self.selected_col]
 
-        # Animate the movement of the piece
-        piece.move_piece((row, col))
-
-        # Update the piece's position
-        piece.position = (col, row)
+        self.selected_piece.on_click(col * SQUARE_WIDTH - 25, row * SQUARE_HEIGHT - 25)
 
         # Deselect the piece and switch turn after animation is complete
+        self.selected_piece.move((row, col))
+
         self.board[self.selected_row][self.selected_col] = None
         self.board[row][col] = piece
-        self.selected_piece.move([row, col])
+
+        # Wait for the animation to finish
+        # time.sleep(1)  # Adjust the delay as needed
 
         self.deselect_all()
+
+        print("============= Whites Turn ===========")
+        self.print_board()
         self.switch_turn()
-
-
-
-
-
 
     def switch_turn(self):
         # Switch the turn between white and black
@@ -321,10 +331,21 @@ class Board(arcade.Window):
         # Handle computer input for black's turn
         if self.current_turn == black_allegiance:
             computer_moved = False
+            computer_piece = None
+            coords = []
             while not computer_moved:
                 computer_piece = self.computer.select_piece()
-                check_if_moved = self.computer.move_piece(computer_piece)
-                if check_if_moved == 0:
+                row = computer_piece.current_row
+                col = computer_piece.current_col
+                coords = self.computer.move_piece(computer_piece)
+                if coords != 4:
                     computer_moved = True
+
+                    self.computer_piece = computer_piece
+                    self.computer_piece.on_click(coords[1] * SQUARE_WIDTH - 25, coords[0] * SQUARE_HEIGHT - 25)
+
+            print("============= Blacks Turn ============")
+            self.print_board()
+
             self.switch_turn()
 
