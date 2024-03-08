@@ -143,7 +143,7 @@ class Pawn(Piece):
         else:
             pawn_first_moves = [(-2, 0), (-1, 0)]
             pawn_regular_moves = [(-1, 0)]
-            pawn_captures = [(-1, 1), (-1, -1)]
+            pawn_captures = [(-1, -1), (-1, 1)]
 
         # if first move
         if self.moves == 0:
@@ -172,14 +172,28 @@ class Pawn(Piece):
                 row, col = self.current_row + pawn_row, self.current_col + pawn_col
                 # while 0 <= row < 8 and 0 <= col < 8:
                 if self.board[row][col] is not None:
-                    if self.board[row][col].allegiance == self.allegiance:
+                    break
+                    # for pawn_cap_row, pawn_cap_col in pawn_captures:
+                    #     cap_row, cap_col = self.current_row + pawn_cap_row, self.current_col + pawn_cap_col
+                    #     print("CAPTURABLE: ", self.board[cap_row][cap_col])
+                    #     if self.board[cap_row][cap_col].allegiance == self.allegiance:
+                    #         break
+                    #     else:
+                    #         # Can capture piece but cannot move past it so exit loop
+                    #         caps.append((row, col))
+                    #         break
+                else:
+                    moves.append((row, col))
+            for pawn_cap_row, pawn_cap_col in pawn_captures:
+                cap_row, cap_col = self.current_row + pawn_cap_row, self.current_col + pawn_cap_col
+                if self.board[cap_row][cap_col] is not None:
+                    # print("CAPTURABLE: ", self.board[cap_row][cap_col])
+                    if self.board[cap_row][cap_col].allegiance == self.allegiance:
                         break
                     else:
                         # Can capture piece but cannot move past it so exit loop
-                        caps.append((row, col))
+                        caps.append((cap_row, cap_col))
                         break
-                else:
-                    moves.append((row, col))
 
                 # row += pawn_row
                 # col += pawn_col
