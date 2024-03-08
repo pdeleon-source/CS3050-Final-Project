@@ -111,9 +111,9 @@ class Pawn(Piece):
             if destination is not None and destination.allegiance != self.allegiance:
                 print(f"Captured {destination} at position ({new_row}, {new_col})!")
             # en passant-hard as hell, how do I get the space under the destination block?
-            elif destination[new_row]:
-                print(f"Captured {destination} at position ({new_row}, {new_col})!")
-                return False
+            # elif destination[new_row]:
+            #     print(f"Captured {destination} at position ({new_row}, {new_col})!")
+            #     return False
 
     def available_moves(self):
         moves = []
@@ -121,30 +121,36 @@ class Pawn(Piece):
 
         # if the pawn is white, use this set of moves
         if self.allegiance == 'White':
-            pawn_first_moves = [(0, 2), (0, 1), (1, 1), (-1, 1)]
-            pawn_regular_moves = [(0,1), (1, 1), (-1, 1)]
+            pawn_first_moves = [(2, 0), (1, 0)]
+            pawn_regular_moves = [(1, 0)]
+            pawn_captures = [(1, 1), (1, -1)]
         # otherwise the pawn is black, use this set of moves
         else:
-            pawn_first_moves = [(0, -2), (0, -1), (1, -1), (-1, -1)]
-            pawn_regular_moves = [(0, -1), (1, -1), (-1, -1)]
+            pawn_first_moves = [(-2, 0), (-1, 0)]
+            pawn_regular_moves = [(-1, 0)]
+            pawn_captures = [(-1, 1), (-1, -1)]
 
         if self.moves == 0:
             for pawn_row, pawn_col in pawn_first_moves:
                 row, col = self.current_row + pawn_row, self.current_col + pawn_col
-                while 0 <= row < 8 and 0 <= col < 8:
-                    if self.board[row][col] is not None:
-                        if self.board[row][col].allegiance == self.allegiance:
-                            break
-                        else:
-                            # Can capture piece but cannot move past it so exit loop
-                            caps.append((row, col))
-                            break
-                    else:
-                        moves.append((row, col))
+                # while 0 <= row < 8 and 0 <= col < 8:
+                if self.board[row][col] is not None:
+                    break
+                else:
+                    moves.append((row, col))
 
                     row += pawn_row
                     col += pawn_col
                 # print(f"Moves: {movements + captures}")
+        if self.board[row][col] is not None:
+            for pawn_row, pawn_col in pawn_captures:
+                if self.board[row][col].allegiance == self.allegiance:
+                    break
+                else:
+                    # Can capture piece but cannot move past it so exit loop
+                    caps.append((row, col))
+                    break
+                        
             return moves, caps
         else:
             for pawn_row, pawn_col in pawn_regular_moves:

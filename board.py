@@ -202,6 +202,7 @@ class Board(arcade.Window):
                         # Find valid moves for the selected piece
                         piece = self.board[row][col]
                         self.valid_moves, self.capture_moves = piece.available_moves()
+                        print(self.valid_moves, self.capture_moves)
 
         # Print out Console Board with toggled Squares
         # print("===============================")
@@ -305,7 +306,7 @@ class Board(arcade.Window):
         self.selected_piece.on_click(col * SQUARE_WIDTH - 25, row * SQUARE_HEIGHT - 25)
 
         # Deselect the piece and switch turn after animation is complete
-        self.selected_piece.move((row, col))
+        self.selected_piece.move(row, col)
 
         self.board[self.selected_row][self.selected_col] = None
         self.board[row][col] = piece
