@@ -242,9 +242,9 @@ class Board(arcade.Window):
         self.add_to_board(rook2, BLK_POS['rook'][1])
 
         # Pawn
-        # for col in range(COLS):
-        #     pawn = p.Pawn(allegiance, self.board, [1, col])
-        #     self.add_to_board(pawn, [1, col])
+        for col in range(COLS):
+            pawn = p.Pawn(allegiance, self.board, [6, col])
+            self.add_to_board(pawn, [1, col])
 
     def make_white_set(self):
         # Bishops in Column 2, 4 Row 0
@@ -272,10 +272,10 @@ class Board(arcade.Window):
         self.add_to_board(rook2, WHT_POS['rook'][1])
 
         # Pawn
-        # for col in range(COLS):
-        #     pawn = p.Pawn(allegiance, self.board, [6, col])
-        #     self.add_to_board(pawn, [6, col])
-        # self.add_to_board(pawn, [4, 5])
+        for col in range(COLS):
+            pawn = p.Pawn(allegiance, self.board, [1, col])
+            self.add_to_board(pawn, [1, col])
+        self.add_to_board(pawn, [4, 5])
 
     # def check_valid_moves(self, movement):
     #     valid_moves = []
