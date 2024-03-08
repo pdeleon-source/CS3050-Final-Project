@@ -52,7 +52,7 @@ class Computer:
             # get the coords of that square
             # print(all_moves)
             # print("MOVE SQUARE: ", all_moves[random_move_square])
-            move_coords = [all_moves[random_move_square][1], all_moves[random_move_square][0]]
+            move_coords = [all_moves[random_move_square][0], all_moves[random_move_square][1]]
             # move piece to square
 
             # Store the piece's current position

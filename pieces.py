@@ -28,10 +28,10 @@ class Piece(arcade.AnimatedTimeBasedSprite):
                                       SQUARE_WIDTH, SQUARE_HEIGHT,
                                       self.texture)
 
-    def move(self, new_pos) -> bool:
+    def move(self, new_row, new_col) -> bool:
 
-        new_row = new_pos[0]
-        new_col = new_pos[1]
+        # new_row = new_pos[0]
+        # new_col = new_pos[1]
 
         moves, caps = self.available_moves()
         possible_moves = moves + caps
@@ -96,24 +96,30 @@ class Pawn(Piece):
             self.texture = arcade.load_texture("pieces_png/white-pawn.png")
 
     def move(self, new_row, new_col):
+        print(abs(new_row - self.current_row))
         if new_row == self.current_row and new_col == self.current_col:
             print(f"{self} is already in that position!")
             return False
         # account for two block move on the first turn
-        elif self.moves == 0 and new_row - self.current_row == 2 and new_col == self.current_col:
+        elif self.moves == 0 and abs(new_row - self.current_row) == 2 or abs(new_row - self.current_row) == 1:
             destination = self.board[new_row][new_col]
+            return True
         # now account for a normal move
-        elif self.moves >= 1 and new_row - self.current_row == 1 and new_col == self.current_col:
+        elif self.moves >= 1 and abs(new_row - self.current_row) == 1:
             destination = self.board[new_row][new_col]
+            return True
         # now account for captures-a diagonal movement
         elif (new_row + new_col) % 2 == 0:
             destination = self.board[new_row][new_col]
             if destination is not None and destination.allegiance != self.allegiance:
                 print(f"Captured {destination} at position ({new_row}, {new_col})!")
+            return True
             # en passant-hard as hell, how do I get the space under the destination block?
             # elif destination[new_row]:
             #     print(f"Captured {destination} at position ({new_row}, {new_col})!")
             #     return False
+        else:
+            raise Exception("Pawn move error", new_row, new_col)
 
     def available_moves(self):
         moves = []
@@ -183,10 +189,10 @@ class Rook(Piece):
         else:
             self.texture = arcade.load_texture("pieces_png/white-rook.png")
 
-    def move(self, new_pos):
+    def move(self, new_row, new_col):
         # Cannot move to same position
-        new_row = new_pos[0]
-        new_col = new_pos[1]
+        # new_row = new_pos[0]
+        # new_col = new_pos[1]
 
         if new_row == self.current_row and new_col == self.current_col:
             print(f"{self} is already there")
@@ -196,12 +202,17 @@ class Rook(Piece):
             destination = self.board[new_row]
             if destination is not None and destination.allegiance != self.allegiance:
                 print(f"Captured {destination} at position ({new_row}, {new_col})!")
+                return True
             elif destination is not None:
                 print("Cannot capture")
                 return False
         # vertical movement
         elif new_row == self.current_row and new_col != self.current_col:
             destination = self.board[new_row][new_col]
+            return True
+
+        else:
+            raise Exception("Rook move error")
 
     def available_moves(self):
         moves = []
