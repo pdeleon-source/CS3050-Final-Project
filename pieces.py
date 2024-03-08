@@ -186,6 +186,8 @@ class Pawn(Piece):
                     moves.append((row, col))
             for pawn_cap_row, pawn_cap_col in pawn_captures:
                 cap_row, cap_col = self.current_row + pawn_cap_row, self.current_col + pawn_cap_col
+                if cap_col >= 8 or cap_col < 0:
+                    break
                 if self.board[cap_row][cap_col] is not None:
                     # print("CAPTURABLE: ", self.board[cap_row][cap_col])
                     if self.board[cap_row][cap_col].allegiance == self.allegiance:
