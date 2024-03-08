@@ -34,7 +34,6 @@ class Computer:
     # computer player will move a piece
     # use select_piece() and feed it in to the piece param
     def move_piece(self, piece: Piece):
-        # TODO: Uncomment this when pieces "invalid move" stmt is fixed
         valid_move = False
         move_coords = []
         while not valid_move:

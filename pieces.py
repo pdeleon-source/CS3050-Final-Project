@@ -221,7 +221,7 @@ class Rook(Piece):
         if new_row == self.current_row and new_col == self.current_col:
             print(f"{self} is already there")
             return False
-        # horizontal movement
+        # vertical movement
         elif new_row != self.current_row and new_col == self.current_col:
             destination = self.board[new_row][new_col]
             if destination is not None and destination.allegiance != self.allegiance:
@@ -232,12 +232,27 @@ class Rook(Piece):
             elif destination is not None:
                 print("Cannot capture")
                 return False
-        # vertical movement
+            else:
+                self.moves += 1
+                self.current_row = new_row
+                self.current_col = new_col
+
+        # horizontal movement
         elif new_row == self.current_row and new_col != self.current_col:
             destination = self.board[new_row][new_col]
-            self.current_row = new_row
-            self.current_col = new_col
-            return True
+            if destination is not None and destination.allegiance != self.allegiance:
+                print(f"Captured {destination} at position ({new_row}, {new_col})!")
+                self.current_row = new_row
+                self.current_col = new_col
+                return True
+            elif destination is not None:
+                print("Cannot capture")
+                return False
+            else:
+                self.moves += 1
+                self.current_row = new_row
+                self.current_col = new_col
+                return True
 
         else:
             raise Exception("Rook move error")
