@@ -202,9 +202,52 @@ class Pawn(Piece):
             return moves, caps
 
     def __repr__(self):
-        return f"{self.allegiance} Pawn"
+        if self.allegiance == 'Black':
+            return '♟'
+        return '♙'
 
+class Knight(Piece):
+    def __init__(self, allegiance, board, current_pos):
+        """
+        Extended Constructor for Bishop Piece, adds the texture based on the allegiance of the piece
+        :param allegiance: String
+        :param board: Board
+        :param current_pos: [Int, Int]
+        """
+        super().__init__(allegiance, board, current_pos)
+        if self.allegiance == 'Black':
+            self.texture = arcade.load_texture("pieces_png/black-knight.png")
+        else:
+            self.texture = arcade.load_texture("pieces_png/white-knight.png")
 
+    def available_moves(self):
+        movements = []
+        captures = []
+        # print(f"{self.current_row} {self.current_col}")
+        # Bishop moves diagonally, so we check all four diagonal directions
+        for L_row, L_col in [(2, -1), (2, 1), (-2, -1), (-2, 1), (1, 2), (-1, 2), (-1, -2), (1, -2)]:
+            row, col = self.current_row + L_row, self.current_col + L_col
+            if 0 <= row < 8 and 0 <= col < 8:
+                print(f"{row} {col}")
+                if self.board[row][col] is not None:
+                    if self.board[row][col].allegiance == self.allegiance:
+                        print(":D")
+                    else:
+                        # Can capture piece but cannot move past it so exit loop
+                        captures.append((row, col))
+                        print(":D")
+                else:
+                    movements.append((row, col))
+
+                # row += diagonal_row
+                # col += diagonal_col
+        # print(f"Moves: {movements + captures}")
+        return movements, captures
+
+    def __repr__(self):
+        if self.allegiance == 'Black':
+            return '♞'
+        return '♘'
 class Rook(Piece):
     def __init__(self, allegiance, board, current_pos):
         super().__init__(allegiance, board, current_pos)
