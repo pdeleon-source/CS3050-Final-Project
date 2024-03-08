@@ -103,16 +103,25 @@ class Pawn(Piece):
         # account for two block move on the first turn
         elif self.moves == 0 and abs(new_row - self.current_row) == 2 or abs(new_row - self.current_row) == 1:
             destination = self.board[new_row][new_col]
+            self.moves += 1
+            self.current_row = new_row
+            self.current_col = new_col
             return True
         # now account for a normal move
         elif self.moves >= 1 and abs(new_row - self.current_row) == 1:
             destination = self.board[new_row][new_col]
+            self.moves += 1
+            self.current_row = new_row
+            self.current_col = new_col
             return True
         # now account for captures-a diagonal movement
         elif (new_row + new_col) % 2 == 0:
             destination = self.board[new_row][new_col]
             if destination is not None and destination.allegiance != self.allegiance:
                 print(f"Captured {destination} at position ({new_row}, {new_col})!")
+            self.moves += 1
+            self.current_row = new_row
+            self.current_col = new_col
             return True
             # en passant-hard as hell, how do I get the space under the destination block?
             # elif destination[new_row]:
@@ -199,9 +208,11 @@ class Rook(Piece):
             return False
         # horizontal movement
         elif new_row != self.current_row and new_col == self.current_col:
-            destination = self.board[new_row]
+            destination = self.board[new_row][new_col]
             if destination is not None and destination.allegiance != self.allegiance:
                 print(f"Captured {destination} at position ({new_row}, {new_col})!")
+                self.current_row = new_row
+                self.current_col = new_col
                 return True
             elif destination is not None:
                 print("Cannot capture")
@@ -209,6 +220,8 @@ class Rook(Piece):
         # vertical movement
         elif new_row == self.current_row and new_col != self.current_col:
             destination = self.board[new_row][new_col]
+            self.current_row = new_row
+            self.current_col = new_col
             return True
 
         else:
