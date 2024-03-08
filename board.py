@@ -276,7 +276,7 @@ class Board(arcade.Window):
         for col in range(COLS):
             pawn = p.Pawn(allegiance, self.board, [1, col])
             self.add_to_board(pawn, [1, col])
-        self.add_to_board(pawn, [4, 5])
+        # self.add_to_board(pawn, [4, 5])
 
     # def check_valid_moves(self, movement):
     #     valid_moves = []
