@@ -111,8 +111,8 @@ class Rook(Piece):
         moves = []
         caps = []
 
-        # Try horizontal vals first
-        for horiz_row, horiz_col in [(1, 0), (-1, 0)]:
+        # Try horizontal and vertical vals
+        for horiz_row, horiz_col in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
             row, col = self.current_row + horiz_row, self.current_col + horiz_col
             while 0 <= row < 8 and 0 <= col < 8:
                 if self.board[row][col] is not None:
@@ -126,25 +126,39 @@ class Rook(Piece):
 
                 row += horiz_row
                 col += horiz_col
-        # an or statement here?
-        # vertical vals
-        for vert_row, vert_col in [(0, 1), (0, -1)]:
-            row, col = self.current_row + vert_row, self.current_col + vert_col
+
+        return moves, caps
+
+class Knight(Piece):
+    def __init__(self, allegiance, board, current_pos):
+        super().__init__(allegiance, board, current_pos)
+        if self.allegiance == 'Black':
+            self.texture = arcade.load_texture("pieces_png/black-knight.png")
+        else:
+            self.texture = arcade.load_texture("pieces_png/white-knight.png")
+
+    def available_moves(self):
+        moves = []
+        caps = []
+
+        # L-shaped moves - different ways to get to the same path
+        for diagonal_row, diagonal_col in [(-2, 1), (2, 1), (1, -2), (-1, -2), (1, 2), ]:
+            row, col = self.current_row + diagonal_row, self.current_col + diagonal_col
             while 0 <= row < 8 and 0 <= col < 8:
                 if self.board[row][col] is not None:
                     if self.board[row][col].allegiance == self.allegiance:
                         break
                     else:
+                        # Can capture piece but cannot move past it so exit loop
                         caps.append((row, col))
                         break
                 else:
                     moves.append((row, col))
 
-                row += vert_row
-                col += vert_col
+                row += diagonal_row
+                col += diagonal_col
 
-        return moves, caps
-
+        return movements, captures
 
 
 class Bishop(Piece):
