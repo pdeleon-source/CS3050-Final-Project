@@ -130,44 +130,44 @@ class Pawn(Piece):
             pawn_regular_moves = [(-1, 0)]
             pawn_captures = [(-1, 1), (-1, -1)]
 
+        # if first move
         if self.moves == 0:
             for pawn_row, pawn_col in pawn_first_moves:
                 row, col = self.current_row + pawn_row, self.current_col + pawn_col
                 # while 0 <= row < 8 and 0 <= col < 8:
                 if self.board[row][col] is not None:
-                    break
-                else:
-                    moves.append((row, col))
-
-                    row += pawn_row
-                    col += pawn_col
-                # print(f"Moves: {movements + captures}")
-        if self.board[row][col] is not None:
-            for pawn_row, pawn_col in pawn_captures:
-                if self.board[row][col].allegiance == self.allegiance:
-                    break
-                else:
-                    # Can capture piece but cannot move past it so exit loop
-                    caps.append((row, col))
-                    break
-                        
-            return moves, caps
-        else:
-            for pawn_row, pawn_col in pawn_regular_moves:
-                row, col = self.current_row + pawn_row, self.current_col + pawn_col
-                while 0 <= row < 8 and 0 <= col < 8:
-                    if self.board[row][col] is not None:
+                    for pawn_row, pawn_col in pawn_captures:
                         if self.board[row][col].allegiance == self.allegiance:
                             break
                         else:
                             # Can capture piece but cannot move past it so exit loop
                             caps.append((row, col))
                             break
-                    else:
-                        moves.append((row, col))
+                else:
+                    moves.append((row, col))
 
-                    row += pawn_row
-                    col += pawn_col
+                # row += pawn_row
+                # col += pawn_col
+                # print(f"Moves: {movements + captures}")                
+                            
+            return moves, caps
+        # otherwise it is not first move
+        else:
+            for pawn_row, pawn_col in pawn_regular_moves:
+                row, col = self.current_row + pawn_row, self.current_col + pawn_col
+                # while 0 <= row < 8 and 0 <= col < 8:
+                if self.board[row][col] is not None:
+                    if self.board[row][col].allegiance == self.allegiance:
+                        break
+                    else:
+                        # Can capture piece but cannot move past it so exit loop
+                        caps.append((row, col))
+                        break
+                else:
+                    moves.append((row, col))
+
+                # row += pawn_row
+                # col += pawn_col
             # print(f"Moves: {movements + captures}")
             return moves, caps
 
