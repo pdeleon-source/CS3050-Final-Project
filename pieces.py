@@ -89,8 +89,6 @@ class Piece(arcade.AnimatedTimeBasedSprite):
         #     print("White is Updating")
 
 
-
-"""
 class Pawn(Piece):
     def __init__(self, allegiance, board, current_pos):
         super().__init__(allegiance, board, current_pos)
@@ -127,7 +125,7 @@ class Pawn(Piece):
     def __repr__(self):
         return f"{self.allegiance} Pawn"
 
-"""
+
 class Rook(Piece):
     def __init__(self, allegiance, board, current_pos):
         super().__init__(allegiance, board, current_pos)
