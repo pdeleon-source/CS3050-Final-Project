@@ -3,6 +3,10 @@
 import arcade
 import copy
 
+MOVE_SPEED = 5
+SQUARE_WIDTH = 400 // 8
+SQUARE_HEIGHT = 400 // 8
+
 class Piece(arcade.AnimatedTimeBasedSprite):
     def __init__(self, allegiance, board, current_pos):
         super().__init__()
@@ -13,35 +17,31 @@ class Piece(arcade.AnimatedTimeBasedSprite):
         self.current_col = current_pos[1]
         self.position = (self.current_col, self.current_row)
         self.board[self.current_row][self.current_col] = self
+        self.x = self.current_col * SQUARE_WIDTH
+        self.y = self.current_row * SQUARE_HEIGHT
+        self.target_x = self.current_col * SQUARE_WIDTH
+        self.target_y = self.current_row * SQUARE_HEIGHT
 
     def draw(self):
-        arcade.start_render()
-        # Make even squares
-        square_width = 400 // 8
-        square_height = 400 // 8
-
-        # Draw the piece on the game board
-        x = self.position[0] * square_width
-        y = self.position[1] * square_height
-
-        # arcade.draw_texture_rectangle(self.position[0], self.position[1], self.texture.width, self.texture.height, self.texture)
-        # arcade.draw_texture_rectangle(x + square_width // 2, y + square_height // 2, square_width,
-
-        arcade.draw_texture_rectangle(self.current_col * square_width + square_width // 2,
-                                      self.current_row * square_height + square_height // 2,
-                                      square_width, square_height,
+        arcade.draw_texture_rectangle(self.x + SQUARE_WIDTH // 2,
+                                      self.y + SQUARE_HEIGHT // 2,
+                                      SQUARE_WIDTH, SQUARE_HEIGHT,
                                       self.texture)
 
-
     def move(self, new_pos) -> bool:
+
         new_row = new_pos[0]
         new_col = new_pos[1]
 
-        possible_moves = self.available_moves()[0] + self.available_moves()[1]
+        moves, caps = self.available_moves()
+        possible_moves = moves + caps
 
-        if (new_row, new_col) not in possible_moves:
-            print("INVALID MOVE")
-            return False
+        # print(f"New Pos: {new_pos}")
+        # print(f"Moves: {possible_moves}")
+
+        # if (new_row, new_col) not in possible_moves:
+        #     print("INVALID MOVE")
+        #     return False
 
         destination = self.board[new_row][new_col]
         if destination is not None and destination.allegiance != self.allegiance:
@@ -53,35 +53,41 @@ class Piece(arcade.AnimatedTimeBasedSprite):
         # All conditions passed so move Bishop piece
         print(f"Moved {self} to position ({new_row}, {new_col})")
 
-        self.board[self.current_row][self.current_col] = None
-        self.board[new_row][new_col] = self
+        #self.board[self.current_row][self.current_col] = None
+        #self.board[new_row][new_col] = self
 
         # Update variables
         self.moves += 1
         self.current_row = new_row
         self.current_col = new_col
+        # self.x = self.current_col * SQUARE_WIDTH
+        # self.y = self.current_row * SQUARE_HEIGHT
+
+        # [print(row) for row in reversed(self.board)]
+
         return True
 
-    def move_piece(self, new_position):
-        start_position = (self.current_row, self.current_col)
-        end_position = new_position
-        total_frames = 60  # Total frames for animation
-        current_frame = 0
+    def on_click(self, x, y):
+        self.target_x = x + SQUARE_WIDTH // 2
+        self.target_y = y + SQUARE_HEIGHT // 2
 
-        # Calculate the distance to move each frame
-        dx = (end_position[1] - start_position[1]) / total_frames
-        dy = (end_position[0] - start_position[0]) / total_frames
+        # if self.allegiance == "Black":
+        #     print(f"New Pos: {self.target_x} {self.target_y}")
+    def update(self):
+        # Move the dot towards the target position
+        dx = self.target_x - self.x
+        dy = self.target_y - self.y
+        distance = ((dx ** 2) + (dy ** 2)) ** 0.5
+        if distance > MOVE_SPEED:
+            scale = MOVE_SPEED / distance
+            dx *= scale
+            dy *= scale
 
-        # Update position gradually over each frame
-        while current_frame < total_frames:
-            self.current_col = start_position[1] + dx * current_frame
-            self.current_row = start_position[0] + dy * current_frame
-            current_frame += 1
-            arcade.start_render()  # Ensure rendering occurs each frame
-            # Draw the updated position of the piece
-            self.draw()
-            print(self.board)
-        self.current_row, self.current_col = new_position
+        self.x += dx
+        self.y += dy
+        # if self.allegiance == "White":
+        #     print("White is Updating")
+
 
 
 """
@@ -190,8 +196,8 @@ class Rook(Piece):
 
     def __repr__(self):
         if self.allegiance == 'Black':
-            return '♝'
-        return '♗'
+            return '♜'
+        return '♖'
 
 
 class Bishop(Piece):
@@ -211,12 +217,11 @@ class Bishop(Piece):
     def available_moves(self):
         movements = []
         captures = []
-
+        # print(f"{self.current_row} {self.current_col}")
         # Bishop moves diagonally, so we check all four diagonal directions
         for diagonal_row, diagonal_col in [(-1, -1), (-1, 1), (1, -1), (1, 1)]:
             row, col = self.current_row + diagonal_row, self.current_col + diagonal_col
             while 0 <= row < 8 and 0 <= col < 8:
-                print(f"{row} {col}")
                 if self.board[row][col] is not None:
                     if self.board[row][col].allegiance == self.allegiance:
                         break
@@ -229,7 +234,7 @@ class Bishop(Piece):
 
                 row += diagonal_row
                 col += diagonal_col
-
+        # print(f"Moves: {movements + captures}")
         return movements, captures
 
     def __repr__(self):
@@ -296,28 +301,19 @@ class King(Piece):
             self.texture = arcade.load_texture("pieces_png/white-king.png")
 
     def available_moves(self):
-        """
-        TODO: allow capture if King in check
-        """
         movements = []
         captures = []
         for move_row, move_col in [(-1, -1), (-1, 1), (1, -1), (1, 1), (-1, 0), (0, -1), (1, 0), (0, 1)]:
             row, col = self.current_row + move_row, self.current_col + move_col
             if 0 <= row < 8 and 0 <= col < 8:
                 # If king won't go into check add to movements
-                if not self.under_attack(row, col):
-                    if self.board[row][col] is None:
-                        movements.append((row, col))
-                    elif self.board[row][col].allegiance != self.allegiance:
-                        captures.append((row, col))
-                # King is under attack - try to capture
-                else:
-                    if self.board[row][col] is not None and self.board[row][col].allegiance != self.allegiance:
-                        captures.append((row, col))
+                if not self.under_attack(row, col) and self.board[row][col] is None:
+                    movements.append((row, col))
 
                 row += move_row
                 col += move_col
 
+        # print(movements)
         return movements, captures
 
     def under_attack(self, row, col) -> bool:
@@ -325,6 +321,7 @@ class King(Piece):
         Checks if the given move will put the king under attack
         :param row:
         :param col:
+        :param visited:
         :return:
         """
 
@@ -336,10 +333,12 @@ class King(Piece):
                     if not isinstance(self.board[r][c], King):
                         # Checks if move would put king in check of another piece
                         movement, captures = self.board[r][c].available_moves()
+                        # print(captures)
                         if (row, col) in captures or (row, col) in movement:
                             # If not, it gets added to the kings available moves
                             return True
         return False
+
 
     def __repr__(self):
         if self.allegiance == 'Black':
@@ -351,38 +350,20 @@ if __name__ == "__main__":
     chess_board = [[None for _ in range(8)] for _ in range(8)]
 
     # bish = Bishop("Black", chess_board, 0, 0)
-    #bish = Bishop("White", chess_board, [3, 3])
+    bish = Bishop("White", chess_board, [3, 3])
     king = King("Black", chess_board, [0, 1])
     queen = Queen("White", chess_board, [2, 2])
-    kween = Queen("White", chess_board, [3, 3])
     #king = King("White", chess_board, 2, 2)
 
     for row in chess_board:
         print(row)
+
     print(king.available_moves())
-    print(queen.available_moves())
-    queen.move([1, 2], chess_board)
-    print("QUEEN MOVES")
-    for row in chess_board:
-        print(row)
-    #bish.move([2, 2], chess_board)
+    print(king.move([1, 0]))
+    move = king.available_moves()
+    print(move)
+    for r, c in move:
+        print(chess_board[r][c])
 
-    print("KING MOVES")
-    king.move([1, 2], chess_board)
-
-    for row in chess_board:
-        print(row)
-
-    kween.move([2, 2], chess_board)
-    print("KWEEN MOVES")
-    for row in chess_board:
-        print(row)
-    print("King's moves.....")
-    print(king.available_moves())
-
-
-
-    print("KING CAPTURES")
-    king.move([2, 2], chess_board)
     for row in chess_board:
         print(row)

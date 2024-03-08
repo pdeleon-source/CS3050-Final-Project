@@ -1,5 +1,9 @@
 import random
 from pieces import Piece
+import numpy as np
+
+SQUARE_WIDTH = 400 // 8
+SQUARE_HEIGHT = 400 // 8
 
 # this will be a class that can move pieces legally around the chess board
 # Note: Doesn't have to be smart, just has to be "correct"
@@ -32,6 +36,7 @@ class Computer:
     def move_piece(self, piece: Piece):
         # TODO: Uncomment this when pieces "invalid move" stmt is fixed
         valid_move = False
+        move_coords = []
         while not valid_move:
 
             # get the piece's moves
@@ -47,9 +52,23 @@ class Computer:
             # get the coords of that square
             # print(all_moves)
             # print("MOVE SQUARE: ", all_moves[random_move_square])
-            move_coords = [all_moves[random_move_square][0], all_moves[random_move_square][1]]
+            move_coords = [all_moves[random_move_square][1], all_moves[random_move_square][0]]
             # move piece to square
+
+            # Store the piece's current position
+            current_row = piece.current_row
+            current_col = piece.current_col
+
+            # Move piece to square
+            print(f"Piece: {piece}")
 
             valid_move = piece.move(move_coords)
 
-        return 0
+            # Update the piece's position in the board_array
+            if valid_move:
+                print(f"Removed Black Piece from [{current_row} {current_col}]")
+                # print(f"Current Piece removal: {move_coords[1]]")
+                self.board_array[current_row][current_col] = None
+                self.board_array[move_coords[0]][move_coords[1]] = piece
+
+        return move_coords
