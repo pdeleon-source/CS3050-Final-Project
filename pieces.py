@@ -118,8 +118,18 @@ class Pawn(Piece):
     def available_moves(self):
         moves = []
         caps = []
+
+        # if the pawn is white, use this set of moves
+        if self.allegiance == 'White':
+            pawn_first_moves = [(0, 2), (0, 1), (1, 1), (-1, 1)]
+            pawn_regular_moves = [(0,1), (1, 1), (-1, 1)]
+        # otherwise the pawn is black, use this set of moves
+        else:
+            pawn_first_moves = [(0, -2), (0, -1), (1, -1), (-1, -1)]
+            pawn_regular_moves = [(0, -1), (1, -1), (-1, -1)]
+
         if self.moves == 0:
-            for pawn_row, pawn_col in [(0, 2), (0, 1), (1, 1), (-1, 1)]:
+            for pawn_row, pawn_col in pawn_first_moves:
                 row, col = self.current_row + pawn_row, self.current_col + pawn_col
                 while 0 <= row < 8 and 0 <= col < 8:
                     if self.board[row][col] is not None:
@@ -137,7 +147,7 @@ class Pawn(Piece):
                 # print(f"Moves: {movements + captures}")
             return moves, caps
         else:
-            for pawn_row, pawn_col in [(0,1), (1, 1), (-1, 1)]:
+            for pawn_row, pawn_col in pawn_regular_moves:
                 row, col = self.current_row + diagonal_row, self.current_col + diagonal_col
                 while 0 <= row < 8 and 0 <= col < 8:
                     if self.board[row][col] is not None:
