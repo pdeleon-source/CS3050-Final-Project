@@ -256,6 +256,7 @@ class Rook(Piece):
         else:
             self.texture = arcade.load_texture("pieces_png/white-rook.png")
 
+    # TODO: Computer sometimes moves the rook illegally, need to look into this
     def move(self, new_row, new_col):
         # Cannot move to same position
         # new_row = new_pos[0]
