@@ -14,6 +14,12 @@ class Piece:
         self.board[self.current_row][self.current_col] = self
 
     def move(self, new_pos, board) -> bool:
+        """
+        Moves Piece on board if given position is valid
+        :param new_pos:
+        :param board:
+        :return: true if move was successful
+        """
         new_row = new_pos[0]
         new_col = new_pos[1]
 
@@ -43,6 +49,7 @@ class Piece:
         self.board = board
         return True
 
+"""
 class Pawn(Piece):
     def __init__(self, allegiance, board, current_pos):
         super().__init__(allegiance, board, current_pos)
@@ -141,6 +148,8 @@ class Rook(Piece):
                 col += vert_col
 
         return moves, caps
+"""
+
 
 class Bishop(Piece):
     def __init__(self, allegiance, board, current_pos):
@@ -157,6 +166,10 @@ class Bishop(Piece):
             self.texture = arcade.load_texture("pieces_png/white-bishop.png")
 
     def available_moves(self):
+        """
+        Determines the Bishop's valid moves based on its current index
+        :return: a list of available moves and a list of potential captures
+        """
         movements = []
         captures = []
 
@@ -200,11 +213,14 @@ class Queen(Piece):
             self.texture = arcade.load_texture("pieces_png/white-queen.png")
 
     def available_moves(self):
+        """
+        Determines the Queen's valid moves based on its current index
+        :return: a list of available moves and a list of potential captures
+        """
         movements = []
         captures = []
 
-        # Queen moves diagonally, so we check all four diagonal directions
-        # Queen also moves horizontally and vertically
+        # Check horizontal, vertical, and all four horizontal directions
         for diagonal_row, diagonal_col in [(-1, -1), (-1, 1), (1, -1), (1, 1), (-1, 0), (0, -1), (1, 0), (0, 1)]:
             row, col = self.current_row + diagonal_row, self.current_col + diagonal_col
             while 0 <= row < 8 and 0 <= col < 8:
@@ -244,20 +260,22 @@ class King(Piece):
 
     def available_moves(self):
         """
-        TODO: allow capture if King in check
+        Determines the King's valid moves based on its current position
+        :return: a list of available moves and a list of potential captures
         """
         movements = []
         captures = []
+        # King can move one spot in any direction
         for move_row, move_col in [(-1, -1), (-1, 1), (1, -1), (1, 1), (-1, 0), (0, -1), (1, 0), (0, 1)]:
             row, col = self.current_row + move_row, self.current_col + move_col
             if 0 <= row < 8 and 0 <= col < 8:
-                # If king won't go into check add to movements
+                # If king won't go into check, add to movements
                 if not self.under_attack(row, col):
                     if self.board[row][col] is None:
                         movements.append((row, col))
                     elif self.board[row][col].allegiance != self.allegiance:
                         captures.append((row, col))
-                # King is under attack - try to capture
+                # Otherwise, king is in check - attempt to capture adjacent pieces
                 else:
                     if self.board[row][col] is not None and self.board[row][col].allegiance != self.allegiance:
                         captures.append((row, col))
@@ -269,13 +287,13 @@ class King(Piece):
 
     def under_attack(self, row, col) -> bool:
         """
-        Checks if the given move will put the king under attack
+        Checks if a given move will put the king in check
         :param row:
         :param col:
-        :return:
+        :return: true if move will put king under attack
         """
 
-        # Loops through the board
+        # Iterate through every spot on the board
         for r in range(8):
             for c in range(8):
                 # Finds pieces of a different allegiance, who are not a king
@@ -284,7 +302,7 @@ class King(Piece):
                         # Checks if move would put king in check of another piece
                         movement, captures = self.board[r][c].available_moves()
                         if (row, col) in captures or (row, col) in movement:
-                            # If not, it gets added to the kings available moves
+                            # If king could be captured, return true
                             return True
         return False
 
@@ -295,6 +313,9 @@ class King(Piece):
 
 
 if __name__ == "__main__":
+    """
+    Main function for testing purposes
+    """
     chess_board = [[None for _ in range(8)] for _ in range(8)]
 
     # bish = Bishop("Black", chess_board, 0, 0)
