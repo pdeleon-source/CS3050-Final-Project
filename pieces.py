@@ -28,10 +28,10 @@ class Piece(arcade.AnimatedTimeBasedSprite):
                                       SQUARE_WIDTH, SQUARE_HEIGHT,
                                       self.texture)
 
-    def move(self, new_row, new_col) -> bool:
+    def move(self, new_pos) -> bool:
 
-        # new_row = new_pos[0]
-        # new_col = new_pos[1]
+        new_row = new_pos[0]
+        new_col = new_pos[1]
 
         moves, caps = self.available_moves()
         possible_moves = moves + caps
@@ -460,9 +460,6 @@ class King(Piece):
         for move_row, move_col in [(-1, -1), (-1, 1), (1, -1), (1, 1), (-1, 0), (0, -1), (1, 0), (0, 1)]:
             row, col = self.current_row + move_row, self.current_col + move_col
             if 0 <= row < 8 and 0 <= col < 8:
-                # If king won't go into check add to movements
-                if not self.under_attack(row, col) and self.board[row][col] is None:
-                    movements.append((row, col))
                 # If king won't go into check, add to movements
                 if not self.under_attack(row, col):
                     if self.board[row][col] is None:
@@ -521,19 +518,19 @@ if __name__ == "__main__":
         print(row)
     print(king.available_moves())
     print(queen.available_moves())
-    queen.move([1, 2], chess_board)
+    queen.move([1, 2])
     print("QUEEN MOVES")
     for row in chess_board:
         print(row)
     #bish.move([2, 2], chess_board)
 
     print("KING MOVES")
-    king.move([1, 2], chess_board)
+    king.move([1, 2])
 
     for row in chess_board:
         print(row)
 
-    kween.move([2, 2], chess_board)
+    kween.move([2, 2])
     print("KWEEN MOVES")
     for row in chess_board:
         print(row)
@@ -543,6 +540,6 @@ if __name__ == "__main__":
 
 
     print("KING CAPTURES")
-    king.move([2, 2], chess_board)
+    king.move([2, 2])
     for row in chess_board:
         print(row)
