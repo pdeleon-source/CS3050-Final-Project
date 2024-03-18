@@ -28,10 +28,10 @@ class Piece(arcade.AnimatedTimeBasedSprite):
                                       SQUARE_WIDTH, SQUARE_HEIGHT,
                                       self.texture)
 
-    def move(self, new_row, new_col) -> bool:
+    def move(self, new_pos) -> bool:
 
-        # new_row = new_pos[0]
-        # new_col = new_pos[1]
+        new_row = new_pos[0]
+        new_col = new_pos[1]
 
         moves, caps = self.available_moves()
         possible_moves = moves + caps
@@ -164,8 +164,8 @@ class Pawn(Piece):
 
                 # row += pawn_row
                 # col += pawn_col
-                # print(f"Moves: {movements + captures}")                
-                            
+                # print(f"Moves: {movements + captures}")
+
             return moves, caps
         # otherwise it is not first move
         else:
@@ -361,6 +361,10 @@ class Bishop(Piece):
             self.texture = arcade.load_texture("pieces_png/white-bishop.png")
 
     def available_moves(self):
+        """
+        Determines the Bishop's valid moves based on its current index
+        :return: a list of available moves and a list of potential captures
+        """
         movements = []
         captures = []
         # print(f"{self.current_row} {self.current_col}")
@@ -447,14 +451,26 @@ class King(Piece):
             self.texture = arcade.load_texture("pieces_png/white-king.png")
 
     def available_moves(self):
+        """
+        Determines the King's valid moves based on its current position
+        :return: a list of available moves and a list of potential captures
+        """
         movements = []
         captures = []
+        # King can move one spot in any direction
         for move_row, move_col in [(-1, -1), (-1, 1), (1, -1), (1, 1), (-1, 0), (0, -1), (1, 0), (0, 1)]:
             row, col = self.current_row + move_row, self.current_col + move_col
             if 0 <= row < 8 and 0 <= col < 8:
-                # If king won't go into check add to movements
-                if not self.under_attack(row, col) and self.board[row][col] is None:
-                    movements.append((row, col))
+                # If king won't go into check, add to movements
+                if not self.under_attack(row, col):
+                    if self.board[row][col] is None:
+                        movements.append((row, col))
+                    elif self.board[row][col].allegiance != self.allegiance:
+                        captures.append((row, col))
+                # Otherwise, king is in check - attempt to capture adjacent pieces
+                else:
+                    if self.board[row][col] is not None and self.board[row][col].allegiance != self.allegiance:
+                        captures.append((row, col))
 
                 row += move_row
                 col += move_col
@@ -467,7 +483,6 @@ class King(Piece):
         Checks if the given move will put the king under attack
         :param row:
         :param col:
-        :param visited:
         :return:
         """
 
@@ -479,12 +494,10 @@ class King(Piece):
                     if not isinstance(self.board[r][c], King):
                         # Checks if move would put king in check of another piece
                         movement, captures = self.board[r][c].available_moves()
-                        # print(captures)
                         if (row, col) in captures or (row, col) in movement:
                             # If not, it gets added to the kings available moves
                             return True
         return False
-
 
     def __repr__(self):
         if self.allegiance == 'Black':
@@ -496,20 +509,38 @@ if __name__ == "__main__":
     chess_board = [[None for _ in range(8)] for _ in range(8)]
 
     # bish = Bishop("Black", chess_board, 0, 0)
-    bish = Bishop("White", chess_board, [3, 3])
+    #bish = Bishop("White", chess_board, [3, 3])
     king = King("Black", chess_board, [0, 1])
     queen = Queen("White", chess_board, [2, 2])
+    kween = Queen("White", chess_board, [3, 3])
     #king = King("White", chess_board, 2, 2)
 
     for row in chess_board:
         print(row)
-
     print(king.available_moves())
-    print(king.move([1, 0]))
-    move = king.available_moves()
-    print(move)
-    for r, c in move:
-        print(chess_board[r][c])
+    print(queen.available_moves())
+    queen.move([1, 2])
+    print("QUEEN MOVES")
+    for row in chess_board:
+        print(row)
+    #bish.move([2, 2], chess_board)
 
+    print("KING MOVES")
+    king.move([1, 2])
+
+    for row in chess_board:
+        print(row)
+
+    kween.move([2, 2])
+    print("KWEEN MOVES")
+    for row in chess_board:
+        print(row)
+    print("King's moves.....")
+    print(king.available_moves())
+
+
+
+    print("KING CAPTURES")
+    king.move([2, 2])
     for row in chess_board:
         print(row)
