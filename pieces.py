@@ -156,8 +156,9 @@ class Pawn(Piece):
                             break
                         else:
                             # Can capture piece but cannot move past it so exit loop
-                            caps.append((row, col))
+                            # caps.append((row, col))
                             break
+                    break
                 else:
                     moves.append((row, col))
 
