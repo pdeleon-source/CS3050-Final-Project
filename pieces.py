@@ -7,6 +7,16 @@ MOVE_SPEED = 5
 SQUARE_WIDTH = 400 // 8
 SQUARE_HEIGHT = 400 // 8
 
+"""
+TODO: dont allow pieces to put their own king in check
+en passant
+pawn promotion (reaches last row opposing)
+check if in check
+check if checkmate
+stalemate (tie, show message) and resign (quit game)
+"""
+
+
 class Piece(arcade.AnimatedTimeBasedSprite):
     def __init__(self, allegiance, board, current_pos):
         super().__init__()

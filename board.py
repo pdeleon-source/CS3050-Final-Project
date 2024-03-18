@@ -1,4 +1,18 @@
 # Board Class
+"""
+TODO: Main menu
+1) 2 Players
+- player name
+- player score
+2) Play Computer
+3) Game
+4) Settings
+- theme
+- sound on or off
+- timer on or off
+Show who's turn
+
+"""
 
 import arcade
 
@@ -50,6 +64,7 @@ BLK_POS = {
 # p = pieces.Piece
 white_allegiance = "White"
 black_allegiance = "Black"
+
 
 class Board(arcade.Window):
     def __init__(self, width, height):

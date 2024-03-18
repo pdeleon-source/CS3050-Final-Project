@@ -5,6 +5,7 @@ import numpy as np
 SQUARE_WIDTH = 400 // 8
 SQUARE_HEIGHT = 400 // 8
 
+
 # this will be a class that can move pieces legally around the chess board
 # Note: Doesn't have to be smart, just has to be "correct"
 class Computer:
