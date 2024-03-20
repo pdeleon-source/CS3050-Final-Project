@@ -206,16 +206,59 @@ class Pawn(Piece):
                     else:
                         # Can capture piece but cannot move past it so exit loop
                         caps.append((cap_row, cap_col))
+            # Check en passant
+            if self.moves >= 3:
+                left = self.board[self.current_row - 1][self.current_col]
+                right = self.board[self.current_row + 1][self.current_col]
 
-                # row += pawn_row
-                # col += pawn_col
-            # print(f"Moves: {movements + captures}")
+                if self.allegiance == "White":
+                    direction = -1
+                else:
+                    direction = 1
+
+                moveX = self.current_row + direction
+                moveUY = self.current_col + direction
+                moveDY = self.current_col - direction
+
+                if isinstance(left, Pawn) and left.allegiance != self.allegiance and self.board[moveX][moveUY] is None:
+                    #caps.append((left.current_row, left.current_col))
+                    caps.append((moveX, moveUY))
+
+                elif isinstance(right, Pawn) and right.allegiance != self.allegiance and self.board[moveX][moveDY] is None:
+                    #caps.append((right.current_row, right.current_col))
+                    caps.append((moveX, moveDY))
+
             return moves, caps
 
+    def move(self, new_pos):
+        super().move(new_pos)
+
+        if self.allegiance == "White":
+            direction = -1
+        else:
+            direction = 1
+
+        new_row = new_pos[0]
+        new_col = new_pos[1]
+
+        # If move is diagonal, capture piece under it
+        if new_col != self.current_col:
+            self.board[new_row - direction][new_col] = None
+
+    def en_passant(self):
+        """
+        Returns True if the conditions of en passant are met
+        1) Moves greater than or equal to three
+        2) Opponent piece is Pawn
+        3) Opponent piece moved two squares in previous move
+
+        :return:
+        """
     def __repr__(self):
         if self.allegiance == 'Black':
             return '♟'
         return '♙'
+
 
 class Knight(Piece):
     def __init__(self, allegiance, board, current_pos):
