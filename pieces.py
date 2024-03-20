@@ -230,20 +230,20 @@ class Pawn(Piece):
 
             return moves, caps
 
-    def move(self, new_pos):
-        super().move(new_pos)
+    # def move(self, new_pos):
+    #     super().move(new_pos)
 
-        if self.allegiance == "White":
-            direction = -1
-        else:
-            direction = 1
+    #     if self.allegiance == "White":
+    #         direction = -1
+    #     else:
+    #         direction = 1
 
-        new_row = new_pos[0]
-        new_col = new_pos[1]
+    #     new_row = new_pos[0]
+    #     new_col = new_pos[1]
 
-        # If move is diagonal, capture piece under it
-        if new_col != self.current_col:
-            self.board[new_row - direction][new_col] = None
+    #     # If move is diagonal, capture piece under it
+    #     if new_col != self.current_col:
+    #         self.board[new_row - direction][new_col] = None
 
     def en_passant(self):
         """
