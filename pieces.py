@@ -63,10 +63,8 @@ class Piece(arcade.AnimatedTimeBasedSprite):
         # All conditions passed so move Bishop piece
         print(f"Moved {self} to position ({new_row}, {new_col})")
 
-        # Check en passant
-
-        self.board[self.current_row][self.current_col] = None
-        self.board[new_row][new_col] = self
+        #self.board[self.current_row][self.current_col] = None
+        #self.board[new_row][new_col] = self
 
         # Update variables
         self.moves += 1
@@ -209,9 +207,9 @@ class Pawn(Piece):
                         # Can capture piece but cannot move past it so exit loop
                         caps.append((cap_row, cap_col))
             # Check en passant
-            if self.moves >= 2:
-                left = self.board[self.current_row][self.current_col - 1]
-                right = self.board[self.current_row][self.current_col + 1]
+            if self.moves >= 3:
+                left = self.board[self.current_row - 1][self.current_col]
+                right = self.board[self.current_row + 1][self.current_col]
 
                 if self.allegiance == "White":
                     direction = -1
@@ -221,7 +219,6 @@ class Pawn(Piece):
                 moveX = self.current_row + direction
                 moveUY = self.current_col + direction
                 moveDY = self.current_col - direction
-                # TODO: Can capture two pieces in one, space under doesnt need to be none!
 
                 if (isinstance(left, Pawn) and left.allegiance != self.allegiance and 0 <= moveX < 8 and 0 <= moveUY < 8
                         and self.board[moveX][moveUY] is None):
@@ -239,7 +236,6 @@ class Pawn(Piece):
 
     def move(self, new_pos):
         super().move(new_pos)
-        print("MOVE PAWN")
 
         if self.allegiance == "White":
             direction = -1
@@ -251,14 +247,15 @@ class Pawn(Piece):
 
         # If move is diagonal, capture piece under it
         if new_col != self.current_col:
-            self.board[new_row + direction][new_col] = None
+            self.board[new_row - direction][new_col] = None
 
-    def en_passant(self, piece):
+    def en_passant(self):
         """
         Returns True if the conditions of en passant are met
         1) Moves greater than or equal to three
         2) Opponent piece is Pawn
-        3) Opponent piece moved two squares in previous move (opponent.moves = 1)
+        3) Opponent piece moved two squares in previous move
+
         :return:
         """
     def __repr__(self):
@@ -309,8 +306,6 @@ class Knight(Piece):
         if self.allegiance == 'Black':
             return '♞'
         return '♘'
-
-
 class Rook(Piece):
     def __init__(self, allegiance, board, current_pos):
         super().__init__(allegiance, board, current_pos)
