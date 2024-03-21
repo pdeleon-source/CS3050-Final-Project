@@ -174,8 +174,7 @@ class Board(arcade.Window):
 
         # If a piece is selected
         if self.current_turn == white_allegiance:
-            if any(self.selected[row][col] for row in range(ROWS) for col in range(COLS)):
-
+            if any(self.selected[r][c] for r in range(ROWS) for c in range(COLS)):
                 # If the clicked spot is a valid move
                 if (row, col) in self.valid_moves:
                     # Move the selected piece to the clicked spot
@@ -335,7 +334,7 @@ class Board(arcade.Window):
         self.selected_piece.on_click(col * SQUARE_WIDTH - 25, row * SQUARE_HEIGHT - 25)
 
         # Deselect the piece and switch turn after animation is complete
-        self.selected_piece.move(row, col)
+        self.selected_piece.move([row, col])
 
         self.board[self.selected_row][self.selected_col] = None
         self.board[row][col] = piece

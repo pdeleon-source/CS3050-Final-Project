@@ -43,8 +43,8 @@ class Piece(arcade.AnimatedTimeBasedSprite):
         new_row = new_pos[0]
         new_col = new_pos[1]
 
-        moves, caps = self.available_moves()
-        possible_moves = moves + caps
+        # moves, caps = self.available_moves()
+        # possible_moves = moves + caps
 
         # print(f"New Pos: {new_pos}")
         # print(f"Moves: {possible_moves}")
@@ -63,8 +63,10 @@ class Piece(arcade.AnimatedTimeBasedSprite):
         # All conditions passed so move Bishop piece
         print(f"Moved {self} to position ({new_row}, {new_col})")
 
-        #self.board[self.current_row][self.current_col] = None
-        #self.board[new_row][new_col] = self
+        # Check en passant
+
+        self.board[self.current_row][self.current_col] = None
+        self.board[new_row][new_col] = self
 
         # Update variables
         self.moves += 1
@@ -207,9 +209,9 @@ class Pawn(Piece):
                         # Can capture piece but cannot move past it so exit loop
                         caps.append((cap_row, cap_col))
             # Check en passant
-            if self.moves >= 3:
-                left = self.board[self.current_row - 1][self.current_col]
-                right = self.board[self.current_row + 1][self.current_col]
+            if self.moves >= 2:
+                left = self.board[self.current_row][self.current_col - 1]
+                right = self.board[self.current_row][self.current_col + 1]
 
                 if self.allegiance == "White":
                     direction = -1
@@ -219,19 +221,25 @@ class Pawn(Piece):
                 moveX = self.current_row + direction
                 moveUY = self.current_col + direction
                 moveDY = self.current_col - direction
+                # TODO: Can capture two pieces in one, space under doesnt need to be none!
 
-                if isinstance(left, Pawn) and left.allegiance != self.allegiance and self.board[moveX][moveUY] is None:
-                    #caps.append((left.current_row, left.current_col))
-                    caps.append((moveX, moveUY))
+                if (isinstance(left, Pawn) and left.allegiance != self.allegiance and 0 <= moveX < 8 and 0 <= moveUY < 8
+                        and self.board[moveX][moveUY] is None):
+                    if left.moves == 1:
+                        caps.append((left.current_row, left.current_col))
+                        moves.append((moveX, moveUY))
 
-                elif isinstance(right, Pawn) and right.allegiance != self.allegiance and self.board[moveX][moveDY] is None:
-                    #caps.append((right.current_row, right.current_col))
-                    caps.append((moveX, moveDY))
+                elif (isinstance(right, Pawn) and right.allegiance != self.allegiance and 0 <= moveX < 8 and 0 <= moveDY < 8
+                      and self.board[moveX][moveDY] is None):
+                    if right.moves == 1:
+                        caps.append((right.current_row, right.current_col))
+                        moves.append((moveX, moveDY))
 
             return moves, caps
 
     def move(self, new_pos):
         super().move(new_pos)
+        print("MOVE PAWN")
 
         if self.allegiance == "White":
             direction = -1
@@ -243,15 +251,14 @@ class Pawn(Piece):
 
         # If move is diagonal, capture piece under it
         if new_col != self.current_col:
-            self.board[new_row - direction][new_col] = None
+            self.board[new_row + direction][new_col] = None
 
-    def en_passant(self):
+    def en_passant(self, piece):
         """
         Returns True if the conditions of en passant are met
         1) Moves greater than or equal to three
         2) Opponent piece is Pawn
-        3) Opponent piece moved two squares in previous move
-
+        3) Opponent piece moved two squares in previous move (opponent.moves = 1)
         :return:
         """
     def __repr__(self):
@@ -302,6 +309,8 @@ class Knight(Piece):
         if self.allegiance == 'Black':
             return '♞'
         return '♘'
+
+
 class Rook(Piece):
     def __init__(self, allegiance, board, current_pos):
         super().__init__(allegiance, board, current_pos)
@@ -563,37 +572,26 @@ if __name__ == "__main__":
 
     # bish = Bishop("Black", chess_board, 0, 0)
     #bish = Bishop("White", chess_board, [3, 3])
-    king = King("Black", chess_board, [0, 1])
-    queen = Queen("White", chess_board, [2, 2])
-    kween = Queen("White", chess_board, [3, 3])
+    ###kween = Queen("White", chess_board, [3, 3])
     #king = King("White", chess_board, 2, 2)
+    pawn = Pawn("White", chess_board, [0, 1])
+    pawn2 = Pawn("Black", chess_board, [7, 2])
 
     for row in chess_board:
         print(row)
-    print(king.available_moves())
-    print(queen.available_moves())
-    queen.move([1, 2])
-    print("QUEEN MOVES")
+    print(pawn.available_moves())
+    pawn.move([2, 1])
+    print(pawn.available_moves())
+    pawn.move([3, 1])
+    pawn2.move([5, 2])
     for row in chess_board:
         print(row)
-    #bish.move([2, 2], chess_board)
-
-    print("KING MOVES")
-    king.move([1, 2])
-
+    print(pawn2.available_moves())
+    pawn.move([4, 1])
+    pawn2.move([4, 2])
+    print(pawn.available_moves())
     for row in chess_board:
         print(row)
-
-    kween.move([2, 2])
-    print("KWEEN MOVES")
-    for row in chess_board:
-        print(row)
-    print("King's moves.....")
-    print(king.available_moves())
-
-
-
-    print("KING CAPTURES")
-    king.move([2, 2])
+    pawn.move([3, 2])
     for row in chess_board:
         print(row)

@@ -62,7 +62,7 @@ class Computer:
             # Move piece to square
             print(f"Piece: {piece}")
 
-            valid_move = piece.move(move_coords[0], move_coords[1])
+            valid_move = piece.move(move_coords)
 
             # Update the piece's position in the board_array
             if valid_move:
