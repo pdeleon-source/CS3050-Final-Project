@@ -254,6 +254,8 @@ class Pawn(Piece):
 
         :return:
         """
+        if self.moves >= 3:
+            if self
     def __repr__(self):
         if self.allegiance == 'Black':
             return '♟'
