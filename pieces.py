@@ -9,7 +9,6 @@ SQUARE_HEIGHT = 400 // 8
 
 """
 TODO: dont allow pieces to put their own king in check
-en passant
 pawn promotion (reaches last row opposing)
 check if in check
 check if checkmate
@@ -21,6 +20,7 @@ class Piece(arcade.AnimatedTimeBasedSprite):
     def __init__(self, allegiance, board, current_pos):
         super().__init__()
         self.moves = 0
+        self.rank = 0
         self.allegiance = allegiance
         self.board = board
         self.current_row = current_pos[0]
@@ -53,18 +53,28 @@ class Piece(arcade.AnimatedTimeBasedSprite):
         print(f"Moved {self} to position ({new_row}, {new_col})")
 
         """
+        ---KEEP FOR TESTING PURPOSES---
+        
+
         if isinstance(self, Pawn):
             cap = self.en_passant([new_row, new_col])
             if cap is not None:
                 self.board[cap[0]][cap[1]] = None
-        
+
 
         self.board[self.current_row][self.current_col] = None
         self.board[new_row][new_col] = self
         """
 
+        if self.allegiance == "White":
+            self.rank = new_row
+        else:
+            self.rank = abs(8 - new_row)
+
+        print(f"{self} Rank = {self.rank}")
         # Update variables
         self.moves += 1
+        print(f"{self} Moves = {self.moves}")
         self.current_row = new_row
         self.current_col = new_col
 
@@ -89,7 +99,6 @@ class Piece(arcade.AnimatedTimeBasedSprite):
         self.x += dx
         self.y += dy
 
-
 class Pawn(Piece):
     def __init__(self, allegiance, board, current_pos):
         super().__init__(allegiance, board, current_pos)
@@ -97,41 +106,6 @@ class Pawn(Piece):
             self.texture = arcade.load_texture("pieces_png/black-pawn.png")
         else:
             self.texture = arcade.load_texture("pieces_png/white-pawn.png")
-
-    # def move(self, new_row, new_col):
-    #     print(abs(new_row - self.current_row))
-    #     if new_row == self.current_row and new_col == self.current_col:
-    #         print(f"{self} is already in that position!")
-    #         return False
-    #     # account for two block move on the first turn
-    #     elif self.moves == 0 and abs(new_row - self.current_row) == 2 or abs(new_row - self.current_row) == 1:
-    #         destination = self.board[new_row][new_col]
-    #         self.moves += 1
-    #         self.current_row = new_row
-    #         self.current_col = new_col
-    #         return True
-    #     # now account for a normal move
-    #     elif self.moves >= 1 and abs(new_row - self.current_row) == 1:
-    #         destination = self.board[new_row][new_col]
-    #         self.moves += 1
-    #         self.current_row = new_row
-    #         self.current_col = new_col
-    #         return True
-    #     # now account for captures-a diagonal movement
-    #     elif (new_row + new_col) % 2 == 0:
-    #         destination = self.board[new_row][new_col]
-    #         if destination is not None and destination.allegiance != self.allegiance:
-    #             print(f"Captured {destination} at position ({new_row}, {new_col})!")
-    #         self.moves += 1
-    #         self.current_row = new_row
-    #         self.current_col = new_col
-    #         return True
-    #         # en passant-hard as hell, how do I get the space under the destination block?
-    #         # elif destination[new_row]:
-    #         #     print(f"Captured {destination} at position ({new_row}, {new_col})!")
-    #         #     return False
-    #     else:
-    #         raise Exception("Pawn move error", new_row, new_col)
 
     def available_moves(self):
         moves = []
@@ -202,7 +176,8 @@ class Pawn(Piece):
                             caps.append((cap_row, cap_col))
 
             # Add en passant moves
-            if self.moves >= 3:
+            # TODO: Figure out ranks - can only move once before capture
+            if self.rank >= 3:
                 left = self.board[self.current_row][self.current_col - 1]
                 right = self.board[self.current_row][self.current_col + 1]
 
@@ -218,30 +193,35 @@ class Pawn(Piece):
                 # Check if enemy pawn to the left
                 if (isinstance(left, Pawn) and left.allegiance != self.allegiance and
                         0 <= moveX < 8 and 0 <= moveDY < 8):
-                    # TODO: change to ranks
-                    if left.moves == 1:
-                        #caps.append((left.current_row, left.current_col))
-                        moves.append((moveX, moveDY))
+                    #if left.moves == 1 and left.rank == 3:
+                    #caps.append((left.current_row, left.current_col))
+                    moves.append((moveX, moveDY))
 
                 # Check if enemy pawn to the right
                 elif (isinstance(right, Pawn) and right.allegiance != self.allegiance
                       and 0 <= moveX < 8 and 0 <= moveUY < 8):
-                    if right.moves == 1:
-                        #caps.append((right.current_row, right.current_col))
-                        moves.append((moveX, moveUY))
+                    #if right.moves == 1 and right.rank == 3:
+                    #caps.append((right.current_row, right.current_col))
+                    moves.append((moveX, moveUY))
             return moves, caps
 
     def en_passant(self, position):
         """
-        Returns the index of the captured piece from an en passant move
-        :return:
+        If Pawn, returns the index of the captured piece from an en passant move
+        Otherwise, returns None
+        :return: row, col
         """
         if self.allegiance == "White":
             direction = 1
         else:
             direction = -1
 
-        return position[0] - direction, position[1]
+        row, col = position[0] - direction, position[1]
+        if isinstance(self, Pawn) and isinstance(self.board[row][col], Pawn):
+            if self.board[row][col].allegiance != self.allegiance:
+                return row, col
+
+        return None
 
     def __repr__(self):
         if self.allegiance == 'Black':
