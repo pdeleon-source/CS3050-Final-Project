@@ -40,8 +40,7 @@ class Computer:
         while not valid_move:
 
             # get the piece's moves
-            possible_moves = piece.available_moves()[0]
-            possible_captures = piece.available_moves()[1]
+            possible_moves, possible_captures = piece.available_moves()
 
             all_moves = possible_moves + possible_captures
             # if the piece cannot move, return error code 4
@@ -66,7 +65,7 @@ class Computer:
 
             # Update the piece's position in the board_array
             if valid_move:
-                print(f"Removed Black Piece from [{current_row} {current_col}]")
+                print(f"moved {self} from [{current_row} {current_col}]")
                 # print(f"Current Piece removal: {move_coords[1]]")
                 self.board_array[current_row][current_col] = None
                 self.board_array[move_coords[0]][move_coords[1]] = piece

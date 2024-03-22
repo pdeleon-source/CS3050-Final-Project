@@ -75,6 +75,7 @@ class Board(arcade.Window):
 
         self.valid_moves = []
         self.capture_moves = []
+        self.captures = []
 
         arcade.set_background_color(arcade.color.WHITE)
         self.board = np.array([[None for _ in range(COLS)] for _ in range(ROWS)])
@@ -147,7 +148,6 @@ class Board(arcade.Window):
         #     arcade.draw_rectangle_filled(x + square_width // 2, y + square_height // 2, square_width, square_height,
         #                                  VALID_MOVE_COLOR)
 
-
         # Draw labels for columns (a-h)
         for col in range(COLS):
             label = chr(ord('a') + col)  # Convert column index to corresponding letter
@@ -181,6 +181,9 @@ class Board(arcade.Window):
                     self.move_piece(row, col)
                 # If the clicked spot is a capture move
                 elif (row, col) in self.capture_moves:
+                    # Record capture in list
+                    self.captures.append(self.board[row][col])
+                    print(f"{self.current_turn} Captures: {self.captures}")
                     # Move the selected piece to the clicked spot
                     self.move_piece(row, col)
 
@@ -334,7 +337,13 @@ class Board(arcade.Window):
         self.selected_piece.on_click(col * SQUARE_WIDTH - 25, row * SQUARE_HEIGHT - 25)
 
         # Deselect the piece and switch turn after animation is complete
-        self.selected_piece.move(row, col)
+        self.selected_piece.move([row, col])
+
+        # Check if move is en passant
+        if isinstance(self.selected_piece, p.Pawn):
+            cap = self.selected_piece.en_passant([self.selected_row, self.selected_col])
+            self.board[cap[0]][cap[1]] = None
+            self.captures.append(self.board[cap[0]][cap[1]])
 
         self.board[self.selected_row][self.selected_col] = None
         self.board[row][col] = piece
