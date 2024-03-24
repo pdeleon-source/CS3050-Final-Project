@@ -151,15 +151,6 @@ class Pawn(Piece):
                 # while 0 <= row < 8 and 0 <= col < 8:
                 if self.board[row][col] is not None or 0 > row >= 8 or 0 > col >= 8:
                     break
-                    # for pawn_cap_row, pawn_cap_col in pawn_captures:
-                    #     cap_row, cap_col = self.current_row + pawn_cap_row, self.current_col + pawn_cap_col
-                    #     print("CAPTURABLE: ", self.board[cap_row][cap_col])
-                    #     if self.board[cap_row][cap_col].allegiance == self.allegiance:
-                    #         break
-                    #     else:
-                    #         # Can capture piece but cannot move past it so exit loop
-                    #         caps.append((row, col))
-                    #         break
                 else:
                     moves.append((row, col))
             for pawn_cap_row, pawn_cap_col in pawn_captures:
@@ -279,51 +270,6 @@ class Rook(Piece):
             self.texture = arcade.load_texture("pieces_png/black-rook.png")
         else:
             self.texture = arcade.load_texture("pieces_png/white-rook.png")
-
-    # TODO: Computer sometimes moves the rook illegally, need to look into this
-    # def move(self, new_row, new_col):
-    #     # Cannot move to same position
-    #     # new_row = new_pos[0]
-    #     # new_col = new_pos[1]
-
-    #     if new_row == self.current_row and new_col == self.current_col:
-    #         print(f"{self} is already there")
-    #         return False
-    #     # vertical movement
-    #     elif new_row != self.current_row and new_col == self.current_col:
-    #         destination = self.board[new_row][new_col]
-    #         if destination is not None and destination.allegiance != self.allegiance:
-    #             print(f"Captured {destination} at position ({new_row}, {new_col})!")
-    #             self.current_row = new_row
-    #             self.current_col = new_col
-    #             return True
-    #         elif destination is not None:
-    #             print("Cannot capture")
-    #             return False
-    #         else:
-    #             self.moves += 1
-    #             self.current_row = new_row
-    #             self.current_col = new_col
-
-    #     # horizontal movement
-    #     elif new_row == self.current_row and new_col != self.current_col:
-    #         destination = self.board[new_row][new_col]
-    #         if destination is not None and destination.allegiance != self.allegiance:
-    #             print(f"Captured {destination} at position ({new_row}, {new_col})!")
-    #             self.current_row = new_row
-    #             self.current_col = new_col
-    #             return True
-    #         elif destination is not None:
-    #             print("Cannot capture")
-    #             return False
-    #         else:
-    #             self.moves += 1
-    #             self.current_row = new_row
-    #             self.current_col = new_col
-    #             return True
-
-    #     else:
-    #         raise Exception("Rook move error")
 
     def available_moves(self):
         moves = []
