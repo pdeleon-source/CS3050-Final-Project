@@ -363,6 +363,7 @@ class Board(arcade.Window):
 
         print("============= Whites Turn ===========")
         self.print_board()
+        self.check_game_over(piece.allegiance)
         self.switch_turn()
 
     def switch_turn(self):
@@ -392,6 +393,24 @@ class Board(arcade.Window):
 
             print("============= Blacks Turn ============")
             self.print_board()
-
+            self.check_game_over(computer_piece.allegiance)
             self.switch_turn()
-
+    
+    # This function will check if a side is in checkmate
+    # This will end the game and declare a winner
+    def check_game_over(self, allegiance):
+        # get all the pieces of a specific allegiance
+        pieces = []
+        # for each square
+        for row in range(ROWS):
+            for col in range(COLS):
+                # if the square has a piece
+                if isinstance(self.board[row][col], p.Piece):
+                    # if that piece is of the correct allegiance, save it
+                    if self.board[row][col].allegiance == allegiance:
+                        pieces.append(self.board[row][col])
+        
+        
+        
+        # print("PIECES")
+        # print(pieces)
