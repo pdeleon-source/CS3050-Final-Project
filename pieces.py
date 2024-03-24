@@ -4,8 +4,11 @@ import arcade
 import copy
 
 MOVE_SPEED = 5
-SQUARE_WIDTH = 400 // 8
-SQUARE_HEIGHT = 400 // 8
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+
+SQUARE_WIDTH = (SCREEN_WIDTH - 200) // 8
+SQUARE_HEIGHT = SCREEN_HEIGHT // 8
 
 """
 TODO: dont allow pieces to put their own king in check
@@ -27,21 +30,21 @@ class Piece(arcade.AnimatedTimeBasedSprite):
         self.current_col = current_pos[1]
         self.position = (self.current_col, self.current_row)
         self.board[self.current_row][self.current_col] = self
-        self.x = self.current_col * SQUARE_WIDTH
+        self.x = self.current_col * SQUARE_WIDTH + 100
         self.y = self.current_row * SQUARE_HEIGHT
-        self.target_x = self.current_col * SQUARE_WIDTH
+        self.target_x = self.current_col * SQUARE_WIDTH + 100
         self.target_y = self.current_row * SQUARE_HEIGHT
 
     def draw(self):
-        arcade.draw_texture_rectangle(self.x + SQUARE_WIDTH // 2,
+        arcade.draw_texture_rectangle((self.x + SQUARE_WIDTH // 2),
                                       self.y + SQUARE_HEIGHT // 2,
                                       SQUARE_WIDTH, SQUARE_HEIGHT,
                                       self.texture)
 
-    def move(self, new_pos) -> bool:
+    def move(self, new_row, new_col) -> bool:
 
-        new_row = new_pos[0]
-        new_col = new_pos[1]
+        # new_row = new_pos[0]
+        # new_col = new_pos[1]
 
         moves, caps = self.available_moves()
         possible_moves = moves + caps
@@ -78,7 +81,7 @@ class Piece(arcade.AnimatedTimeBasedSprite):
         return True
 
     def on_click(self, x, y):
-        self.target_x = x + SQUARE_WIDTH // 2
+        self.target_x = x + (SQUARE_WIDTH // 2) + 100
         self.target_y = y + SQUARE_HEIGHT // 2
 
         # if self.allegiance == "Black":
@@ -241,12 +244,9 @@ class Knight(Piece):
             if 0 <= row < 8 and 0 <= col < 8:
                 print(f"{row} {col}")
                 if self.board[row][col] is not None:
-                    if self.board[row][col].allegiance == self.allegiance:
-                        print(":D")
-                    else:
+                    if self.board[row][col].allegiance != self.allegiance:
                         # Can capture piece but cannot move past it so exit loop
                         captures.append((row, col))
-                        print(":D")
                 else:
                     movements.append((row, col))
 
@@ -504,10 +504,12 @@ class King(Piece):
                     if not isinstance(self.board[r][c], King):
                         # Checks if move would put king in check of another piece
                         movement, captures = self.board[r][c].available_moves()
+                        # print(captures)
                         if (row, col) in captures or (row, col) in movement:
                             # If not, it gets added to the kings available moves
                             return True
         return False
+
 
     def __repr__(self):
         if self.allegiance == 'Black':

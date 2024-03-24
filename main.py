@@ -6,5 +6,6 @@ SCREEN_WIDTH = 400
 SCREEN_HEIGHT = 400
 
 if __name__ == "__main__":
-    window = board.Board(SCREEN_WIDTH, SCREEN_HEIGHT)
-    arcade.run()
+    window = board.Board()
+    #arcade.run()
+    window.show_view(board_view)
