@@ -145,6 +145,11 @@ class Piece(arcade.AnimatedTimeBasedSprite):
 
         return None
 
+    def promotable(self) -> bool:
+        if isinstance(self, Pawn) and self.rank == 8:
+            return True
+        return False
+
 
 class Pawn(Piece):
     def __init__(self, allegiance, board, current_pos):
@@ -155,6 +160,7 @@ class Pawn(Piece):
             self.texture = arcade.load_texture("pieces_png/white-pawn.png")
 
     def available_moves(self):
+        # TODO: VERY buggy
         moves = []
         caps = []
 
@@ -175,10 +181,17 @@ class Pawn(Piece):
                 row, col = self.current_row + pawn_row, self.current_col + pawn_col
                 # while 0 <= row < 8 and 0 <= col < 8:
                 if self.board[row][col] is not None or 0 > row or row > 7 or 0 > col or col > 7:
-                    break
+                    for pawn_row, pawn_col in pawn_captures:
+                        if self.board[row][col].allegiance == self.allegiance:
+                            break
+                        else:
+                            # Can capture piece but cannot move past it so exit loop
+                            caps.append((row, col))
+                            break
                 else:
                     moves.append((row, col))
-
+            return moves, caps
+            """
             for pawn_cap_row, pawn_cap_col in pawn_captures:
                 cap_row, cap_col = self.current_row + pawn_cap_row, self.current_col + pawn_cap_col
                 if 0 > cap_row or cap_row > 7 or 0 > cap_col or cap_col > 7:
@@ -191,9 +204,7 @@ class Pawn(Piece):
                         else:
                             # Can capture piece but cannot move past it so exit loop
                             caps.append((cap_row, cap_col))
-
-
-            return moves, caps
+            """
         # otherwise it is not first move
         else:
             for pawn_row, pawn_col in pawn_regular_moves:
@@ -216,33 +227,37 @@ class Pawn(Piece):
                             caps.append((cap_row, cap_col))
 
             """En Passant"""
+            # Determine direction
+            if self.allegiance == "White":
+                direction = 1
+            else:
+                direction = -1
+
+            # Determine possible moves
+            moveX = self.current_row + direction
+            moveUY = self.current_col + direction
+            moveDY = self.current_col - direction
+
             # Current piece must be at rank 3 or higher
             if self.rank >= 3:
-                left = self.board[self.current_row][self.current_col - 1]
-                right = self.board[self.current_row][self.current_col + 1]
-
-                if self.allegiance == "White":
-                    direction = 1
-                else:
-                    direction = -1
-
-                moveX = self.current_row + direction
-                moveUY = self.current_col + direction
-                moveDY = self.current_col - direction
-
                 # Check if enemy pawn to the left
-                if (isinstance(left, Pawn) and left.allegiance != self.allegiance and
-                        0 <= moveX < 8 and 0 <= moveDY < 8):
-                    if left.moves == 1 and left.rank == 4:
-                        #caps.append((left.current_row, left.current_col))
-                        moves.append((moveX, moveDY))
+                if self.current_col - 1 > 0:
+                    left = self.board[self.current_row][self.current_col - 1]
+                    if (isinstance(left, Pawn) and left.allegiance != self.allegiance and
+                            0 <= moveX < 8 and 0 <= moveDY < 8):
+                        if left.moves == 1 and left.rank == 4:
+                            # caps.append((left.current_row, left.current_col))
+                            moves.append((moveX, moveDY))
 
                 # Check if enemy pawn to the right
-                elif (isinstance(right, Pawn) and right.allegiance != self.allegiance
-                      and 0 <= moveX < 8 and 0 <= moveUY < 8):
-                    if right.moves == 1 and right.rank == 4:
-                        #caps.append((right.current_row, right.current_col))
-                        moves.append((moveX, moveUY))
+                if self.current_col + 1 < 8:
+                    right = self.board[self.current_row][self.current_col + 1]
+                    if (isinstance(right, Pawn) and right.allegiance != self.allegiance
+                          and 0 <= moveX < 8 and 0 <= moveUY < 8):
+                        if right.moves == 1 and right.rank == 4:
+                            # caps.append((right.current_row, right.current_col))
+                            moves.append((moveX, moveUY))
+
             return moves, caps
 
     def __repr__(self):
