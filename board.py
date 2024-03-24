@@ -183,7 +183,6 @@ class Board(arcade.Window):
                 elif (row, col) in self.capture_moves:
                     # Record capture in list
                     self.captures.append(self.board[row][col])
-                    print(f"{self.current_turn} Captures: {self.captures}")
                     # Move the selected piece to the clicked spot
                     self.move_piece(row, col)
 
@@ -339,11 +338,20 @@ class Board(arcade.Window):
         # Deselect the piece and switch turn after animation is complete
         self.selected_piece.move([row, col])
 
-        # Check if move is en passant
+        """ Check if move is en passant"""
+        # TODO: Fix; doesnt erase or record piece when captured
         if isinstance(self.selected_piece, p.Pawn):
             cap = self.selected_piece.en_passant([self.selected_row, self.selected_col])
+            if cap is not None:
+                self.captures.append(self.board[cap[0]][cap[1]])
+                self.board[cap[0]][cap[1]] = None
+                print(f"JSOFIJIOJEIFAJI Captures!!!!!!: {self.captures}")
+        """
+        cap = self.selected_piece.en_passant([self.selected_row, self.selected_col])
+        if cap is not None:
             self.board[cap[0]][cap[1]] = None
             self.captures.append(self.board[cap[0]][cap[1]])
+        """
 
         self.board[self.selected_row][self.selected_col] = None
         self.board[row][col] = piece
