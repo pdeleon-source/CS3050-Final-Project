@@ -178,6 +178,7 @@ class Pawn(Piece):
                     break
                 else:
                     moves.append((row, col))
+
             for pawn_cap_row, pawn_cap_col in pawn_captures:
                 cap_row, cap_col = self.current_row + pawn_cap_row, self.current_col + pawn_cap_col
                 if 0 > cap_row >= 7 or 0 > cap_col >= 7:
@@ -232,16 +233,16 @@ class Pawn(Piece):
                 # Check if enemy pawn to the left
                 if (isinstance(left, Pawn) and left.allegiance != self.allegiance and
                         0 <= moveX < 8 and 0 <= moveDY < 8):
-                    #if left.moves == 1 and left.rank == 3:
-                    #caps.append((left.current_row, left.current_col))
-                    moves.append((moveX, moveDY))
+                    if left.moves == 1 and left.rank == 4:
+                        #caps.append((left.current_row, left.current_col))
+                        moves.append((moveX, moveDY))
 
                 # Check if enemy pawn to the right
                 elif (isinstance(right, Pawn) and right.allegiance != self.allegiance
                       and 0 <= moveX < 8 and 0 <= moveUY < 8):
-                    #if right.moves == 1 and right.rank == 3:
-                    #caps.append((right.current_row, right.current_col))
-                    moves.append((moveX, moveUY))
+                    if right.moves == 1 and right.rank == 4:
+                        #caps.append((right.current_row, right.current_col))
+                        moves.append((moveX, moveUY))
             return moves, caps
 
     def __repr__(self):
