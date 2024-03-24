@@ -148,13 +148,13 @@ class Pawn(Piece):
             for pawn_row, pawn_col in pawn_first_moves:
                 row, col = self.current_row + pawn_row, self.current_col + pawn_col
                 # while 0 <= row < 8 and 0 <= col < 8:
-                if self.board[row][col] is not None or 0 > row >= 8 or 0 > col >= 8:
+                if self.board[row][col] is not None or 0 > row or row > 7 or 0 > col or col > 7:
                     break
                 else:
                     moves.append((row, col))
             for pawn_cap_row, pawn_cap_col in pawn_captures:
                 cap_row, cap_col = self.current_row + pawn_cap_row, self.current_col + pawn_cap_col
-                if 0 > cap_row >= 7 or 0 > cap_col >= 7:
+                if 0 > cap_row or cap_row > 7 or 0 > cap_col or cap_col > 7:
                     break
                 else:
                     if self.board[cap_row][cap_col] is not None:
@@ -172,13 +172,13 @@ class Pawn(Piece):
             for pawn_row, pawn_col in pawn_regular_moves:
                 row, col = self.current_row + pawn_row, self.current_col + pawn_col
                 # while 0 <= row < 8 and 0 <= col < 8:
-                if self.board[row][col] is not None or 0 > row >= 7 or 0 > col >= 7:
+                if self.board[row][col] is not None or 0 > row or row > 7 or 0 > col or col > 7:
                     break
                 else:
                     moves.append((row, col))
             for pawn_cap_row, pawn_cap_col in pawn_captures:
                 cap_row, cap_col = self.current_row + pawn_cap_row, self.current_col + pawn_cap_col
-                if 0 > cap_row >= 7 or 0 > cap_col >= 7:
+                if 0 > cap_row or cap_row > 7 or 0 > cap_col or cap_col > 7:
                     break
                 else:
                     if self.board[cap_row][cap_col] is not None:
