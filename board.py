@@ -416,16 +416,18 @@ class Board(arcade.Window):
                     if self.board[row][col].allegiance == allegiance:
                         pieces.append(self.board[row][col])
         
-        all_moves = []
+        
         king_in_check = False
-        # for each piece
         for i in pieces:
-            # record if it has any moves available
-            all_moves.append(i.available_moves())
             # if that piece is the king, check if it is in check
             if isinstance(i, p.King):
                 king_in_check = i.under_attack(i.current_row, i.current_col)
         
+        all_moves = []
+        for i in pieces:
+            # record if each piece has any moves available
+            all_moves.append(i.available_moves(king_in_check))
+            
         print('MOVES: ', all_moves)
         print('CHECK: ', king_in_check)
 

@@ -8,11 +8,13 @@ SQUARE_WIDTH = 400 // 8
 SQUARE_HEIGHT = 400 // 8
 
 """
-TODO: dont allow pieces to put their own king in check
+TODO: 
+dont allow pieces to put their own king in check
+force pieces to only have moves that stop their king from being in check
 pawn promotion (reaches last row opposing)
-check if in check
-check if checkmate
-stalemate (tie, show message) and resign (quit game)
+check if in check -- this is done in board now, with check_game_over()
+check if checkmate -- see above
+stalemate (tie, show message) and resign (quit game) -- stalemate is determined in check_game_over()
 """
 
 
