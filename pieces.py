@@ -83,6 +83,27 @@ class Piece(arcade.AnimatedTimeBasedSprite):
 
         return True
 
+    def under_attack(self, row, col) -> bool:
+        """
+        Checks if the given move will put the king under attack
+        :param row:
+        :param col:
+        :return:
+        """
+
+        # Loops through the board
+        for r in range(8):
+            for c in range(8):
+                # Finds pieces of a different allegiance, who are not a king
+                if self.board[r][c] is not None and self.board[r][c].allegiance != self.allegiance:
+                    if not isinstance(self.board[r][c], King):
+                        # Checks if move would put king in check of another piece
+                        movement, captures = self.board[r][c].available_moves()
+                        if (row, col) in captures or (row, col) in movement:
+                            # If not, it gets added to the kings available moves
+                            return True
+        return False
+
     def on_click(self, x, y):
         self.target_x = x + SQUARE_WIDTH // 2
         self.target_y = y + SQUARE_HEIGHT // 2
@@ -152,26 +173,31 @@ class Pawn(Piece):
         if self.moves == 0:
             for pawn_row, pawn_col in pawn_first_moves:
                 row, col = self.current_row + pawn_row, self.current_col + pawn_col
-                if self.board[row][col] is not None or 0 > row >= 7 or 0 > col >= 7:
+                # while 0 <= row < 8 and 0 <= col < 8:
+                if self.board[row][col] is not None or 0 > row >= 8 or 0 > col >= 8:
                     break
-                    """
-                    for pawn_row, pawn_col in pawn_captures:
-                        if self.board[row][col].allegiance == self.allegiance:
+                else:
+                    moves.append((row, col))
+            for pawn_cap_row, pawn_cap_col in pawn_captures:
+                cap_row, cap_col = self.current_row + pawn_cap_row, self.current_col + pawn_cap_col
+                if 0 > cap_row >= 7 or 0 > cap_col >= 7:
+                    break
+                else:
+                    if self.board[cap_row][cap_col] is not None:
+                        # print("CAPTURABLE: ", self.board[cap_row][cap_col])
+                        if self.board[cap_row][cap_col].allegiance == self.allegiance:
                             break
                         else:
                             # Can capture piece but cannot move past it so exit loop
-                            # caps.append((row, col))
-                            break
-                    break
-                    """
-                else:
-                    moves.append((row, col))
+                            caps.append((cap_row, cap_col))
+
 
             return moves, caps
-        # Otherwise it is not first move
+        # otherwise it is not first move
         else:
             for pawn_row, pawn_col in pawn_regular_moves:
                 row, col = self.current_row + pawn_row, self.current_col + pawn_col
+                # while 0 <= row < 8 and 0 <= col < 8:
                 if self.board[row][col] is not None or 0 > row >= 7 or 0 > col >= 7:
                     break
                 else:
@@ -199,7 +225,6 @@ class Pawn(Piece):
                 else:
                     direction = -1
 
-                # Get indices of possible adjacent enemy pawns
                 moveX = self.current_row + direction
                 moveUY = self.current_col + direction
                 moveDY = self.current_col - direction
@@ -207,19 +232,16 @@ class Pawn(Piece):
                 # Check if enemy pawn to the left
                 if (isinstance(left, Pawn) and left.allegiance != self.allegiance and
                         0 <= moveX < 8 and 0 <= moveDY < 8):
-                    # Captured piece has just moved two squares
-                    if left.moves == 1 and left.rank == 4:
-                        # caps.append((left.current_row, left.current_col))
-                        moves.append((moveX, moveDY))
+                    #if left.moves == 1 and left.rank == 3:
+                    #caps.append((left.current_row, left.current_col))
+                    moves.append((moveX, moveDY))
 
                 # Check if enemy pawn to the right
                 elif (isinstance(right, Pawn) and right.allegiance != self.allegiance
                       and 0 <= moveX < 8 and 0 <= moveUY < 8):
-                    # Captured piece has just moved two squares
-                    if right.moves == 1 and right.rank == 4:
-                        # caps.append((right.current_row, right.current_col))
-                        moves.append((moveX, moveUY))
-
+                    #if right.moves == 1 and right.rank == 3:
+                    #caps.append((right.current_row, right.current_col))
+                    moves.append((moveX, moveUY))
             return moves, caps
 
     def __repr__(self):
@@ -278,51 +300,6 @@ class Rook(Piece):
             self.texture = arcade.load_texture("pieces_png/black-rook.png")
         else:
             self.texture = arcade.load_texture("pieces_png/white-rook.png")
-
-    # TODO: Computer sometimes moves the rook illegally, need to look into this
-    # def move(self, new_row, new_col):
-    #     # Cannot move to same position
-    #     # new_row = new_pos[0]
-    #     # new_col = new_pos[1]
-
-    #     if new_row == self.current_row and new_col == self.current_col:
-    #         print(f"{self} is already there")
-    #         return False
-    #     # vertical movement
-    #     elif new_row != self.current_row and new_col == self.current_col:
-    #         destination = self.board[new_row][new_col]
-    #         if destination is not None and destination.allegiance != self.allegiance:
-    #             print(f"Captured {destination} at position ({new_row}, {new_col})!")
-    #             self.current_row = new_row
-    #             self.current_col = new_col
-    #             return True
-    #         elif destination is not None:
-    #             print("Cannot capture")
-    #             return False
-    #         else:
-    #             self.moves += 1
-    #             self.current_row = new_row
-    #             self.current_col = new_col
-
-    #     # horizontal movement
-    #     elif new_row == self.current_row and new_col != self.current_col:
-    #         destination = self.board[new_row][new_col]
-    #         if destination is not None and destination.allegiance != self.allegiance:
-    #             print(f"Captured {destination} at position ({new_row}, {new_col})!")
-    #             self.current_row = new_row
-    #             self.current_col = new_col
-    #             return True
-    #         elif destination is not None:
-    #             print("Cannot capture")
-    #             return False
-    #         else:
-    #             self.moves += 1
-    #             self.current_row = new_row
-    #             self.current_col = new_col
-    #             return True
-
-    #     else:
-    #         raise Exception("Rook move error")
 
     def available_moves(self):
         moves = []
@@ -499,27 +476,6 @@ class King(Piece):
 
         # print(movements)
         return movements, captures
-
-    def under_attack(self, row, col) -> bool:
-        """
-        Checks if the given move will put the king under attack
-        :param row:
-        :param col:
-        :return:
-        """
-
-        # Loops through the board
-        for r in range(8):
-            for c in range(8):
-                # Finds pieces of a different allegiance, who are not a king
-                if self.board[r][c] is not None and self.board[r][c].allegiance != self.allegiance:
-                    if not isinstance(self.board[r][c], King):
-                        # Checks if move would put king in check of another piece
-                        movement, captures = self.board[r][c].available_moves()
-                        if (row, col) in captures or (row, col) in movement:
-                            # If not, it gets added to the kings available moves
-                            return True
-        return False
 
     def __repr__(self):
         if self.allegiance == 'Black':
