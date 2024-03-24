@@ -438,12 +438,20 @@ class Board(arcade.Window):
                 print('Black wins!')
             else:
                 print('White wins!')
+            # TODO: End the game
+            # I'm thinking this gives an end game screen that says who won (if anyone did)
+            # and a button to view the board or quit back to menu
+            # If the user views the board, they should still have a button to return to menu
             pass
 
         # if there are no possible moves and the king is NOT in check
         elif all_moves == [] and not king_in_check:
             # end the game, draw
             print("It's a draw!")
+            # TODO: End the game
+            # I'm thinking this gives an end game screen that says who won (if anyone did)
+            # and a button to view the board or quit back to menu
+            # If the user views the board, they should still have a button to return to menu
             pass
 
 
