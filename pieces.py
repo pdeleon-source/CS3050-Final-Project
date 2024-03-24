@@ -4,8 +4,11 @@ import arcade
 import copy
 
 MOVE_SPEED = 5
-SQUARE_WIDTH = 400 // 8
-SQUARE_HEIGHT = 400 // 8
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+
+SQUARE_WIDTH = (SCREEN_WIDTH - 200) // 8
+SQUARE_HEIGHT = SCREEN_HEIGHT // 8
 
 """
 TODO: dont allow pieces to put their own king in check
@@ -26,9 +29,9 @@ class Piece(arcade.AnimatedTimeBasedSprite):
         self.current_col = current_pos[1]
         self.position = (self.current_col, self.current_row)
         self.board[self.current_row][self.current_col] = self
-        self.x = self.current_col * SQUARE_WIDTH
+        self.x = self.current_col * SQUARE_WIDTH + 100
         self.y = self.current_row * SQUARE_HEIGHT
-        self.target_x = self.current_col * SQUARE_WIDTH
+        self.target_x = self.current_col * SQUARE_WIDTH + 100
         self.target_y = self.current_row * SQUARE_HEIGHT
         if self.allegiance == "White":
             self.rank = self.current_row + 1
@@ -36,7 +39,7 @@ class Piece(arcade.AnimatedTimeBasedSprite):
             self.rank = abs(8 - self.current_row)
 
     def draw(self):
-        arcade.draw_texture_rectangle(self.x + SQUARE_WIDTH // 2,
+        arcade.draw_texture_rectangle((self.x + SQUARE_WIDTH // 2),
                                       self.y + SQUARE_HEIGHT // 2,
                                       SQUARE_WIDTH, SQUARE_HEIGHT,
                                       self.texture)
@@ -105,7 +108,7 @@ class Piece(arcade.AnimatedTimeBasedSprite):
         return False
 
     def on_click(self, x, y):
-        self.target_x = x + SQUARE_WIDTH // 2
+        self.target_x = x + (SQUARE_WIDTH // 2) + 100
         self.target_y = y + SQUARE_HEIGHT // 2
 
         # if self.allegiance == "Black":
@@ -280,7 +283,6 @@ class Knight(Piece):
                     else:
                         # Can capture piece but cannot move past it so exit loop
                         captures.append((row, col))
-                        print(":D")
                 else:
                     movements.append((row, col))
 
