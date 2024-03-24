@@ -410,7 +410,32 @@ class Board(arcade.Window):
                     if self.board[row][col].allegiance == allegiance:
                         pieces.append(self.board[row][col])
         
+        all_moves = []
+        king_in_check = False
+        # for each piece
+        for i in pieces:
+            # record if it has any moves available
+            all_moves.append(i.available_moves)
+            # if that piece is the king, check if it is in check
+            if isinstance(i, p.King):
+                king_in_check = i.under_attack
         
+        # if there are no possible moves and the king is in check
+        if all_moves == [] and king_in_check:
+            # end the game, other side wins
+            if pieces[0].allegiance == 'White':
+                print('Black wins!')
+            else:
+                print('White wins!')
+            pass
+
+        # if there are no possible moves and the king is NOT in check
+        elif all_moves == [] and not king_in_check:
+            # end the game, draw
+            print("It's a draw!")
+            pass
+
+
         
         # print("PIECES")
         # print(pieces)
