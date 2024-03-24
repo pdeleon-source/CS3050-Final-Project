@@ -29,12 +29,12 @@ MOVEMENT_SPEED = 5
 UPDATES_PER_FRAME = 5
 
 # Set the dimensions of the chessboard
-SCREEN_WIDTH = 400
-SCREEN_HEIGHT = 400
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
 ROWS = 8
 COLS = 8
-SQUARE_WIDTH = 400 // 8
-SQUARE_HEIGHT = 400 // 8
+SQUARE_WIDTH = (SCREEN_WIDTH - 200) // 8
+SQUARE_HEIGHT = SCREEN_HEIGHT // 8
 
 # Set the colors for the chessboard squares
 LIGHT_SQUARE_COLOR = arcade.color.ALMOND
@@ -65,10 +65,9 @@ BLK_POS = {
 white_allegiance = "White"
 black_allegiance = "Black"
 
-
-class Board(arcade.Window):
-    def __init__(self, width, height):
-        super().__init__(width, height, "Chessboard")
+class Board(arcade.View):
+    def __init__(self):
+        super().__init__()
 
         # Add a variable to track whose turn it is
         self.current_turn = white_allegiance  # Start with white's turn
@@ -100,6 +99,10 @@ class Board(arcade.Window):
 
         # Give player pieces
 
+    def on_show(self):
+        arcade.set_background_color(arcade.color.BRUNSWICK_GREEN)
+        # self.chess_piece.position = SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2
+
     def update(self, delta_time):
         if self.selected_piece is not None:
             self.selected_piece.update()
@@ -111,12 +114,12 @@ class Board(arcade.Window):
         arcade.start_render()
 
         # Make even squares
-        square_width = SCREEN_WIDTH // COLS
+        square_width = (SCREEN_WIDTH - 200) // COLS
         square_height = SCREEN_HEIGHT // ROWS
 
         for row in range(ROWS):
             for col in range(COLS):
-                x = col * square_width
+                x = (col * square_width) + 100
                 y = row * square_height
 
                 if (row, col) in self.capture_moves:
@@ -165,11 +168,11 @@ class Board(arcade.Window):
     def on_mouse_press(self, x, y, button, modifiers):
 
         # Square boundaries
-        square_width = SCREEN_WIDTH // COLS
+        square_width = (SCREEN_WIDTH - 200) // COLS
         square_height = SCREEN_HEIGHT // ROWS
 
         # Map to corresponding column and row
-        col = x // square_width
+        col = (x - 100) // square_width
         row = y // square_height
 
         # If a piece is selected
@@ -333,7 +336,7 @@ class Board(arcade.Window):
         # Get the piece object
         piece = self.board[self.selected_row][self.selected_col]
 
-        self.selected_piece.on_click(col * SQUARE_WIDTH - 25, row * SQUARE_HEIGHT - 25)
+        self.selected_piece.on_click(col * SQUARE_WIDTH - 37, row * SQUARE_HEIGHT - 35)
 
         # Deselect the piece and switch turn after animation is complete
         self.selected_piece.move([row, col])
@@ -392,7 +395,7 @@ class Board(arcade.Window):
                     computer_moved = True
 
                     self.computer_piece = computer_piece
-                    self.computer_piece.on_click(coords[1] * SQUARE_WIDTH - 25, coords[0] * SQUARE_HEIGHT - 25)
+                    self.computer_piece.on_click(coords[1] * SQUARE_WIDTH - 37, coords[0] * SQUARE_HEIGHT - 35)
 
             print("============= Blacks Turn ============")
             self.print_board()

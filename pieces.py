@@ -4,8 +4,11 @@ import arcade
 import copy
 
 MOVE_SPEED = 5
-SQUARE_WIDTH = 400 // 8
-SQUARE_HEIGHT = 400 // 8
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+
+SQUARE_WIDTH = (SCREEN_WIDTH - 200) // 8
+SQUARE_HEIGHT = SCREEN_HEIGHT // 8
 
 """
 TODO: 
@@ -30,9 +33,9 @@ class Piece(arcade.AnimatedTimeBasedSprite):
         self.current_col = current_pos[1]
         self.position = (self.current_col, self.current_row)
         self.board[self.current_row][self.current_col] = self
-        self.x = self.current_col * SQUARE_WIDTH
+        self.x = self.current_col * SQUARE_WIDTH + 100
         self.y = self.current_row * SQUARE_HEIGHT
-        self.target_x = self.current_col * SQUARE_WIDTH
+        self.target_x = self.current_col * SQUARE_WIDTH + 100
         self.target_y = self.current_row * SQUARE_HEIGHT
         if self.allegiance == "White":
             self.rank = self.current_row + 1
@@ -40,7 +43,7 @@ class Piece(arcade.AnimatedTimeBasedSprite):
             self.rank = abs(8 - self.current_row)
 
     def draw(self):
-        arcade.draw_texture_rectangle(self.x + SQUARE_WIDTH // 2,
+        arcade.draw_texture_rectangle((self.x + SQUARE_WIDTH // 2),
                                       self.y + SQUARE_HEIGHT // 2,
                                       SQUARE_WIDTH, SQUARE_HEIGHT,
                                       self.texture)
@@ -110,7 +113,7 @@ class Piece(arcade.AnimatedTimeBasedSprite):
         return False
 
     def on_click(self, x, y):
-        self.target_x = x + SQUARE_WIDTH // 2
+        self.target_x = x + (SQUARE_WIDTH // 2) + 100
         self.target_y = y + SQUARE_HEIGHT // 2
 
         # if self.allegiance == "Black":
@@ -201,7 +204,6 @@ class Pawn(Piece):
                 # If piece in the way, exit loop
                 if self.board[row][col] is not None:
                     break
-                # If square is empty, add to moves
                 else:
                     moves.append((row, col))
             # Attempt captures
@@ -351,7 +353,7 @@ class Rook(Piece):
             while 0 <= row < 8 and 0 <= col < 8:
                 # TODO: Currently, attacking stops updating after it hits a piece
                 #       This is an issue if say a rook is covering a row and an
-                #       opposing King moves down that row; the square over isn't 
+                #       opposing King moves down that row; the square over isn't
                 #       being read as attacked
                 # TEMP FIX: Add the next square as being attacked in that row/column
                 attacking.append((row, col))
@@ -429,7 +431,7 @@ class Bishop(Piece):
             while 0 <= row < 8 and 0 <= col < 8:
                 # TODO: Currently, attacking stops updating after it hits a piece
                 #       This is an issue if say a rook is covering a row and an
-                #       opposing King moves down that row; the square over isn't 
+                #       opposing King moves down that row; the square over isn't
                 #       being read as attacked
                 # TEMP FIX: Add the next square as being attacked in that diagonal
                 attacking.append((row, col))
@@ -485,7 +487,7 @@ class Queen(Piece):
             while 0 <= row < 8 and 0 <= col < 8:
                 # TODO: Currently, attacking stops updating after it hits a piece
                 #       This is an issue if say a rook is covering a row and an
-                #       opposing King moves down that row; the square over isn't 
+                #       opposing King moves down that row; the square over isn't
                 #       being read as attacked
                 # TEMP FIX: Add the next square as being attacked in that row/column
                 attacking.append((row, col))
