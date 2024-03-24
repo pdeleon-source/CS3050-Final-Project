@@ -227,7 +227,7 @@ class Board(arcade.Window):
 
     def print_board(self):
         for row in reversed(self.board):
-            printable_row = ['_' if square is None else square for square in row]
+            printable_row = [0 if square is None else square for square in row]
             print(printable_row)
 
     def add_to_board(self, piece, pos):
