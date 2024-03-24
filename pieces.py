@@ -158,13 +158,18 @@ class Pawn(Piece):
                 if 0 > cap_row >= 8 or 0 > cap_col >= 8:
                     break
                 else:
-                    if self.board[cap_row][cap_col] is not None:
-                        # print("CAPTURABLE: ", self.board[cap_row][cap_col])
-                        if self.board[cap_row][cap_col].allegiance == self.allegiance:
-                            break
-                        else:
-                            # Can capture piece but cannot move past it so exit loop
-                            caps.append((cap_row, cap_col))
+                    # put this in a try block, in case an outer pawn is moved
+                    # and tries to capture off the edge
+                    try:
+                        if self.board[cap_row][cap_col] is not None:
+                            # print("CAPTURABLE: ", self.board[cap_row][cap_col])
+                            if self.board[cap_row][cap_col].allegiance == self.allegiance:
+                                break
+                            else:
+                                # Can capture piece but cannot move past it so exit loop
+                                caps.append((cap_row, cap_col))
+                    except:
+                        pass
 
             # Add en passant moves
             # TODO: Figure out ranks - can only move once before capture

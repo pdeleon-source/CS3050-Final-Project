@@ -363,7 +363,10 @@ class Board(arcade.Window):
 
         print("============= Whites Turn ===========")
         self.print_board()
-        self.check_game_over(piece.allegiance)
+        if piece.allegiance == 'White':
+            self.check_game_over('Black')
+        else:
+            self.check_game_over('White')
         self.switch_turn()
 
     def switch_turn(self):
@@ -393,7 +396,10 @@ class Board(arcade.Window):
 
             print("============= Blacks Turn ============")
             self.print_board()
-            self.check_game_over(computer_piece.allegiance)
+            if computer_piece.allegiance == 'White':
+                self.check_game_over('Black')
+            else:
+                self.check_game_over('White')
             self.switch_turn()
     
     # This function will check if a side is in checkmate
@@ -415,11 +421,14 @@ class Board(arcade.Window):
         # for each piece
         for i in pieces:
             # record if it has any moves available
-            all_moves.append(i.available_moves)
+            all_moves.append(i.available_moves())
             # if that piece is the king, check if it is in check
             if isinstance(i, p.King):
-                king_in_check = i.under_attack
+                king_in_check = i.under_attack(i.current_row, i.current_col)
         
+        print('MOVES: ', all_moves)
+        print('CHECK: ', king_in_check)
+
         # if there are no possible moves and the king is in check
         if all_moves == [] and king_in_check:
             # end the game, other side wins
