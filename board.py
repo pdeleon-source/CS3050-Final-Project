@@ -344,8 +344,17 @@ class Board(arcade.Window):
             self.captures.append(self.board[cap[0]][cap[1]])
             self.board[cap[0]][cap[1]] = None
 
+        """ Change to queen if pawn promotable
+        if self.selected_piece.promotable():
+            queen = p.Queen(self.selected_piece.allegiance, self.board, self.board[row][col])
+            self.board[row][col] = queen
+        else:
+            self.board[row][col] = piece
+        """
+
         self.board[self.selected_row][self.selected_col] = None
         self.board[row][col] = piece
+
 
         # Wait for the animation to finish
         # time.sleep(1)  # Adjust the delay as needed
