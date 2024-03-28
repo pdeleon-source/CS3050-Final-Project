@@ -147,8 +147,10 @@ class Piece(arcade.AnimatedTimeBasedSprite):
 
     def promotable(self) -> bool:
         if isinstance(self, Pawn) and self.rank == 8:
-            return True
-        return False
+            # change pawn to queen
+            # select that particular pawn, change the visual and available moves
+        else:
+            return False
 
 
 class Pawn(Piece):
