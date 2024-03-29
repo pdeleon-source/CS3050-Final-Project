@@ -150,7 +150,10 @@ class Piece(arcade.AnimatedTimeBasedSprite):
     def promotable(self) -> bool:
         if isinstance(self, Pawn) and self.rank == 8:
             return True
-        return False
+            # change pawn to queen
+            # select that particular pawn, change the visual and available moves
+        else:
+            return False
 
 
 class Pawn(Piece):
@@ -162,70 +165,72 @@ class Pawn(Piece):
             self.texture = arcade.load_texture("pieces_png/white-pawn.png")
 
     def available_moves(self):
-        # TODO: VERY buggy
         moves = []
         caps = []
 
-        # if the pawn is white, use this set of moves
+        # If the pawn is white, use this set of moves
         if self.allegiance == 'White':
-            pawn_first_moves = [(2, 0), (1, 0)]
+            # NOTE: (1, 0) MUST come before (2, 0) in this list
+            pawn_first_moves = [(1, 0), (2, 0)]
             pawn_regular_moves = [(1, 0)]
             pawn_captures = [(1, 1), (1, -1)]
-        # otherwise the pawn is black, use this set of moves
+        # If pawn is black, use this set of moves
         else:
-            pawn_first_moves = [(-2, 0), (-1, 0)]
+            # NOTE: (-1, 0) MUST come before (-2, 0) in this list
+            pawn_first_moves = [(-1, 0), (-2, 0)]
             pawn_regular_moves = [(-1, 0)]
             pawn_captures = [(-1, -1), (-1, 1)]
 
         # If first move
         if self.moves == 0:
+            # Attempt first moves
             for pawn_row, pawn_col in pawn_first_moves:
                 row, col = self.current_row + pawn_row, self.current_col + pawn_col
-                # while 0 <= row < 8 and 0 <= col < 8:
-                if self.board[row][col] is not None or 0 > row or row > 7 or 0 > col or col > 7:
-                    for pawn_row, pawn_col in pawn_captures:
-                        if self.board[row][col].allegiance == self.allegiance:
-                            break
-                        else:
-                            # Can capture piece but cannot move past it so exit loop
-                            caps.append((row, col))
-                            break
+
+                # If row or col off board, try next move
+                if 0 > row or row >= 8 or 0 > col or col >= 8:
+                    continue
+
+                # If piece in the way, exit loop
+                if self.board[row][col] is not None:
+                    break
+                # If square is empty, add to moves
                 else:
                     moves.append((row, col))
+            # Attempt captures
+            for cap_row, cap_col in pawn_captures:
+                row, col = self.current_row + cap_row, self.current_col + cap_col
+                if 0 > row or row >= 8 or 0 > col or col >= 8:
+                    continue
+
+                # If enemy pawn in square, capture
+                if self.board[row][col] is not None and self.board[row][col].allegiance != self.allegiance:
+                    caps.append((row, col))
+
             return moves, caps
-            """
-            for pawn_cap_row, pawn_cap_col in pawn_captures:
-                cap_row, cap_col = self.current_row + pawn_cap_row, self.current_col + pawn_cap_col
-                if 0 > cap_row or cap_row > 7 or 0 > cap_col or cap_col > 7:
-                    break
-                else:
-                    if self.board[cap_row][cap_col] is not None:
-                        # print("CAPTURABLE: ", self.board[cap_row][cap_col])
-                        if self.board[cap_row][cap_col].allegiance == self.allegiance:
-                            break
-                        else:
-                            # Can capture piece but cannot move past it so exit loop
-                            caps.append((cap_row, cap_col))
-            """
-        # otherwise it is not first move
+
+        # Otherwise it is not first move
         else:
+            # Attempt regular moves
             for pawn_row, pawn_col in pawn_regular_moves:
                 row, col = self.current_row + pawn_row, self.current_col + pawn_col
-                # while 0 <= row < 8 and 0 <= col < 8:
-                if self.board[row][col] is not None or 0 > row or row > 7 or 0 > col or col > 7:
-                    break
-                else:
+                if 0 > row or row >= 8 or 0 > col or col >= 8:
+                    continue
+                # Append to moves if square is empty
+                elif self.board[row][col] is None:
                     moves.append((row, col))
+                # If all conditions failed, there are no more possible moves so exit loop
+                else:
+                    break
+            # Attempt captures
             for pawn_cap_row, pawn_cap_col in pawn_captures:
                 cap_row, cap_col = self.current_row + pawn_cap_row, self.current_col + pawn_cap_col
-                if 0 > cap_row or cap_row > 7 or 0 > cap_col or cap_col > 7:
-                    break
+                if 0 > cap_row or cap_row >= 8 or 0 > cap_col or cap_col >= 8:
+                    continue
                 else:
+                    # If enemy pawn in square, capture
                     if self.board[cap_row][cap_col] is not None:
-                        if self.board[cap_row][cap_col].allegiance == self.allegiance:
-                            break
-                        else:
-                            # Can capture piece but cannot move past it so exit loop
+                        if self.board[cap_row][cap_col].allegiance != self.allegiance:
                             caps.append((cap_row, cap_col))
 
             """En Passant"""
@@ -236,9 +241,9 @@ class Pawn(Piece):
                 direction = -1
 
             # Determine possible moves
-            moveX = self.current_row + direction
-            moveUY = self.current_col + direction
-            moveDY = self.current_col - direction
+            move_x = self.current_row + direction
+            move_uy = self.current_col + direction
+            move_dy = self.current_col - direction
 
             # Current piece must be at rank 3 or higher
             if self.rank >= 3:
@@ -246,19 +251,17 @@ class Pawn(Piece):
                 if self.current_col - 1 > 0:
                     left = self.board[self.current_row][self.current_col - 1]
                     if (isinstance(left, Pawn) and left.allegiance != self.allegiance and
-                            0 <= moveX < 8 and 0 <= moveDY < 8):
+                            0 <= move_x < 8 and 0 <= move_dy < 8):
                         if left.moves == 1 and left.rank == 4:
-                            # caps.append((left.current_row, left.current_col))
-                            moves.append((moveX, moveDY))
+                            moves.append((move_x, move_dy))
 
                 # Check if enemy pawn to the right
                 if self.current_col + 1 < 8:
                     right = self.board[self.current_row][self.current_col + 1]
-                    if (isinstance(right, Pawn) and right.allegiance != self.allegiance
-                          and 0 <= moveX < 8 and 0 <= moveUY < 8):
+                    if (isinstance(right, Pawn) and right.allegiance != self.allegiance and
+                            0 <= move_x < 8 and 0 <= move_uy < 8):
                         if right.moves == 1 and right.rank == 4:
-                            # caps.append((right.current_row, right.current_col))
-                            moves.append((moveX, moveUY))
+                            moves.append((move_x, move_uy))
 
             return moves, caps
 
