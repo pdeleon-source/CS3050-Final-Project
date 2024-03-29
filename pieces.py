@@ -15,6 +15,8 @@ pawn promotion (reaches last row opposing)
 check if in check -- this is done in board now, with check_game_over()
 check if checkmate -- see above
 stalemate (tie, show message) and resign (quit game) -- stalemate is determined in check_game_over()
+pinning solution: we really should create a new board state/object to 'test' a move in order to
+                  determine if a move will put the king in check due to a pin
 """
 
 
@@ -97,13 +99,28 @@ class Piece(arcade.AnimatedTimeBasedSprite):
         for r in range(8):
             for c in range(8):
                 # Finds pieces of a different allegiance, who are not a king
-                if self.board[r][c] is not None and self.board[r][c].allegiance != self.allegiance:
-                    if not isinstance(self.board[r][c], King):
+                curr_square = self.board[r][c]
+                if curr_square is not None and curr_square.allegiance != self.allegiance:
+                    if not isinstance(curr_square, King):
                         # Checks if move would put king in check of another piece
-                        movement, captures = self.board[r][c].available_moves()
-                        if (row, col) in captures or (row, col) in movement:
-                            # If not, it gets added to the kings available moves
-                            return True
+                        movement, captures = curr_square.available_moves()
+                        if not isinstance(curr_square, Pawn):
+                            if (row, col) in captures or movement:# or (row, col) in movement:
+                                # If not, it gets added to the kings available moves
+                                return True
+                            # if (row, col) in movement:
+                            #     return True
+                        else:
+                            # Pawn captures aren't registering for king movement because
+                            # the empty squares aren't technically captures since nothing is present
+                            # need pawn to return that it can capture diagonally as a possible capture,
+                            # even if nothing is present
+                            # TODO: We need to implement an 'attacking_squares' return for each piece
+                            # this way we can track which squares/pieces are under attack and we know
+                            # if a king can move to a square
+                            if (row, col) in captures:# or (row, col) in movement:
+                                # If not, it gets added to the kings available moves
+                                return True
         return False
 
     def on_click(self, x, y):
@@ -164,6 +181,9 @@ class Pawn(Piece):
         else:
             self.texture = arcade.load_texture("pieces_png/white-pawn.png")
 
+    # TODO: We need to implement an 'attacking_squares' return for each piece
+    # this way we can track which squares/pieces are under attack and we know
+    # if a king can move to a square
     def available_moves(self):
         moves = []
         caps = []
@@ -203,9 +223,10 @@ class Pawn(Piece):
                 if 0 > row or row >= 8 or 0 > col or col >= 8:
                     continue
 
+                else:
                 # If enemy pawn in square, capture
-                if self.board[row][col] is not None and self.board[row][col].allegiance != self.allegiance:
-                    caps.append((row, col))
+                    if self.board[row][col] is not None and self.board[row][col].allegiance != self.allegiance:
+                        caps.append((row, col))
 
             return moves, caps
 
@@ -223,15 +244,14 @@ class Pawn(Piece):
                 else:
                     break
             # Attempt captures
-            for pawn_cap_row, pawn_cap_col in pawn_captures:
-                cap_row, cap_col = self.current_row + pawn_cap_row, self.current_col + pawn_cap_col
-                if 0 > cap_row or cap_row >= 8 or 0 > cap_col or cap_col >= 8:
+            for cap_row, cap_col in pawn_captures:
+                row, col = self.current_row + cap_row, self.current_col + cap_col
+                if 0 > row or row >= 8 or 0 > col or col >= 8:
                     continue
                 else:
                     # If enemy pawn in square, capture
-                    if self.board[cap_row][cap_col] is not None:
-                        if self.board[cap_row][cap_col].allegiance != self.allegiance:
-                            caps.append((cap_row, cap_col))
+                    if self.board[row][col] is not None and self.board[row][col].allegiance != self.allegiance:
+                        caps.append((row, col))
 
             """En Passant"""
             # Determine direction
@@ -285,6 +305,9 @@ class Knight(Piece):
         else:
             self.texture = arcade.load_texture("pieces_png/white-knight.png")
 
+    # TODO: We need to implement an 'attacking_squares' return for each piece
+    # this way we can track which squares/pieces are under attack and we know
+    # if a king can move to a square
     def available_moves(self):
         movements = []
         captures = []
@@ -322,6 +345,9 @@ class Rook(Piece):
         else:
             self.texture = arcade.load_texture("pieces_png/white-rook.png")
 
+    # TODO: We need to implement an 'attacking_squares' return for each piece
+    # this way we can track which squares/pieces are under attack and we know
+    # if a king can move to a square
     def available_moves(self):
         moves = []
         caps = []
@@ -380,6 +406,9 @@ class Bishop(Piece):
         else:
             self.texture = arcade.load_texture("pieces_png/white-bishop.png")
 
+    # TODO: We need to implement an 'attacking_squares' return for each piece
+    # this way we can track which squares/pieces are under attack and we know
+    # if a king can move to a square
     def available_moves(self):
         """
         Determines the Bishop's valid moves based on its current index
@@ -427,6 +456,9 @@ class Queen(Piece):
         else:
             self.texture = arcade.load_texture("pieces_png/white-queen.png")
 
+    # TODO: We need to implement an 'attacking_squares' return for each piece
+    # this way we can track which squares/pieces are under attack and we know
+    # if a king can move to a square
     def available_moves(self):
         movements = []
         captures = []
@@ -470,6 +502,9 @@ class King(Piece):
         else:
             self.texture = arcade.load_texture("pieces_png/white-king.png")
 
+    # TODO: We need to implement an 'attacking_squares' return for each piece
+    # this way we can track which squares/pieces are under attack and we know
+    # if a king can move to a square
     def available_moves(self):
         """
         Determines the King's valid moves based on its current position
