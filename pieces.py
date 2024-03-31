@@ -349,12 +349,19 @@ class Rook(Piece):
         for horiz_row, horiz_col in [(1, 0), (-1, 0)]:
             row, col = self.current_row + horiz_row, self.current_col + horiz_col
             while 0 <= row < 8 and 0 <= col < 8:
+                # TODO: Currently, attacking stops updating after it hits a piece
+                #       This is an issue if say a rook is covering a row and an
+                #       opposing King moves down that row; the square over isn't 
+                #       being read as attacked
+                # TEMP FIX: Add the next square as being attacked in that row/column
                 attacking.append((row, col))
                 if self.board[row][col] is not None:
                     if self.board[row][col].allegiance == self.allegiance:
+                        attacking.append((row+1, col))
                         break
                     else:
                         caps.append((row, col))
+                        attacking.append((row+1, col))
                         break
                 else:
                     moves.append((row, col))
@@ -369,9 +376,11 @@ class Rook(Piece):
                 attacking.append((row, col))
                 if self.board[row][col] is not None:
                     if self.board[row][col].allegiance == self.allegiance:
+                        attacking.append((row, col+1))
                         break
                     else:
                         caps.append((row, col))
+                        attacking.append((row, col+1))
                         break
                 else:
                     moves.append((row, col))
@@ -418,13 +427,20 @@ class Bishop(Piece):
         for diagonal_row, diagonal_col in [(-1, -1), (-1, 1), (1, -1), (1, 1)]:
             row, col = self.current_row + diagonal_row, self.current_col + diagonal_col
             while 0 <= row < 8 and 0 <= col < 8:
+                # TODO: Currently, attacking stops updating after it hits a piece
+                #       This is an issue if say a rook is covering a row and an
+                #       opposing King moves down that row; the square over isn't 
+                #       being read as attacked
+                # TEMP FIX: Add the next square as being attacked in that diagonal
                 attacking.append((row, col))
                 if self.board[row][col] is not None:
                     if self.board[row][col].allegiance == self.allegiance:
+                        attacking.append((row+diagonal_row, col+diagonal_col))
                         break
                     else:
                         # Can capture piece but cannot move past it so exit loop
                         captures.append((row, col))
+                        attacking.append((row+diagonal_row, col+diagonal_col))
                         break
                 else:
                     movements.append((row, col))
@@ -467,12 +483,19 @@ class Queen(Piece):
         for diagonal_row, diagonal_col in [(-1, -1), (-1, 1), (1, -1), (1, 1), (-1, 0), (0, -1), (1, 0), (0, 1)]:
             row, col = self.current_row + diagonal_row, self.current_col + diagonal_col
             while 0 <= row < 8 and 0 <= col < 8:
+                # TODO: Currently, attacking stops updating after it hits a piece
+                #       This is an issue if say a rook is covering a row and an
+                #       opposing King moves down that row; the square over isn't 
+                #       being read as attacked
+                # TEMP FIX: Add the next square as being attacked in that row/column
                 attacking.append((row, col))
                 if self.board[row][col] is not None:
                     if self.board[row][col].allegiance == self.allegiance:
+                        attacking.append((row+diagonal_row, col+diagonal_col))
                         break
                     else:
                         captures.append((row, col))
+                        attacking.append((row+diagonal_row, col+diagonal_col))
                         break
                 else:
                     movements.append((row, col))
