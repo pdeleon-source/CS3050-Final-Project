@@ -332,6 +332,7 @@ class Board(arcade.Window):
     def move_piece(self, row, col):
         # Get the piece object
         piece = self.board[self.selected_row][self.selected_col]
+        print(type(piece))
 
         self.selected_piece.on_click(col * SQUARE_WIDTH - 25, row * SQUARE_HEIGHT - 25)
 
@@ -344,17 +345,13 @@ class Board(arcade.Window):
             self.captures.append(self.board[cap[0]][cap[1]])
             self.board[cap[0]][cap[1]] = None
 
-        """ Change to queen if pawn promotable
+        """ Change to queen if pawn promotable """
+        # TODO: Add promotion animation
         if self.selected_piece.promotable():
-            queen = p.Queen(self.selected_piece.allegiance, self.board, self.board[row][col])
-            self.board[row][col] = queen
-        else:
-            self.board[row][col] = piece
-        """
+            piece = p.Queen(self.selected_piece.allegiance, self.board, [row, col])
 
         self.board[self.selected_row][self.selected_col] = None
         self.board[row][col] = piece
-
 
         # Wait for the animation to finish
         # time.sleep(1)  # Adjust the delay as needed
@@ -363,10 +360,12 @@ class Board(arcade.Window):
 
         print("============= Whites Turn ===========")
         self.print_board()
+
         if piece.allegiance == 'White':
             self.check_game_over('Black')
         else:
             self.check_game_over('White')
+
         self.switch_turn()
 
     def switch_turn(self):
