@@ -40,7 +40,7 @@ class Computer:
         while not valid_move:
 
             # get the piece's moves
-            possible_moves, possible_captures = piece.available_moves()
+            possible_moves, possible_captures, attacks = piece.available_moves()
 
             all_moves = possible_moves + possible_captures
             # if the piece cannot move, return error code 4

@@ -198,7 +198,7 @@ class Board(arcade.Window):
                         self.selected_piece = self.board[row][col]
                         # Find valid moves for the new piece
                         piece = self.board[row][col]
-                        self.valid_moves, self.capture_moves = piece.available_moves()
+                        self.valid_moves, self.capture_moves, self.attack_moves = piece.available_moves()
 
                 # If the clicked spot is neither a valid move nor another piece, deselect all squares
                 else:
@@ -217,7 +217,7 @@ class Board(arcade.Window):
                         self.selected_col = col
                         # Find valid moves for the selected piece
                         piece = self.board[row][col]
-                        self.valid_moves, self.capture_moves = piece.available_moves()
+                        self.valid_moves, self.capture_moves, self.attack_moves = piece.available_moves()
                         print(self.valid_moves, self.capture_moves)
 
         # Print out Console Board with toggled Squares
@@ -243,22 +243,22 @@ class Board(arcade.Window):
         bishop_2 = p.Bishop(allegiance, self.board, BLK_POS['bishop'][1])
         self.add_to_board(bishop_2, BLK_POS['bishop'][1])
 
-        # Queen
+        # # Queen
         queen = p.Queen(allegiance, self.board, BLK_POS['queen'])
         self.add_to_board(queen, BLK_POS['queen'])
 
-        # King
+        # # King
         king = p.King(allegiance, self.board, BLK_POS['king'])
         self.add_to_board(king, BLK_POS['king'])
 
-        # Rooks
+        # # Rooks
         rook1 = p.Rook(allegiance, self.board, BLK_POS['rook'][0])
         self.add_to_board(rook1, BLK_POS['rook'][0])
 
         rook2 = p.Rook(allegiance, self.board, BLK_POS['rook'][1])
         self.add_to_board(rook2, BLK_POS['rook'][1])
 
-        # Knight
+        # # Knight
         knight1 = p.Knight(allegiance, self.board, BLK_POS['knight'][0])
         self.add_to_board(knight1, BLK_POS['knight'][0])
 
@@ -268,7 +268,7 @@ class Board(arcade.Window):
         # Pawn
         for col in range(COLS):
             pawn = p.Pawn(allegiance, self.board, [6, col])
-            self.add_to_board(pawn, [1, col])
+            self.add_to_board(pawn, [6, col])
 
     def make_white_set(self):
         # Bishops in Column 2, 4 Row 0
@@ -280,7 +280,7 @@ class Board(arcade.Window):
         bishop_2 = p.Bishop(allegiance, self.board, WHT_POS['bishop'][1])
         self.add_to_board(bishop_2, WHT_POS['bishop'][1])
 
-        # Queen
+        # # Queen
         queen = p.Queen(allegiance, self.board, WHT_POS['queen'])
         self.add_to_board(queen, WHT_POS['queen'])
 
@@ -295,7 +295,7 @@ class Board(arcade.Window):
         rook2 = p.Rook(allegiance, self.board, WHT_POS['rook'][1])
         self.add_to_board(rook2, WHT_POS['rook'][1])
 
-        #Knight
+        # #Knight
         knight1 = p.Knight(allegiance, self.board, WHT_POS['knight'][0])
         self.add_to_board(knight1, WHT_POS['knight'][0])
 
@@ -363,6 +363,10 @@ class Board(arcade.Window):
 
         print("============= Whites Turn ===========")
         self.print_board()
+        if piece.allegiance == 'White':
+            self.check_game_over('Black')
+        else:
+            self.check_game_over('White')
         self.switch_turn()
 
     def switch_turn(self):
@@ -392,6 +396,70 @@ class Board(arcade.Window):
 
             print("============= Blacks Turn ============")
             self.print_board()
-
+            if computer_piece.allegiance == 'White':
+                self.check_game_over('Black')
+            else:
+                self.check_game_over('White')
             self.switch_turn()
+    
+    # This function will check if a side is in checkmate
+    # This will end the game and declare a winner
+    def check_game_over(self, allegiance):
+        # get all the pieces of a specific allegiance
+        pieces = []
+        # for each square
+        for row in range(ROWS):
+            for col in range(COLS):
+                # if the square has a piece
+                if isinstance(self.board[row][col], p.Piece):
+                    # if that piece is of the correct allegiance, save it
+                    if self.board[row][col].allegiance == allegiance:
+                        pieces.append(self.board[row][col])
+        
+        
+        king_in_check = False
+        for i in pieces:
+            # if that piece is the king, check if it is in check
+            if isinstance(i, p.King):
+                king_in_check = i.under_attack(i.current_row, i.current_col)
+        
+        all_moves = []
+        for i in pieces:
+            moves, caps, attacks = i.available_moves()
+            # record if each piece has any moves available
+            for j in moves:
+                all_moves.append(j)
+            
+            for k in caps:
+                all_moves.append(k)
+            
+        # print('MOVES: ', all_moves)
+        print('CHECK: ', king_in_check)
 
+        # if there are no possible moves and the king is in check
+        if all_moves == [] and king_in_check:
+            # end the game, other side wins
+            if pieces[0].allegiance == 'White':
+                print('Black wins!')
+            else:
+                print('White wins!')
+            # TODO: End the game
+            # I'm thinking this gives an end game screen that says who won (if anyone did)
+            # and a button to view the board or quit back to menu
+            # If the user views the board, they should still have a button to return to menu
+            exit()
+
+        # if there are no possible moves and the king is NOT in check
+        elif all_moves == [] and not king_in_check:
+            # end the game, draw
+            print("It's a draw!")
+            # TODO: End the game
+            # I'm thinking this gives an end game screen that says who won (if anyone did)
+            # and a button to view the board or quit back to menu
+            # If the user views the board, they should still have a button to return to menu
+            exit()
+
+
+        
+        # print("PIECES")
+        # print(pieces)
