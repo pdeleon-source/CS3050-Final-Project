@@ -183,10 +183,12 @@ class Piece(arcade.AnimatedTimeBasedSprite):
         return None
 
     def promotable(self) -> bool:
+        """
+        Returns true if the current piece is a promotable pawn
+        :return:
+        """
         if isinstance(self, Pawn) and self.rank == 8:
             return True
-            # change pawn to queen
-            # select that particular pawn, change the visual and available moves
         else:
             return False
 
