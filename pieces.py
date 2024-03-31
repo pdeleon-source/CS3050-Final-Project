@@ -6,6 +6,7 @@ import copy
 MOVE_SPEED = 5
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
+CAPTURE_BOX = 100 // 4
 
 SQUARE_WIDTH = (SCREEN_WIDTH - 200) // 8
 SQUARE_HEIGHT = SCREEN_HEIGHT // 8
@@ -22,11 +23,13 @@ stalemate (tie, show message) and resign (quit game)
 class Piece(arcade.AnimatedTimeBasedSprite):
     def __init__(self, allegiance, board, current_pos):
         super().__init__()
+        self.captured = False
         self.moves = 0
         self.allegiance = allegiance
         self.board = board
         self.current_row = current_pos[0]
         self.current_col = current_pos[1]
+
         self.position = (self.current_col, self.current_row)
         self.board[self.current_row][self.current_col] = self
         self.x = self.current_col * SQUARE_WIDTH + 100
@@ -38,11 +41,20 @@ class Piece(arcade.AnimatedTimeBasedSprite):
         else:
             self.rank = abs(8 - self.current_row)
 
+    def capture(self):
+        self.captured = True
+
     def draw(self):
-        arcade.draw_texture_rectangle((self.x + SQUARE_WIDTH // 2),
-                                      self.y + SQUARE_HEIGHT // 2,
-                                      SQUARE_WIDTH, SQUARE_HEIGHT,
-                                      self.texture)
+        if not self.captured:
+            arcade.draw_texture_rectangle((self.x + SQUARE_WIDTH // 2),
+                                          self.y + SQUARE_HEIGHT // 2,
+                                          SQUARE_WIDTH, SQUARE_HEIGHT,
+                                          self.texture)
+        else:
+            arcade.draw_texture_rectangle(self.x + CAPTURE_BOX // 2,
+                                          self.y + CAPTURE_BOX // 2,
+                                          CAPTURE_BOX, CAPTURE_BOX,
+                                          self.texture)
 
     def move(self, new_pos) -> bool:
         new_row = new_pos[0]
@@ -108,23 +120,40 @@ class Piece(arcade.AnimatedTimeBasedSprite):
         return False
 
     def on_click(self, x, y):
-        self.target_x = x + (SQUARE_WIDTH // 2) + 100
-        self.target_y = y + SQUARE_HEIGHT // 2
+        if not self.captured:
+            self.target_x = x + (SQUARE_WIDTH // 2) + 100
+            self.target_y = y + SQUARE_HEIGHT // 2
+        else:
+            self.target_x = x + (CAPTURE_BOX // 2) + 100
+            self.target_y = y + CAPTURE_BOX // 2
 
-        # if self.allegiance == "Black":
-        #     print(f"New Pos: {self.target_x} {self.target_y}")
+    # def capture(self, x, y):
+    #     self.target_x = x + (CAP_BOX // 2) + 100
+    #     self.target_y = y + CAP_BOX // 2
+
+    # if self.allegiance == "Black":
+    #     print(f"New Pos: {self.target_x} {self.target_y}")
     def update(self):
         # Move the dot towards the target position
-        dx = self.target_x - self.x
-        dy = self.target_y - self.y
-        distance = ((dx ** 2) + (dy ** 2)) ** 0.5
-        if distance > MOVE_SPEED:
-            scale = MOVE_SPEED / distance
-            dx *= scale
-            dy *= scale
+        if not self.captured:
+            dx = self.target_x - self.x
+            dy = self.target_y - self.y
+            distance = ((dx ** 2) + (dy ** 2)) ** 0.5
+            if distance > MOVE_SPEED:
+                scale = MOVE_SPEED / distance
+                dx *= scale
+                dy *= scale
 
-        self.x += dx
-        self.y += dy
+            self.x += dx
+            self.y += dy
+
+    def update_target(self, target_x, target_y):
+        self.capture()
+        self.x = target_x
+        self.y = target_y
+        self.target_x = target_x
+        self.target_y = target_y
+
 
     def en_passant(self, position):
         """
@@ -195,7 +224,6 @@ class Pawn(Piece):
                             # Can capture piece but cannot move past it so exit loop
                             caps.append((cap_row, cap_col))
 
-
             return moves, caps
         # otherwise it is not first move
         else:
@@ -237,14 +265,14 @@ class Pawn(Piece):
                 if (isinstance(left, Pawn) and left.allegiance != self.allegiance and
                         0 <= moveX < 8 and 0 <= moveDY < 8):
                     if left.moves == 1 and left.rank == 4:
-                        #caps.append((left.current_row, left.current_col))
+                        # caps.append((left.current_row, left.current_col))
                         moves.append((moveX, moveDY))
 
                 # Check if enemy pawn to the right
                 elif (isinstance(right, Pawn) and right.allegiance != self.allegiance
                       and 0 <= moveX < 8 and 0 <= moveUY < 8):
                     if right.moves == 1 and right.rank == 4:
-                        #caps.append((right.current_row, right.current_col))
+                        # caps.append((right.current_row, right.current_col))
                         moves.append((moveX, moveUY))
             return moves, caps
 
@@ -295,6 +323,7 @@ class Knight(Piece):
         if self.allegiance == 'Black':
             return '♞'
         return '♘'
+
 
 class Rook(Piece):
     def __init__(self, allegiance, board, current_pos):
@@ -490,9 +519,9 @@ if __name__ == "__main__":
     chess_board = [[None for _ in range(8)] for _ in range(8)]
 
     # bish = Bishop("Black", chess_board, 0, 0)
-    #bish = Bishop("White", chess_board, [3, 3])
+    # bish = Bishop("White", chess_board, [3, 3])
     ###kween = Queen("White", chess_board, [3, 3])
-    #king = King("White", chess_board, 2, 2)
+    # king = King("White", chess_board, 2, 2)
     pawn = Pawn("White", chess_board, [0, 1])
     pawn2 = Pawn("Black", chess_board, [7, 2])
 
@@ -506,7 +535,7 @@ if __name__ == "__main__":
     pawn.move([3, 1])
     for row in range(7, -1, -1):
         print(chess_board[row])
-    #print(pawn2.available_moves())
+    # print(pawn2.available_moves())
     pawn.move([4, 1])
     for row in range(7, -1, -1):
         print(chess_board[row])

@@ -24,6 +24,9 @@ import numpy as np
 
 import copy
 
+from datetime import datetime, timedelta
+
+
 # How fast to move, and how fast to run the animation
 MOVEMENT_SPEED = 5
 UPDATES_PER_FRAME = 5
@@ -36,12 +39,20 @@ COLS = 8
 SQUARE_WIDTH = (SCREEN_WIDTH - 200) // 8
 SQUARE_HEIGHT = SCREEN_HEIGHT // 8
 
+CAPTURE_BOX = 100 // 4
+
 # Set the colors for the chessboard squares
 LIGHT_SQUARE_COLOR = arcade.color.ALMOND
 DARK_SQUARE_COLOR = arcade.color.SADDLE_BROWN
 SELECTED_SQUARE_COLOR = arcade.color.CYAN
 VALID_MOVE_COLOR = arcade.color.GREEN
 VALID_CAPTURE_COLOR = arcade.color.RED
+
+GAME_DURATION = timedelta(minutes=10)  # Total game duration
+
+BLACK_TIMER_POSITION = (50, SCREEN_HEIGHT - 50)
+WHITE_TIMER_POSITION = (SCREEN_WIDTH - 50, SCREEN_HEIGHT - (SCREEN_HEIGHT - 50))
+TIMER_FONT_SIZE = 9
 
 # Set containing all black piece default positions
 WHT_POS = {
@@ -66,23 +77,30 @@ white_allegiance = "White"
 black_allegiance = "Black"
 
 class Board(arcade.View):
-    def __init__(self):
+    def __init__(self, versus):
         super().__init__()
-
+        self.versus = versus
         # Add a variable to track whose turn it is
         self.current_turn = white_allegiance  # Start with white's turn
 
         self.valid_moves = []
         self.capture_moves = []
         self.captures = []
+        self.white_capture_board = np.array([[None for _ in range(4)] for _ in range(4)])
+        self.black_capture_board = np.array([[None for _ in range(4)] for _ in range(4)])
 
         arcade.set_background_color(arcade.color.WHITE)
         self.board = np.array([[None for _ in range(COLS)] for _ in range(ROWS)])
         self.prev_board = copy.copy(self.board)
         self.selected_piece = None
         self.computer_piece = None
+        self.captured_piece = None
         self.selected_row = None
         self.selected_col = None
+
+        self.WHITE_TIME = timedelta(minutes=5)
+        self.BLACK_TIME = timedelta(minutes=5)
+        self.current_turn_start = None
 
         # testing Computer
         # this takes in an allegiance and the board array containing pieces
@@ -104,11 +122,30 @@ class Board(arcade.View):
         # self.chess_piece.position = SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2
 
     def update(self, delta_time):
+        if self.current_turn_start is not None:
+            elapsed_time = datetime.now() - self.current_turn_start
+            if self.current_turn == white_allegiance:
+                self.WHITE_TIME -= elapsed_time
+            else:
+                self.BLACK_TIME -= elapsed_time
+
+            # Check if time has run out for either player
+            if self.WHITE_TIME <= timedelta(seconds=0):
+                print("White time ran out. Black wins!")
+                # Handle end of game
+            elif self.BLACK_TIME <= timedelta(seconds=0):
+                print("Black time ran out. White wins!")
+                # Handle end of game
+
+            self.current_turn_start = datetime.now()
+
         if self.selected_piece is not None:
             self.selected_piece.update()
             if self.selected_piece.x == self.selected_piece.target_x and self.selected_piece.y == self.selected_piece.target_y:
                 if self.computer_piece is not None:
                     self.computer_piece.update()
+                    if self.captured_piece is not None:
+                        self.captured_piece.update()
 
     def on_draw(self):
         arcade.start_render()
@@ -116,6 +153,7 @@ class Board(arcade.View):
         # Make even squares
         square_width = (SCREEN_WIDTH - 200) // COLS
         square_height = SCREEN_HEIGHT // ROWS
+
 
         for row in range(ROWS):
             for col in range(COLS):
@@ -143,29 +181,45 @@ class Board(arcade.View):
                 if isinstance(piece, p.Piece):
                     piece.draw()
 
-        # # Draw green squares for valid moves
-        # for move in self.valid_moves:
-        #     row, col = move
-        #     x = col * square_width
-        #     y = row * square_height
-        #     arcade.draw_rectangle_filled(x + square_width // 2, y + square_height // 2, square_width, square_height,
-        #                                  VALID_MOVE_COLOR)
+        for row in range(4):
+            for col in range(4):
+                # Draw the piece if it exists at this position
+                white_piece = self.white_capture_board[row][col]
+                black_piece = self.black_capture_board[row][col]
 
-        # Draw labels for columns (a-h)
-        for col in range(COLS):
-            label = chr(ord('a') + col)  # Convert column index to corresponding letter
-            x = col * square_width + square_width // 2
-            y = SCREEN_HEIGHT - 20
-            arcade.draw_text(label, x, y, arcade.color.BLACK, 12, anchor_x="center")
+                if isinstance(white_piece, p.Piece):
+                    white_piece.draw()
+                if isinstance(black_piece, p.Piece):
+                    black_piece.draw()
 
-        # Draw labels for rows (1-8)
-        for row in range(ROWS):
-            label = str(row + 1)  # Convert row index to corresponding number
-            x = SCREEN_WIDTH - 20
-            y = row * square_height + square_height // 2
-            arcade.draw_text(label, x, y, arcade.color.BLACK, 12, anchor_x="center", anchor_y="center")
+        # for col in range(COLS):
+        #     label = chr(ord('a') + col)  # Convert column index to corresponding letter
+        #     x = col * square_width + square_width // 2
+        #     y = SCREEN_HEIGHT - 20
+        #     arcade.draw_text(label, x, y, arcade.color.BLACK, 12, anchor_x="center")
+
+        # # Draw labels for rows (1-8)
+        # for row in range(ROWS):
+        #     label = str(row + 1)  # Convert row index to corresponding number
+        #     x = SCREEN_WIDTH - 20
+        #     y = row * square_height + square_height // 2
+        #     arcade.draw_text(label, x, y, arcade.color.BLACK, 12, anchor_x="center", anchor_y="center")
+
+        # Draw the timers for white and black players
+        self.draw_timer(WHITE_TIMER_POSITION, self.WHITE_TIME, "White's")
+        self.draw_timer(BLACK_TIMER_POSITION, self.BLACK_TIME, "Black's")
+
+    def draw_timer(self, position, remaining_time, player):
+        title_text = f"{player} Timer:"
+        timer_text = f"{remaining_time.seconds // 60:02d}:{remaining_time.seconds % 60:02d}"
+        arcade.draw_text(title_text, position[0], position[1], arcade.color.BLACK, TIMER_FONT_SIZE, anchor_x="center")
+        arcade.draw_text(timer_text, position[0], position[1] - TIMER_FONT_SIZE * 2, arcade.color.BLACK, TIMER_FONT_SIZE, anchor_x="center")
 
     def on_mouse_press(self, x, y, button, modifiers):
+        global current_turn_start
+
+        # Start the timer when a player makes a move
+        self.current_turn_start = datetime.now()
 
         # Square boundaries
         square_width = (SCREEN_WIDTH - 200) // COLS
@@ -176,52 +230,55 @@ class Board(arcade.View):
         row = y // square_height
 
         # If a piece is selected
-        if self.current_turn == white_allegiance:
-            if any(self.selected[r][c] for r in range(ROWS) for c in range(COLS)):
-                # If the clicked spot is a valid move
-                if (row, col) in self.valid_moves:
-                    # Move the selected piece to the clicked spot
-                    self.move_piece(row, col)
-                # If the clicked spot is a capture move
-                elif (row, col) in self.capture_moves:
-                    # Record capture in list
-                    self.captures.append(self.board[row][col])
-                    # Move the selected piece to the clicked spot
-                    self.move_piece(row, col)
+        # if self.current_turn == white_allegiance:
+        if any(self.selected[r][c] for r in range(ROWS) for c in range(COLS)):
+            # If the clicked spot is a valid move
+            if (row, col) in self.valid_moves:
+                # Move the selected piece to the clicked spot
+                self.move_piece(row, col)
+            # If the clicked spot is a capture move
+            elif (row, col) in self.capture_moves:
+                # Record capture in list
+                #self.imprison_piece(self.board[row][col])
+                self.make_capture(self.board[row][col])
+                #self.captures.append(self.board[row][col])
+                self.captured_piece = self.board[row][col]
+                # Move the selected piece to the clicked spot
+                self.move_piece(row, col)
 
-                # If the clicked spot is another piece
-                elif isinstance(self.board[row][col], p.Piece):
-                    if self.board[row][col].allegiance == self.current_turn:
-                        # Deselect the previously selected piece
-                        self.deselect_all()
-                        # Select the new piece
-                        self.selected[row][col] = True
-                        self.selected_row = row
-                        self.selected_col = col
-                        self.selected_piece = self.board[row][col]
-                        # Find valid moves for the new piece
-                        piece = self.board[row][col]
-                        self.valid_moves, self.capture_moves = piece.available_moves()
-
-                # If the clicked spot is neither a valid move nor another piece, deselect all squares
-                else:
+            # If the clicked spot is another piece
+            elif isinstance(self.board[row][col], p.Piece):
+                if self.board[row][col].allegiance == self.current_turn:
+                    # Deselect the previously selected piece
                     self.deselect_all()
+                    # Select the new piece
+                    self.selected[row][col] = True
+                    self.selected_row = row
+                    self.selected_col = col
+                    self.selected_piece = self.board[row][col]
+                    # Find valid moves for the new piece
+                    piece = self.board[row][col]
+                    self.valid_moves, self.capture_moves = piece.available_moves()
 
-            # If no piece is selected
+            # If the clicked spot is neither a valid move nor another piece, deselect all squares
             else:
-                # If the clicked spot contains a piece
-                if isinstance(self.board[row][col], p.Piece):
-                    if self.board[row][col].allegiance == self.current_turn:
-                        # Select the piece
-                        self.deselect_all()
-                        self.selected[row][col] = True
-                        self.selected_piece = self.board[row][col]
-                        self.selected_row = row
-                        self.selected_col = col
-                        # Find valid moves for the selected piece
-                        piece = self.board[row][col]
-                        self.valid_moves, self.capture_moves = piece.available_moves()
-                        print(self.valid_moves, self.capture_moves)
+                self.deselect_all()
+
+        # If no piece is selected
+        else:
+            # If the clicked spot contains a piece
+            if isinstance(self.board[row][col], p.Piece):
+                if self.board[row][col].allegiance == self.current_turn:
+                    # Select the piece
+                    self.deselect_all()
+                    self.selected[row][col] = True
+                    self.selected_piece = self.board[row][col]
+                    self.selected_row = row
+                    self.selected_col = col
+                    # Find valid moves for the selected piece
+                    piece = self.board[row][col]
+                    self.valid_moves, self.capture_moves = piece.available_moves()
+                    print(self.valid_moves, self.capture_moves)
 
         # Print out Console Board with toggled Squares
         # print("===============================")
@@ -230,6 +287,11 @@ class Board(arcade.View):
 
     def print_board(self):
         for row in reversed(self.board):
+            printable_row = [0 if square is None else square for square in row]
+            print(printable_row)
+
+    def print_capture(self):
+        for row in reversed(self.white_capture_board):
             printable_row = [0 if square is None else square for square in row]
             print(printable_row)
 
@@ -305,6 +367,10 @@ class Board(arcade.View):
         knight2 = p.Knight(allegiance, self.board, WHT_POS['knight'][1])
         self.add_to_board(knight2, WHT_POS['knight'][1])
 
+        # demoPawn = p.Pawn(allegiance, self.board, [0, 0])
+        # demoPawn.capture()
+        # self.white_capture_board[0][0] = demoPawn
+
         # Pawn
         for col in range(COLS):
             pawn = p.Pawn(allegiance, self.board, [1, col])
@@ -344,7 +410,10 @@ class Board(arcade.View):
         """ Check if move is en passant """
         cap = self.selected_piece.en_passant([row, col])
         if cap is not None:
-            self.captures.append(self.board[cap[0]][cap[1]])
+            # self.captures.append(self.board[cap[0]][cap[1]])
+            # self.imprison_piece(self.board[cap[0]][cap[1]])
+            self.make_capture(self.board[cap[0]][cap[1]])
+            self.captured_piece = self.board[row][col]
             self.board[cap[0]][cap[1]] = None
 
         self.board[self.selected_row][self.selected_col] = None
@@ -357,17 +426,24 @@ class Board(arcade.View):
 
         print("============= Whites Turn ===========")
         self.print_board()
+        self.print_capture()
         self.switch_turn()
 
     def switch_turn(self):
         # Switch the turn between white and black
         if self.current_turn == white_allegiance:
             self.current_turn = black_allegiance
-            self.handle_computer_turn()
         else:
             self.current_turn = white_allegiance
 
+        self.current_turn_start = datetime.now()  # Start the timer for the new turn
+
+        # Handle computer's turn if necessary
+        if self.current_turn == black_allegiance and self.versus == "computer":
+            self.handle_computer_turn()
+
     def handle_computer_turn(self):
+
         # Handle computer input for black's turn
         if self.current_turn == black_allegiance:
             computer_moved = False
@@ -386,6 +462,30 @@ class Board(arcade.View):
 
             print("============= Blacks Turn ============")
             self.print_board()
-
+            self.print_capture()
             self.switch_turn()
+    def make_capture(self, piece):
+        allegiance = piece.allegiance
+        offset = CAPTURE_BOX // 2
+
+        for row in range(4):
+            for col in range(4):
+                if piece.allegiance == "White":
+                    if self.white_capture_board[row][col] is None:
+                        x = col * CAPTURE_BOX + (SCREEN_WIDTH - 100)
+                        y = row * CAPTURE_BOX + (SCREEN_HEIGHT - 100)
+                        self.white_capture_board[row][col] = piece
+                        piece.update_target(x, y)
+                        self.captured_piece = piece
+                        return
+                elif piece.allegiance == "Black":
+                    if self.black_capture_board[row][col] is None:
+                        x = col * CAPTURE_BOX # + (SCREEN_WIDTH - 100)
+                        y = row * CAPTURE_BOX # + (SCREEN_HEIGHT - 100)
+                        self.black_capture_board[row][col] = piece
+                        piece.update_target(x, y)
+                        self.captured_piece = piece
+                        return
+
+
 
