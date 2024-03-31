@@ -198,7 +198,7 @@ class Board(arcade.Window):
                         self.selected_piece = self.board[row][col]
                         # Find valid moves for the new piece
                         piece = self.board[row][col]
-                        self.valid_moves, self.capture_moves = piece.available_moves()
+                        self.valid_moves, self.capture_moves, self.attack_moves = piece.available_moves()
 
                 # If the clicked spot is neither a valid move nor another piece, deselect all squares
                 else:
@@ -217,7 +217,7 @@ class Board(arcade.Window):
                         self.selected_col = col
                         # Find valid moves for the selected piece
                         piece = self.board[row][col]
-                        self.valid_moves, self.capture_moves = piece.available_moves()
+                        self.valid_moves, self.capture_moves, self.attack_moves = piece.available_moves()
                         print(self.valid_moves, self.capture_moves)
 
         # Print out Console Board with toggled Squares
@@ -237,33 +237,33 @@ class Board(arcade.Window):
         allegiance = 'Black'
 
         # Bishops in Column 2, 4 Row 0
-        # bishop_1 = p.Bishop(allegiance, self.board, BLK_POS['bishop'][0])
-        # self.add_to_board(bishop_1, BLK_POS['bishop'][0])
+        bishop_1 = p.Bishop(allegiance, self.board, BLK_POS['bishop'][0])
+        self.add_to_board(bishop_1, BLK_POS['bishop'][0])
 
-        # bishop_2 = p.Bishop(allegiance, self.board, BLK_POS['bishop'][1])
-        # self.add_to_board(bishop_2, BLK_POS['bishop'][1])
+        bishop_2 = p.Bishop(allegiance, self.board, BLK_POS['bishop'][1])
+        self.add_to_board(bishop_2, BLK_POS['bishop'][1])
 
         # # Queen
-        # queen = p.Queen(allegiance, self.board, BLK_POS['queen'])
-        # self.add_to_board(queen, BLK_POS['queen'])
+        queen = p.Queen(allegiance, self.board, BLK_POS['queen'])
+        self.add_to_board(queen, BLK_POS['queen'])
 
         # # King
-        # king = p.King(allegiance, self.board, BLK_POS['king'])
-        # self.add_to_board(king, BLK_POS['king'])
+        king = p.King(allegiance, self.board, BLK_POS['king'])
+        self.add_to_board(king, BLK_POS['king'])
 
         # # Rooks
-        # rook1 = p.Rook(allegiance, self.board, BLK_POS['rook'][0])
-        # self.add_to_board(rook1, BLK_POS['rook'][0])
+        rook1 = p.Rook(allegiance, self.board, BLK_POS['rook'][0])
+        self.add_to_board(rook1, BLK_POS['rook'][0])
 
-        # rook2 = p.Rook(allegiance, self.board, BLK_POS['rook'][1])
-        # self.add_to_board(rook2, BLK_POS['rook'][1])
+        rook2 = p.Rook(allegiance, self.board, BLK_POS['rook'][1])
+        self.add_to_board(rook2, BLK_POS['rook'][1])
 
         # # Knight
-        # knight1 = p.Knight(allegiance, self.board, BLK_POS['knight'][0])
-        # self.add_to_board(knight1, BLK_POS['knight'][0])
+        knight1 = p.Knight(allegiance, self.board, BLK_POS['knight'][0])
+        self.add_to_board(knight1, BLK_POS['knight'][0])
 
-        # knight2 = p.Knight(allegiance, self.board, BLK_POS['knight'][1])
-        # self.add_to_board(knight2, BLK_POS['knight'][1])
+        knight2 = p.Knight(allegiance, self.board, BLK_POS['knight'][1])
+        self.add_to_board(knight2, BLK_POS['knight'][1])
 
         # Pawn
         for col in range(COLS):
@@ -274,33 +274,33 @@ class Board(arcade.Window):
         # Bishops in Column 2, 4 Row 0
         allegiance = 'White'
 
-        # bishop_1 = p.Bishop(allegiance, self.board, WHT_POS['bishop'][0])
-        # self.add_to_board(bishop_1, WHT_POS['bishop'][0])
+        bishop_1 = p.Bishop(allegiance, self.board, WHT_POS['bishop'][0])
+        self.add_to_board(bishop_1, WHT_POS['bishop'][0])
 
-        # bishop_2 = p.Bishop(allegiance, self.board, WHT_POS['bishop'][1])
-        # self.add_to_board(bishop_2, WHT_POS['bishop'][1])
+        bishop_2 = p.Bishop(allegiance, self.board, WHT_POS['bishop'][1])
+        self.add_to_board(bishop_2, WHT_POS['bishop'][1])
 
         # # Queen
-        # queen = p.Queen(allegiance, self.board, WHT_POS['queen'])
-        # self.add_to_board(queen, WHT_POS['queen'])
+        queen = p.Queen(allegiance, self.board, WHT_POS['queen'])
+        self.add_to_board(queen, WHT_POS['queen'])
 
         # King
         king = p.King(allegiance, self.board, WHT_POS['king'])
         self.add_to_board(king, WHT_POS['king'])
 
         #Rooks
-        # rook1 = p.Rook(allegiance, self.board, WHT_POS['rook'][0])
-        # self.add_to_board(rook1, WHT_POS['rook'][0])
+        rook1 = p.Rook(allegiance, self.board, WHT_POS['rook'][0])
+        self.add_to_board(rook1, WHT_POS['rook'][0])
 
-        # rook2 = p.Rook(allegiance, self.board, WHT_POS['rook'][1])
-        # self.add_to_board(rook2, WHT_POS['rook'][1])
+        rook2 = p.Rook(allegiance, self.board, WHT_POS['rook'][1])
+        self.add_to_board(rook2, WHT_POS['rook'][1])
 
         # #Knight
-        # knight1 = p.Knight(allegiance, self.board, WHT_POS['knight'][0])
-        # self.add_to_board(knight1, WHT_POS['knight'][0])
+        knight1 = p.Knight(allegiance, self.board, WHT_POS['knight'][0])
+        self.add_to_board(knight1, WHT_POS['knight'][0])
 
-        # knight2 = p.Knight(allegiance, self.board, WHT_POS['knight'][1])
-        # self.add_to_board(knight2, WHT_POS['knight'][1])
+        knight2 = p.Knight(allegiance, self.board, WHT_POS['knight'][1])
+        self.add_to_board(knight2, WHT_POS['knight'][1])
 
         # Pawn
         for col in range(COLS):
@@ -428,7 +428,7 @@ class Board(arcade.Window):
             # record if each piece has any moves available
             all_moves.append(i.available_moves())
             
-        print('MOVES: ', all_moves)
+        # print('MOVES: ', all_moves)
         print('CHECK: ', king_in_check)
 
         # if there are no possible moves and the king is in check

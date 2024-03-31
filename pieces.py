@@ -103,22 +103,8 @@ class Piece(arcade.AnimatedTimeBasedSprite):
                 if curr_square is not None and curr_square.allegiance != self.allegiance:
                     if not isinstance(curr_square, King):
                         # Checks if move would put king in check of another piece
-                        movement, captures = curr_square.available_moves()
-                        if not isinstance(curr_square, Pawn):
-                            if (row, col) in captures or movement:# or (row, col) in movement:
-                                # If not, it gets added to the kings available moves
-                                return True
-                            # if (row, col) in movement:
-                            #     return True
-                        else:
-                            # Pawn captures aren't registering for king movement because
-                            # the empty squares aren't technically captures since nothing is present
-                            # need pawn to return that it can capture diagonally as a possible capture,
-                            # even if nothing is present
-                            # TODO: We need to implement an 'attacking_squares' return for each piece
-                            # this way we can track which squares/pieces are under attack and we know
-                            # if a king can move to a square
-                            if (row, col) in captures:# or (row, col) in movement:
+                        movement, captures, attacked = curr_square.available_moves()
+                        if (row, col) in attacked :
                                 # If not, it gets added to the kings available moves
                                 return True
         return False
@@ -187,6 +173,7 @@ class Pawn(Piece):
     def available_moves(self):
         moves = []
         caps = []
+        attacking = []
 
         # If the pawn is white, use this set of moves
         if self.allegiance == 'White':
@@ -220,6 +207,7 @@ class Pawn(Piece):
             # Attempt captures
             for cap_row, cap_col in pawn_captures:
                 row, col = self.current_row + cap_row, self.current_col + cap_col
+                attacking.append((row, col))
                 if 0 > row or row >= 8 or 0 > col or col >= 8:
                     continue
 
@@ -228,7 +216,7 @@ class Pawn(Piece):
                     if self.board[row][col] is not None and self.board[row][col].allegiance != self.allegiance:
                         caps.append((row, col))
 
-            return moves, caps
+            return moves, caps, attacking
 
         # Otherwise it is not first move
         else:
@@ -246,6 +234,7 @@ class Pawn(Piece):
             # Attempt captures
             for cap_row, cap_col in pawn_captures:
                 row, col = self.current_row + cap_row, self.current_col + cap_col
+                attacking.append((row, col))
                 if 0 > row or row >= 8 or 0 > col or col >= 8:
                     continue
                 else:
@@ -283,7 +272,7 @@ class Pawn(Piece):
                         if right.moves == 1 and right.rank == 4:
                             moves.append((move_x, move_uy))
 
-            return moves, caps
+            return moves, caps, attacking
 
     def __repr__(self):
         if self.allegiance == 'Black':
@@ -311,26 +300,29 @@ class Knight(Piece):
     def available_moves(self):
         movements = []
         captures = []
+        attacking = []
         # print(f"{self.current_row} {self.current_col}")
         # Bishop moves diagonally, so we check all four diagonal directions
         for L_row, L_col in [(2, -1), (2, 1), (-2, -1), (-2, 1), (1, 2), (-1, 2), (-1, -2), (1, -2)]:
             row, col = self.current_row + L_row, self.current_col + L_col
             if 0 <= row < 8 and 0 <= col < 8:
-                print(f"{row} {col}")
+                # print(f"{row} {col}")
+                attacking.append((row, col))
                 if self.board[row][col] is not None:
                     if self.board[row][col].allegiance == self.allegiance:
-                        print(":D")
+                        pass
+                        # print(":D")
                     else:
                         # Can capture piece but cannot move past it so exit loop
                         captures.append((row, col))
-                        print(":D")
+                        # print(":D")
                 else:
                     movements.append((row, col))
 
                 # row += diagonal_row
                 # col += diagonal_col
         # print(f"Moves: {movements + captures}")
-        return movements, captures
+        return movements, captures, attacking
 
     def __repr__(self):
         if self.allegiance == 'Black':
@@ -351,11 +343,13 @@ class Rook(Piece):
     def available_moves(self):
         moves = []
         caps = []
+        attacking = []
 
         # Try horizontal vals first
         for horiz_row, horiz_col in [(1, 0), (-1, 0)]:
             row, col = self.current_row + horiz_row, self.current_col + horiz_col
             while 0 <= row < 8 and 0 <= col < 8:
+                attacking.append((row, col))
                 if self.board[row][col] is not None:
                     if self.board[row][col].allegiance == self.allegiance:
                         break
@@ -372,6 +366,7 @@ class Rook(Piece):
         for vert_row, vert_col in [(0, 1), (0, -1)]:
             row, col = self.current_row + vert_row, self.current_col + vert_col
             while 0 <= row < 8 and 0 <= col < 8:
+                attacking.append((row, col))
                 if self.board[row][col] is not None:
                     if self.board[row][col].allegiance == self.allegiance:
                         break
@@ -384,7 +379,7 @@ class Rook(Piece):
                 row += vert_row
                 col += vert_col
 
-        return moves, caps
+        return moves, caps, attacking
 
     def __repr__(self):
         if self.allegiance == 'Black':
@@ -416,11 +411,14 @@ class Bishop(Piece):
         """
         movements = []
         captures = []
+        attacking = []
+
         # print(f"{self.current_row} {self.current_col}")
         # Bishop moves diagonally, so we check all four diagonal directions
         for diagonal_row, diagonal_col in [(-1, -1), (-1, 1), (1, -1), (1, 1)]:
             row, col = self.current_row + diagonal_row, self.current_col + diagonal_col
             while 0 <= row < 8 and 0 <= col < 8:
+                attacking.append((row, col))
                 if self.board[row][col] is not None:
                     if self.board[row][col].allegiance == self.allegiance:
                         break
@@ -434,7 +432,7 @@ class Bishop(Piece):
                 row += diagonal_row
                 col += diagonal_col
         # print(f"Moves: {movements + captures}")
-        return movements, captures
+        return movements, captures, attacking
 
     def __repr__(self):
         if self.allegiance == 'Black':
@@ -462,12 +460,14 @@ class Queen(Piece):
     def available_moves(self):
         movements = []
         captures = []
+        attacking = []
 
         # Queen moves diagonally, so we check all four diagonal directions
         # Queen also moves horizontally and vertically
         for diagonal_row, diagonal_col in [(-1, -1), (-1, 1), (1, -1), (1, 1), (-1, 0), (0, -1), (1, 0), (0, 1)]:
             row, col = self.current_row + diagonal_row, self.current_col + diagonal_col
             while 0 <= row < 8 and 0 <= col < 8:
+                attacking.append((row, col))
                 if self.board[row][col] is not None:
                     if self.board[row][col].allegiance == self.allegiance:
                         break
@@ -480,7 +480,7 @@ class Queen(Piece):
                 row += diagonal_row
                 col += diagonal_col
 
-        return movements, captures
+        return movements, captures, attacking
 
     def __repr__(self):
         if self.allegiance == 'Black':
@@ -512,12 +512,14 @@ class King(Piece):
         """
         movements = []
         captures = []
+        attacking = []
         # King can move one spot in any direction
         for move_row, move_col in [(-1, -1), (-1, 1), (1, -1), (1, 1), (-1, 0), (0, -1), (1, 0), (0, 1)]:
             row, col = self.current_row + move_row, self.current_col + move_col
             if 0 <= row < 8 and 0 <= col < 8:
                 # If king won't go into check, add to movements
                 if not self.under_attack(row, col):
+                    attacking.append((row, col))
                     if self.board[row][col] is None:
                         movements.append((row, col))
                     elif self.board[row][col].allegiance != self.allegiance:
@@ -531,7 +533,7 @@ class King(Piece):
                 col += move_col
 
         # print(movements)
-        return movements, captures
+        return movements, captures, attacking
 
     def __repr__(self):
         if self.allegiance == 'Black':
