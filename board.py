@@ -278,7 +278,7 @@ class Board(arcade.View):
                     # Find valid moves for the selected piece
                     piece = self.board[row][col]
                     self.valid_moves, self.capture_moves, self.attack_moves = piece.available_moves()
-                    print(self.valid_moves, self.capture_moves)
+                    # print(self.valid_moves, self.capture_moves)
 
         # Print out Console Board with toggled Squares
         # print("===============================")
@@ -467,6 +467,7 @@ class Board(arcade.View):
 
             print("============= Blacks Turn ============")
             self.print_board()
+            print("CAPTURES")
             self.print_capture()
             if computer_piece.allegiance == 'White':
                 self.check_game_over('Black')

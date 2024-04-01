@@ -134,8 +134,8 @@ class Piece(arcade.AnimatedTimeBasedSprite):
                                 pass
                             else:
                                 attacked.append((final_row, final_col))
-                        print(curr_square.allegiance + " KING ATTACKING SQUARES: ")
-                        print(attacked)
+                        # print(curr_square.allegiance + " KING ATTACKING SQUARES: ")
+                        # print(attacked)
                         if (row, col) in attacked :
                                 # If not, it gets added to the kings available moves
                                 return True
