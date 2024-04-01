@@ -45,8 +45,10 @@ class Piece(arcade.AnimatedTimeBasedSprite):
         self.target_y = self.current_row * SQUARE_HEIGHT
         if self.allegiance == "White":
             self.rank = self.current_row + 1
+            self.value = 1
         else:
             self.rank = abs(8 - self.current_row)
+            self.value = -1
 
     def capture(self):
         self.captured = True
@@ -62,6 +64,9 @@ class Piece(arcade.AnimatedTimeBasedSprite):
                                           self.y + CAPTURE_BOX // 2,
                                           CAPTURE_BOX, CAPTURE_BOX,
                                           self.texture)
+
+    def get_value(self):
+        return self.value
 
     def move(self, new_pos) -> bool:
         new_row = new_pos[0]
@@ -134,8 +139,8 @@ class Piece(arcade.AnimatedTimeBasedSprite):
                                 pass
                             else:
                                 attacked.append((final_row, final_col))
-                        print(curr_square.allegiance + " KING ATTACKING SQUARES: ")
-                        print(attacked)
+                        # print(curr_square.allegiance + " KING ATTACKING SQUARES: ")
+                        # print(attacked)
                         if (row, col) in attacked :
                                 # If not, it gets added to the kings available moves
                                 return True
@@ -215,8 +220,10 @@ class Pawn(Piece):
         super().__init__(allegiance, board, current_pos)
         if self.allegiance == 'Black':
             self.texture = arcade.load_texture("pieces_png/black-pawn.png")
+            self.value = -10
         else:
             self.texture = arcade.load_texture("pieces_png/white-pawn.png")
+            self.value = 10
 
     # TODO: We need to implement an 'attacking_squares' return for each piece
     # this way we can track which squares/pieces are under attack and we know
@@ -341,10 +348,13 @@ class Knight(Piece):
         super().__init__(allegiance, board, current_pos)
         if self.allegiance == 'Black':
             self.texture = arcade.load_texture("pieces_png/black-knight.png")
+            self.value = -30
         else:
             self.texture = arcade.load_texture("pieces_png/white-knight.png")
+            self.value = 30
 
-    # TODO: We need to implement an 'attacking_squares' return for each piece
+
+            # TODO: We need to implement an 'attacking_squares' return for each piece
     # this way we can track which squares/pieces are under attack and we know
     # if a king can move to a square
     def available_moves(self):
@@ -385,10 +395,12 @@ class Rook(Piece):
         super().__init__(allegiance, board, current_pos)
         if self.allegiance == 'Black':
             self.texture = arcade.load_texture("pieces_png/black-rook.png")
+            self.value = -50
         else:
             self.texture = arcade.load_texture("pieces_png/white-rook.png")
+            self.value = 50
 
-    # TODO: We need to implement an 'attacking_squares' return for each piece
+            # TODO: We need to implement an 'attacking_squares' return for each piece
     # this way we can track which squares/pieces are under attack and we know
     # if a king can move to a square
     def available_moves(self):
@@ -458,10 +470,12 @@ class Bishop(Piece):
         super().__init__(allegiance, board, current_pos)
         if self.allegiance == 'Black':
             self.texture = arcade.load_texture("pieces_png/black-bishop.png")
+            self.value = -30
         else:
             self.texture = arcade.load_texture("pieces_png/white-bishop.png")
+            self.value = 30
 
-    # TODO: We need to implement an 'attacking_squares' return for each piece
+            # TODO: We need to implement an 'attacking_squares' return for each piece
     # this way we can track which squares/pieces are under attack and we know
     # if a king can move to a square
     def available_moves(self):
@@ -518,10 +532,12 @@ class Queen(Piece):
         super().__init__(allegiance, board, current_pos)
         if self.allegiance == 'Black':
             self.texture = arcade.load_texture("pieces_png/black-queen.png")
+            self.value = -90
         else:
             self.texture = arcade.load_texture("pieces_png/white-queen.png")
+            self.value = 90
 
-    # TODO: We need to implement an 'attacking_squares' return for each piece
+            # TODO: We need to implement an 'attacking_squares' return for each piece
     # this way we can track which squares/pieces are under attack and we know
     # if a king can move to a square
     def available_moves(self):
@@ -573,10 +589,12 @@ class King(Piece):
         super().__init__(allegiance, board, current_pos)
         if self.allegiance == 'Black':
             self.texture = arcade.load_texture("pieces_png/black-king.png")
+            self.value = -900
         else:
             self.texture = arcade.load_texture("pieces_png/white-king.png")
+            self.value = 900
 
-    # TODO: We need to implement an 'attacking_squares' return for each piece
+            # TODO: We need to implement an 'attacking_squares' return for each piece
     # this way we can track which squares/pieces are under attack and we know
     # if a king can move to a square
     def available_moves(self):
