@@ -542,17 +542,17 @@ class King(Piece):
         for move_row, move_col in [(-1, -1), (-1, 1), (1, -1), (1, 1), (-1, 0), (0, -1), (1, 0), (0, 1)]:
             row, col = self.current_row + move_row, self.current_col + move_col
             if 0 <= row < 8 and 0 <= col < 8:
+                attacking.append((row, col))
                 # If king won't go into check, add to movements
                 if not self.under_attack(row, col):
-                    attacking.append((row, col))
                     if self.board[row][col] is None:
                         movements.append((row, col))
                     elif self.board[row][col].allegiance != self.allegiance:
                         captures.append((row, col))
                 # Otherwise, king is in check - attempt to capture adjacent pieces
-                else:
-                    if self.board[row][col] is not None and self.board[row][col].allegiance != self.allegiance:
-                        captures.append((row, col))
+                # else:
+                #     if self.board[row][col] is not None and self.board[row][col].allegiance != self.allegiance:
+                #         captures.append((row, col))
 
                 row += move_row
                 col += move_col
