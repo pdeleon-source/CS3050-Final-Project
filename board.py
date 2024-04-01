@@ -416,22 +416,30 @@ class Board(arcade.View):
             self.captured_piece = self.board[row][col]
             self.board[cap[0]][cap[1]] = None
 
+        """ Change to queen if pawn promotable
+        if self.selected_piece.promotable():
+            queen = p.Queen(self.selected_piece.allegiance, self.board, self.board[row][col])
+            self.board[row][col] = queen
+        else:
+            self.board[row][col] = piece
+        """
+
         self.board[self.selected_row][self.selected_col] = None
         self.board[row][col] = piece
 
-        """ Change to queen if pawn promotable """
-        if self.selected_piece.promotable():
-            piece = p.Queen(self.selected_piece.allegiance, self.board, [row, col])
+
+        # Wait for the animation to finish
+        # time.sleep(1)  # Adjust the delay as needed
 
         self.deselect_all()
 
         print("============= Whites Turn ===========")
         self.print_board()
-
         if piece.allegiance == 'White':
             self.check_game_over('Black')
         else:
             self.check_game_over('White')
+        self.print_capture()
         self.switch_turn()
 
     def switch_turn(self):
