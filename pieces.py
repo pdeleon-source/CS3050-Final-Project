@@ -17,6 +17,9 @@ check if checkmate -- see above
 stalemate (tie, show message) and resign (quit game) -- stalemate is determined in check_game_over()
 pinning solution: we really should create a new board state/object to 'test' a move in order to
                   determine if a move will put the king in check due to a pin
+                  
+                  
+TODO: castling!
 """
 
 
@@ -214,7 +217,7 @@ class Pawn(Piece):
                     continue
 
                 else:
-                # If enemy pawn in square, capture
+                    # If enemy pawn in square, capture
                     if self.board[row][col] is not None and self.board[row][col].allegiance != self.allegiance:
                         caps.append((row, col))
 
