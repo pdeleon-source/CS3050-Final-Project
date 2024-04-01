@@ -125,6 +125,20 @@ class Piece(arcade.AnimatedTimeBasedSprite):
                         if (row, col) in attacked :
                                 # If not, it gets added to the kings available moves
                                 return True
+                    else:
+                        attacked = []
+                        for square_col, square_row in [(1, 0), (0, 1), (-1, 0), (0, -1), (1, 1), (1, -1), (-1, 1), (-1, -1)]:
+                            final_row = r+square_row
+                            final_col = c+square_col
+                            if final_row < 0 or final_row > 7 or final_col < 0 or final_col > 7:
+                                pass
+                            else:
+                                attacked.append((final_row, final_col))
+                        print(curr_square.allegiance + " KING ATTACKING SQUARES: ")
+                        print(attacked)
+                        if (row, col) in attacked :
+                                # If not, it gets added to the kings available moves
+                                return True
         return False
 
     def on_click(self, x, y):
