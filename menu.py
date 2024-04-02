@@ -11,6 +11,7 @@ Create a display Menu, that starts up the chess game
 
 import arcade
 import board
+import sys
 
 
 # Define screen dimensions
@@ -32,6 +33,9 @@ TEXT_COLOR = arcade.color.BLACK
 LIGHT_SQUARE_COLOR = arcade.color.ALMOND
 DARK_SQUARE_COLOR = arcade.color.SADDLE_BROWN
 
+# Define sound effects
+BUTTON_SOUND = "sounds/doink.wav"
+
 class Button:
     #SCREEN_WIDTH, SCREEN_HEIGHT = arcade.get_display_size(
     def __init__(self, x, y, width, height):
@@ -44,6 +48,8 @@ class Button:
         self.clicked_color = arcade.color.GREEN
         self.is_hovered = False
         self.is_clicked = False
+        # Volume of sound
+        self.volume = 1.0
 
     def draw(self, text, size):
         if self.is_clicked:
@@ -60,19 +66,28 @@ class Button:
                            self.y - self.height / 2 < y < self.y + self.height / 2)
 
     def on_mouse_press(self, x, y, button, modifiers):
+
         if self.is_hovered:
+            # Play sound
+            audio = arcade.load_sound(BUTTON_SOUND, False)
+            arcade.play_sound(audio, self.volume, -1, False)
+
             self.is_clicked = True
 
     def on_mouse_release(self, x, y, button, modifiers):
         self.is_clicked = False
 
+
 class MenuView(arcade.View):
     def __init__(self):
         super().__init__()
         self.logo = arcade.load_texture("pieces_png/chess_logo.png")
-        self.play_button = Button(CENTER_WIDTH, CENTER_HEIGHT - 40, 200, 60)
-        self.tutorial_button = Button(CENTER_WIDTH, CENTER_HEIGHT - 110, 200, 60)
+        self.play_button = Button(CENTER_WIDTH, CENTER_HEIGHT - 35, 200, 40) # Center - 40, Height was 60
+        self.tutorial_button = Button(CENTER_WIDTH, CENTER_HEIGHT - 80, 200, 40) # Center - 110, Height was 60
+        self.settings_button = Button(CENTER_WIDTH, CENTER_HEIGHT - 125, 200, 40)
+        self.quit_button = Button(CENTER_WIDTH, CENTER_HEIGHT - 170, 200, 40)
         self.game_view = None  # Placeholder for the game view instance
+        #self.settings_view = None # Placeholder for the settings view instance
 
     def on_show(self):
         arcade.set_background_color(BG_COLOR)
@@ -101,7 +116,9 @@ class MenuView(arcade.View):
         # Draw the logo stuff
         self.logo.draw_sized(center_x=CENTER_WIDTH, center_y=CENTER_HEIGHT, width=600, height=500)
         self.play_button.draw("Play", 16)
-        self.tutorial_button.draw("Quit", 16)
+        self.tutorial_button.draw("Tutorials", 16)
+        self.settings_button.draw("Settings", 16)
+        self.quit_button.draw("Quit", 16)
 
     # def on_key_press(self, key, modifiers):
     #     if key == arcade.key.KEY_1:
@@ -116,23 +133,32 @@ class MenuView(arcade.View):
     def on_mouse_motion(self, x, y, dx, dy):
         self.play_button.on_mouse_motion(x, y, dx, dy)
         self.tutorial_button.on_mouse_motion(x, y, dx, dy)
+        self.settings_button.on_mouse_motion(x, y, dx, dy)
+        self.quit_button.on_mouse_motion(x, y, dx, dy)
 
     def on_mouse_press(self, x, y, button, modifiers):
         self.play_button.on_mouse_press(x, y, button, modifiers)
         self.tutorial_button.on_mouse_press(x, y, button, modifiers)
+        self.settings_button.on_mouse_press(x, y, button, modifiers)
+        self.quit_button.on_mouse_press(x, y, button, modifiers)
 
     def on_mouse_release(self, x, y, button, modifiers):
-        self.play_button.on_mouse_press(x, y, button, modifiers)
+        self.play_button.on_mouse_release(x, y, button, modifiers)
         self.tutorial_button.on_mouse_release(x, y, button, modifiers)
+        self.settings_button.on_mouse_release(x, y, button, modifiers)
+        self.quit_button.on_mouse_release(x, y, button, modifiers)
 
 
     def update(self, delta_time):
         if self.play_button.is_clicked:
             game_view = GameView()
             self.window.show_view(game_view)
+        if self.settings_button.is_clicked:
+            game_view = SettingsView()
+            self.window.show_view(game_view)
         # if self.tutorial_button.is_clicked:
-        #
-
+        if self.quit_button.is_clicked:
+            sys.exit()
 
 
 # Testing
@@ -142,27 +168,32 @@ class GameView(arcade.View):
         self.logo = arcade.load_texture("pieces_png/game_mode.png")
         self.player_button = Button(CENTER_WIDTH, CENTER_HEIGHT - 40, 250, 60)
         self.computer_button = Button(CENTER_WIDTH, CENTER_HEIGHT - 110, 250, 60)
-
+        self.return_button = Button(CENTER_WIDTH, CENTER_HEIGHT - 180, 250, 60)
         # self.chess_piece = arcade.Sprite("pieces_png/white-pawn.png", center_x=SCREEN_WIDTH // 2,
                                         #s center_y=SCREEN_HEIGHT // 2)
 
     def on_mouse_motion(self, x, y, dx, dy):
         self.player_button.on_mouse_motion(x, y, dx, dy)
         self.computer_button.on_mouse_motion(x, y, dx, dy)
+        self.return_button.on_mouse_motion(x, y, dx, dy)
 
     def on_mouse_press(self, x, y, button, modifiers):
         self.player_button.on_mouse_press(x, y, button, modifiers)
         self.computer_button.on_mouse_press(x, y, button, modifiers)
+        self.return_button.on_mouse_press(x, y, button, modifiers)
 
     def on_mouse_release(self, x, y, button, modifiers):
         self.player_button.on_mouse_press(x, y, button, modifiers)
         self.computer_button.on_mouse_release(x, y, button, modifiers)
+        self.return_button.on_mouse_release(x, y, button, modifiers)
+
         if self.player_button.is_clicked:
             self.game_view = GameView()  # Create an instance of the game view
             self.window.show_view(self.game_view)  # Show the game view
         elif self.computer_button.is_clicked:
             if self.game_view:
                 self.window.show_view(self)
+
 
     # def on_show(self):
     #     arcade.set_background_color(arcade.color.WHITE)
@@ -195,6 +226,8 @@ class GameView(arcade.View):
         self.logo.draw_sized(center_x=CENTER_WIDTH, center_y=CENTER_HEIGHT + 120, width=600, height=200)
         self.player_button.draw("Player vs Player", 12)
         self.computer_button.draw("Player vs Computer", 12)
+        self.return_button.draw("Go Back", 12)
+
     def update(self, delta_time):
         if self.player_button.is_clicked:
             game_view = board.Board("player")
@@ -202,12 +235,93 @@ class GameView(arcade.View):
         if self.computer_button.is_clicked:
             game_view = board.Board("computer")
             self.window.show_view(game_view)
+        if self.return_button.is_clicked:
+            game_view = MenuView()
+            self.window.show_view(game_view)
+
+
+class SettingsView(arcade.View):
+    def __init__(self):
+        super().__init__()
+        # PLACEHOLDER LOGO - MAKE SETTINGS LOGO
+        self.logo = arcade.load_texture("pieces_png/game_mode.png")
+        self.sound_button = Button(CENTER_WIDTH, CENTER_HEIGHT - 40, 250, 60)
+        self.theme_button = Button(CENTER_WIDTH, CENTER_HEIGHT - 110, 250, 60)
+        self.return_button = Button(CENTER_WIDTH, CENTER_HEIGHT - 180, 250, 60)
+
+        # self.chess_piece = arcade.Sprite("pieces_png/white-pawn.png", center_x=SCREEN_WIDTH // 2,
+        # s center_y=SCREEN_HEIGHT // 2)
+
+    def on_mouse_motion(self, x, y, dx, dy):
+        self.sound_button.on_mouse_motion(x, y, dx, dy)
+        self.theme_button.on_mouse_motion(x, y, dx, dy)
+        self.return_button.on_mouse_motion(x, y, dx, dy)
+
+    def on_mouse_press(self, x, y, button, modifiers):
+        self.sound_button.on_mouse_press(x, y, button, modifiers)
+        self.theme_button.on_mouse_press(x, y, button, modifiers)
+        self.return_button.on_mouse_press(x, y, button, modifiers)
+
+    def on_mouse_release(self, x, y, button, modifiers):
+        self.sound_button.on_mouse_release(x, y, button, modifiers)
+        self.theme_button.on_mouse_release(x, y, button, modifiers)
+        self.return_button.on_mouse_release(x, y, button, modifiers)
+
+        # def on_show(self):
+        #     arcade.set_background_color(arcade.color.WHITE)
+        #     self.chess_piece.position = SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2
+
+    def on_show(self):
+        arcade.set_background_color(BG_COLOR)
+
+    def on_draw(self):
+        arcade.start_render()
+
+        # Make even squares
+
+        ROWS = SCREEN_WIDTH // SQUARE_WIDTH
+        COLS = SCREEN_HEIGHT // SQUARE_HEIGHT
+
+        for row in range(ROWS):
+            for col in range(COLS):
+                x = col * SQUARE_WIDTH
+                y = row * SQUARE_HEIGHT
+
+                if (row + col) % 2 == 0:
+                    color = LIGHT_SQUARE_COLOR
+                else:
+                    color = DARK_SQUARE_COLOR
+
+                arcade.draw_rectangle_filled(x + SQUARE_WIDTH // 2, y + SQUARE_HEIGHT // 2, SQUARE_WIDTH, SQUARE_HEIGHT,
+                                             color)
+
+        # Draw the logo stuff
+        self.logo.draw_sized(center_x=CENTER_WIDTH, center_y=CENTER_HEIGHT + 120, width=600, height=200)
+        self.sound_button.draw("Toggle Sound", 12)
+        self.theme_button.draw("Change Theme", 12)
+        self.return_button.draw("Go Back", 12)
+
+    def update(self, delta_time):
+        if self.sound_button.is_clicked:
+            print("Sound")
+            #game_view = board.Board("player")
+            #self.window.show_view(game_view)
+        if self.theme_button.is_clicked:
+            print("Theme")
+            #game_view = board.Board("computer")
+            #self.window.show_view(game_view)
+        if self.return_button.is_clicked:
+            game_view = MenuView()
+            self.window.show_view(game_view)
+
+
 
 def main():
     window = arcade.Window(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
     menu_view = MenuView()
     window.show_view(menu_view)
     arcade.run()
+
 
 
 if __name__ == "__main__":
