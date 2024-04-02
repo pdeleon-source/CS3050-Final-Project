@@ -1,5 +1,7 @@
 # for rooks in each turn, one value in the coordinate cannot change
 # for bishops, both values must change
+from typing import Tuple
+
 import arcade
 import copy
 
@@ -36,6 +38,8 @@ class Piece(arcade.AnimatedTimeBasedSprite):
         self.board = board
         self.current_row = current_pos[0]
         self.current_col = current_pos[1]
+        self.temp_current_row = current_pos[0]
+        self.temp_current_col = current_pos[1]
 
         self.position = (self.current_col, self.current_row)
         self.board[self.current_row][self.current_col] = self
@@ -107,8 +111,29 @@ class Piece(arcade.AnimatedTimeBasedSprite):
         print(f"{self} Moves = {self.moves}")
         self.current_row = new_row
         self.current_col = new_col
+        self.temp_current_col = new_col
+        self.temp_current_row = new_row
 
         return True
+
+    def template_move(self, new_pos, board):
+        new_row = new_pos[0]
+        new_col = new_pos[1]
+
+        destination = board[new_row][new_col]
+
+        # All conditions passed so move Bishop piece
+
+        if self.allegiance == "White":
+            self.rank = new_row + 1
+        else:
+            self.rank = abs(8 - new_row)
+
+        # Update variables
+        self.temp_current_row = new_row
+        self.temp_current_col = new_col
+
+        return board
 
     def under_attack(self, row, col) -> bool:
         """

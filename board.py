@@ -460,7 +460,7 @@ class Board(arcade.View):
         # Handle computer input for black's turn
         if self.current_turn == black_allegiance:
 
-            computer_piece, coords = self.computer.make_best_move()
+            computer_piece, coords = self.computer.make_best_move(2)
             print(f"Move {computer_piece} to {coords}")
 
             self.computer_piece = computer_piece
