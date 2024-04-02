@@ -82,10 +82,10 @@ class MenuView(arcade.View):
     def __init__(self):
         super().__init__()
         self.logo = arcade.load_texture("pieces_png/chess_logo.png")
-        self.play_button = Button(CENTER_WIDTH, CENTER_HEIGHT - 35, 200, 40) # Center - 40, Height was 60
-        self.tutorial_button = Button(CENTER_WIDTH, CENTER_HEIGHT - 80, 200, 40) # Center - 110, Height was 60
-        self.settings_button = Button(CENTER_WIDTH, CENTER_HEIGHT - 125, 200, 40)
-        self.quit_button = Button(CENTER_WIDTH, CENTER_HEIGHT - 170, 200, 40)
+        self.play_button = Button(CENTER_WIDTH, CENTER_HEIGHT - 25, 200, 40) # Center - 40, Height was 60
+        self.tutorial_button = Button(CENTER_WIDTH, CENTER_HEIGHT - 70, 200, 40) # Center - 110, Height was 60
+        self.settings_button = Button(CENTER_WIDTH, CENTER_HEIGHT - 115, 200, 40)
+        self.quit_button = Button(CENTER_WIDTH, CENTER_HEIGHT - 160, 200, 40)
         self.game_view = None  # Placeholder for the game view instance
         #self.settings_view = None # Placeholder for the settings view instance
 
@@ -114,7 +114,7 @@ class MenuView(arcade.View):
                                              color)
 
         # Draw the logo stuff
-        self.logo.draw_sized(center_x=CENTER_WIDTH, center_y=CENTER_HEIGHT, width=600, height=500)
+        self.logo.draw_sized(center_x=CENTER_WIDTH, center_y=CENTER_HEIGHT, width=700, height=580) # Was w=600h=500
         self.play_button.draw("Play", 16)
         self.tutorial_button.draw("Tutorials", 16)
         self.settings_button.draw("Settings", 16)
