@@ -84,7 +84,7 @@ class Computer:
     #     all_moves = possible_moves + possible_captures
     #     random_move = random.choice(all_moves)
     #     return piece_selection, random_move
-    
+
     # computer player will move a piece
     # use select_piece() and feed it in to the piece param
     def move_piece(self, piece: Piece, move_coords):
@@ -174,7 +174,6 @@ class Computer:
 
         return best_move
 
-
     def make_best_move(self, depth):
         self.demo_board = copy(self.board_array)
         best_moves = self.evaluate(depth)
@@ -190,12 +189,23 @@ class Computer:
 
         return piece, move
 
+    # Fix alpha beta pruning, need to pass in min and max as parameters, so they can be checked :D
+    # Also have the computer assess picking the best move for itself, right now it picks a move
+    # that gives the player the least amount of points, i think
+
+    # also alpha-beta/max-min pruning means we can disregard certain brances in the search tree, meaning we can go
+    # deeper while not making our poor program explode :D <--- hopefully!!!
     def minimax(self, depth, is_maximizing_player, curr_piece, position):
         if depth == 0:
 
             # Evaluate the position
             target_piece = self.demo_board[position[0]][position[1]]
-            return target_piece.get_value() if target_piece is not None else 0
+            position_value = target_piece.get_value() if target_piece is not None else 0
+            if curr_piece.allegiance == "White":
+                evaluation_board = curr_piece.eval[position[0]][position[1]]
+            else:
+                evaluation_board = reversed(curr_piece.eval)[position[0]][position[1]]
+            return position_value + evaluation_board
 
         if is_maximizing_player:
             # Computer's Turn
@@ -261,118 +271,11 @@ class Computer:
 
             return min_eval
 
-    def evaluate_position(self):
-        # Evaluate the position based on piece values, board control, etc.
-        return random.randint(0, 100)  # Placeholder evaluation function
-
-    def add_to_board(self, piece, pos):
-        self.board[pos[0]][pos[1]] = piece
-
-    def make_demo_board(self):
-
-        WHT_POS = {
-            "bishop": [[0, 2], [0, 5]],
-            "knight": [[0, 1], [0, 6]],
-            "rook": [[0, 0], [0, 7]],
-            "queen": [0, 3],
-            "king": [0, 4]
-        }
-
-        BLK_POS = {
-            "bishop": [[7, 2], [7, 5]],
-            "knight": [[7, 1], [7, 6]],
-            "rook": [[7, 0], [7, 7]],
-            "queen": [7, 3],
-            "king": [7, 4]
-        }
-
-        allegiance = 'Black'
-
-        # Bishops in Column 2, 4 Row 0
-        bishop_1 = p.Bishop(allegiance, self.board, BLK_POS['bishop'][0])
-        self.add_to_board(bishop_1, BLK_POS['bishop'][0])
-
-        bishop_2 = p.Bishop(allegiance, self.board, BLK_POS['bishop'][1])
-        self.add_to_board(bishop_2, BLK_POS['bishop'][1])
-
-        # # Queen
-        queen = p.Queen(allegiance, self.board, BLK_POS['queen'])
-        self.add_to_board(queen, BLK_POS['queen'])
-
-        # # King
-        king = p.King(allegiance, self.board, BLK_POS['king'])
-        self.add_to_board(king, BLK_POS['king'])
-
-        # # Rooks
-        rook1 = p.Rook(allegiance, self.board, BLK_POS['rook'][0])
-        self.add_to_board(rook1, BLK_POS['rook'][0])
-
-        rook2 = p.Rook(allegiance, self.board, BLK_POS['rook'][1])
-        self.add_to_board(rook2, BLK_POS['rook'][1])
-
-        # # Knight
-        knight1 = p.Knight(allegiance, self.board, BLK_POS['knight'][0])
-        self.add_to_board(knight1, BLK_POS['knight'][0])
-
-        knight2 = p.Knight(allegiance, self.board, BLK_POS['knight'][1])
-        self.add_to_board(knight2, BLK_POS['knight'][1])
-
-        # Pawn
-        for col in range(8):
-            pawn = p.Pawn(allegiance, self.board, [6, col])
-            self.add_to_board(pawn, [6, col])
-
-        # Bishops in Column 2, 4 Row 0
-        allegiance = 'White'
-
-        bishop_1 = p.Bishop(allegiance, self.board, WHT_POS['bishop'][0])
-        self.add_to_board(bishop_1, WHT_POS['bishop'][0])
-
-        bishop_2 = p.Bishop(allegiance, self.board, WHT_POS['bishop'][1])
-        self.add_to_board(bishop_2, WHT_POS['bishop'][1])
-
-        # # Queen
-        queen = p.Queen(allegiance, self.board, WHT_POS['queen'])
-        self.add_to_board(queen, WHT_POS['queen'])
-
-        # King
-        king = p.King(allegiance, self.board, WHT_POS['king'])
-        self.add_to_board(king, WHT_POS['king'])
-
-        #Rooks
-        rook1 = p.Rook(allegiance, self.board, WHT_POS['rook'][0])
-        self.add_to_board(rook1, WHT_POS['rook'][0])
-
-        rook2 = p.Rook(allegiance, self.board, WHT_POS['rook'][1])
-        self.add_to_board(rook2, WHT_POS['rook'][1])
-
-        # #Knight
-        knight1 = p.Knight(allegiance, self.board, WHT_POS['knight'][0])
-        self.add_to_board(knight1, WHT_POS['knight'][0])
-
-        knight2 = p.Knight(allegiance, self.board, WHT_POS['knight'][1])
-        self.add_to_board(knight2, WHT_POS['knight'][1])
-
-        # demoPawn = p.Pawn(allegiance, self.board, [0, 0])
-        # demoPawn.capture()
-        # self.white_capture_board[0][0] = demoPawn
-
-        # Pawn
-        for col in range(8):
-            pawn = p.Pawn(allegiance, self.board, [1, col])
-            self.add_to_board(pawn, [1, col])
-
-    def print_board(self):
-        for row in reversed(self.board):
-            printable_row = [0 if square is None else square for square in row]
-            print(printable_row)
-
-
-
 # Example usage:
 # Initialize your board and computer player
 # board = [[None for _ in range(8)] for _ in range(8)]
 # computer_player = Computer('Black', board)
+
 
 # computer_player.make_best_move()
 # computer_player.print_board()
