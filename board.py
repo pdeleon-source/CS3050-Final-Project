@@ -78,6 +78,8 @@ white_allegiance = "White"
 black_allegiance = "Black"
 
 class Board(arcade.View):
+    # TODO: Pass in list of theme colors or string representing theme?
+    # TODO: Pass in sound on or off?
     def __init__(self, versus):
         super().__init__()
         self.versus = versus

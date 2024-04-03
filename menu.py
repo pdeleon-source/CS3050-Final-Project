@@ -6,12 +6,13 @@ Create a display Menu, that starts up the chess game
 - Give user two options
 - Computer V Computer: normal game
 - Player V Player: some stuff
-- Later we need to implement Puzzle and Turtorial buttons
+- Later we need to implement Puzzle and Tutorial buttons
 """
 
 import arcade
 import board
 import sys
+import time
 
 
 # Define screen dimensions
@@ -27,14 +28,22 @@ COLS = 8
 SQUARE_WIDTH = SCREEN_WIDTH // 8
 SQUARE_HEIGHT = SCREEN_HEIGHT // 8
 
-# Define colors
-BG_COLOR = arcade.color.LIGHT_BLUE
+# Define default colors
+BG_COLOR = arcade.color.BRUNSWICK_GREEN
 TEXT_COLOR = arcade.color.BLACK
 LIGHT_SQUARE_COLOR = arcade.color.ALMOND
 DARK_SQUARE_COLOR = arcade.color.SADDLE_BROWN
 
-# Define sound effects
+
+LIGHT_SQUARE_COLOR_PINK = arcade.color.CAMEO_PINK
+DARK_SQUARE_COLOR_PINK = arcade.color.CHINA_PINK
+BG_COLOR_PINK = arcade.color.WHITE
+
+BUTTON_COLOR = arcade.color.WHITE
+
+# Define sound effects - must be .wav :(
 BUTTON_SOUND = "sounds/doink.wav"
+
 
 class Button:
     #SCREEN_WIDTH, SCREEN_HEIGHT = arcade.get_display_size(
@@ -43,7 +52,7 @@ class Button:
         self.y = y
         self.width = width
         self.height = height
-        self.color = arcade.color.WHITE
+        #self.color = arcade.color.WHITE
         self.hover_color = arcade.color.LIGHT_GRAY
         self.clicked_color = arcade.color.GREEN
         self.is_hovered = False
@@ -51,13 +60,13 @@ class Button:
         # Volume of sound
         self.volume = 1.0
 
-    def draw(self, text, size):
+    def draw(self, text, color):
         if self.is_clicked:
             arcade.draw_rectangle_filled(self.x, self.y, self.width, self.height, self.clicked_color)
         elif self.is_hovered:
             arcade.draw_rectangle_filled(self.x, self.y, self.width, self.height, self.hover_color)
         else:
-            arcade.draw_rectangle_filled(self.x, self.y, self.width, self.height, self.color)
+            arcade.draw_rectangle_filled(self.x, self.y, self.width, self.height, color)
         #arcade.draw_text(text, self.x - self.width // 10, self.y - self.height // 10, arcade.color.BLACK, size)
         arcade.draw_text(text, self.x - len(text) * 5, self.y - self.height // 10, arcade.color.BLACK, 16)
 
@@ -77,6 +86,9 @@ class Button:
     def on_mouse_release(self, x, y, button, modifiers):
         self.is_clicked = False
 
+    def set_volume(self, lvl):
+        self.volume = lvl
+
 
 class MenuView(arcade.View):
     def __init__(self):
@@ -87,7 +99,7 @@ class MenuView(arcade.View):
         self.settings_button = Button(CENTER_WIDTH, CENTER_HEIGHT - 115, 200, 40)
         self.quit_button = Button(CENTER_WIDTH, CENTER_HEIGHT - 160, 200, 40)
         self.game_view = None  # Placeholder for the game view instance
-        #self.settings_view = None # Placeholder for the settings view instance
+
 
     def on_show(self):
         arcade.set_background_color(BG_COLOR)
@@ -115,10 +127,10 @@ class MenuView(arcade.View):
 
         # Draw the logo stuff
         self.logo.draw_sized(center_x=CENTER_WIDTH, center_y=CENTER_HEIGHT, width=700, height=580) # Was w=600h=500
-        self.play_button.draw("Play", 16)
-        self.tutorial_button.draw("Tutorials", 16)
-        self.settings_button.draw("Settings", 16)
-        self.quit_button.draw("Quit", 16)
+        self.play_button.draw("Play", BUTTON_COLOR)
+        self.tutorial_button.draw("Tutorials", BUTTON_COLOR)
+        self.settings_button.draw("Settings", BUTTON_COLOR)
+        self.quit_button.draw("Quit", BUTTON_COLOR)
 
     # def on_key_press(self, key, modifiers):
     #     if key == arcade.key.KEY_1:
@@ -148,7 +160,6 @@ class MenuView(arcade.View):
         self.settings_button.on_mouse_release(x, y, button, modifiers)
         self.quit_button.on_mouse_release(x, y, button, modifiers)
 
-
     def update(self, delta_time):
         if self.play_button.is_clicked:
             game_view = GameView()
@@ -158,6 +169,8 @@ class MenuView(arcade.View):
             self.window.show_view(game_view)
         # if self.tutorial_button.is_clicked:
         if self.quit_button.is_clicked:
+            # Sleep so sound effect can play :)
+            time.sleep(.15)
             sys.exit()
 
 
@@ -171,7 +184,6 @@ class GameView(arcade.View):
         self.return_button = Button(CENTER_WIDTH, CENTER_HEIGHT - 180, 250, 60)
         # self.chess_piece = arcade.Sprite("pieces_png/white-pawn.png", center_x=SCREEN_WIDTH // 2,
                                         #s center_y=SCREEN_HEIGHT // 2)
-
     def on_mouse_motion(self, x, y, dx, dy):
         self.player_button.on_mouse_motion(x, y, dx, dy)
         self.computer_button.on_mouse_motion(x, y, dx, dy)
@@ -224,9 +236,9 @@ class GameView(arcade.View):
 
         # Draw the logo stuff
         self.logo.draw_sized(center_x=CENTER_WIDTH, center_y=CENTER_HEIGHT + 120, width=600, height=200)
-        self.player_button.draw("Player vs Player", 12)
-        self.computer_button.draw("Player vs Computer", 12)
-        self.return_button.draw("Go Back", 12)
+        self.player_button.draw("Player vs Player", BUTTON_COLOR)
+        self.computer_button.draw("Player vs Computer", BUTTON_COLOR)
+        self.return_button.draw("Go Back", BUTTON_COLOR)
 
     def update(self, delta_time):
         if self.player_button.is_clicked:
@@ -297,24 +309,163 @@ class SettingsView(arcade.View):
 
         # Draw the logo stuff
         self.logo.draw_sized(center_x=CENTER_WIDTH, center_y=CENTER_HEIGHT + 120, width=600, height=200)
-        self.sound_button.draw("Toggle Sound", 12)
-        self.theme_button.draw("Change Theme", 12)
-        self.return_button.draw("Go Back", 12)
+
+        self.theme_button.draw("Change Theme", BUTTON_COLOR)
+        self.sound_button.draw("Toggle Sound", BUTTON_COLOR)
+        """
+        if self.sound_button.volume == 0:
+            self.sound_button.draw("Sound On", 12)
+        else:
+            self.sound_button.draw("Sound Off", 12)
+        """
+        self.return_button.draw("Go Back", BUTTON_COLOR)
 
     def update(self, delta_time):
         if self.sound_button.is_clicked:
-            print("Sound")
+            if self.sound_button.volume == 0:
+                self.sound_button.volume = 1
+                print("Sound On")
+            else:
+                self.sound_button.volume = 0
+                print("Sound Off")
+
             #game_view = board.Board("player")
             #self.window.show_view(game_view)
         if self.theme_button.is_clicked:
             print("Theme")
-            #game_view = board.Board("computer")
-            #self.window.show_view(game_view)
+            game_view = ThemeView()
+            self.window.show_view(game_view)
         if self.return_button.is_clicked:
             game_view = MenuView()
             self.window.show_view(game_view)
 
 
+class ThemeView(arcade.View):
+    def __init__(self):
+        super().__init__()
+        # Default colors
+        self.light_square_color = LIGHT_SQUARE_COLOR
+        self.dark_square_color = DARK_SQUARE_COLOR
+        self.bg_color = BG_COLOR
+
+        # Theme buttons
+        self.default_button = Button(CENTER_WIDTH - 200, CENTER_HEIGHT + 150, 200, 200)
+        self.pink_button = Button(CENTER_WIDTH + 200, CENTER_HEIGHT + 150, 200, 200)
+        self.ocean_button = Button(CENTER_WIDTH - 200, CENTER_HEIGHT - 100, 200, 200)
+        self.midnight_button = Button(CENTER_WIDTH + 200, CENTER_HEIGHT - 100, 200, 200)
+
+        self.return_button = Button(CENTER_WIDTH, CENTER_HEIGHT - 250, 250, 60)
+    def on_draw(self):
+        arcade.start_render()
+
+        # Make even squares
+
+        ROWS = SCREEN_WIDTH // SQUARE_WIDTH
+        COLS = SCREEN_HEIGHT // SQUARE_HEIGHT
+
+        for row in range(ROWS):
+            for col in range(COLS):
+                x = col * SQUARE_WIDTH
+                y = row * SQUARE_HEIGHT
+
+                if (row + col) % 2 == 0:
+                    color = self.light_square_color
+                else:
+                    color = self.dark_square_color
+
+                arcade.draw_rectangle_filled(x + SQUARE_WIDTH // 2, y + SQUARE_HEIGHT // 2, SQUARE_WIDTH, SQUARE_HEIGHT,
+                                             color)
+        self.default_button.draw("Default Theme", arcade.color.ALMOND)
+        self.pink_button.draw("Pink Theme", arcade.color.PINK)
+        self.ocean_button.draw("Ocean Theme", arcade.color.OCEAN_BOAT_BLUE)
+        self.midnight_button.draw("Midnight Theme", arcade.color.MIDNIGHT_BLUE)
+
+        self.return_button.draw("Go Back", BUTTON_COLOR)
+    def on_mouse_motion(self, x, y, dx, dy):
+        self.default_button.on_mouse_motion(x, y, dx, dy)
+        self.pink_button.on_mouse_motion(x, y, dx, dy)
+        self.ocean_button.on_mouse_motion(x, y, dx, dy)
+        self.midnight_button.on_mouse_motion(x, y, dx, dy)
+        self.return_button.on_mouse_motion(x, y, dx, dy)
+
+    def on_mouse_press(self, x, y, button, modifiers):
+        self.default_button.on_mouse_press(x, y, button, modifiers)
+        self.pink_button.on_mouse_press(x, y, button, modifiers)
+        self.ocean_button.on_mouse_press(x, y, button, modifiers)
+        self.midnight_button.on_mouse_press(x, y, button, modifiers)
+        self.return_button.on_mouse_press(x, y, button, modifiers)
+
+    def on_mouse_release(self, x, y, button, modifiers):
+        self.default_button.on_mouse_release(x, y, button, modifiers)
+        self.pink_button.on_mouse_release(x, y, button, modifiers)
+        self.ocean_button.on_mouse_release(x, y, button, modifiers)
+        self.midnight_button.on_mouse_release(x, y, button, modifiers)
+        self.return_button.on_mouse_press(x, y, button, modifiers)
+
+        # def on_show(self):
+        #     arcade.set_background_color(arcade.color.WHITE)
+        #     self.chess_piece.position = SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2
+
+    def on_show(self):
+        arcade.set_background_color(BG_COLOR)
+
+    def update(self, delta_time):
+        if self.default_button.is_clicked:
+            self.light_square_color = LIGHT_SQUARE_COLOR
+            self.dark_square_color = DARK_SQUARE_COLOR
+            self.bg_color = BG_COLOR
+        if self.pink_button.is_clicked:
+            self.light_square_color = LIGHT_SQUARE_COLOR_PINK
+            self.dark_square_color = DARK_SQUARE_COLOR_PINK
+            self.bg_color = BG_COLOR_PINK
+
+        if self.return_button.is_clicked:
+            game_view = SettingsView()
+            self.window.show_view(game_view)
+
+    """
+        if self.sound_button.is_clicked:
+            if self.sound_button.volume == 0:
+                self.sound_button.volume = 1
+                print("Sound On")
+            else:
+                self.sound_button.volume = 0
+                print("Sound Off")
+
+            #game_view = board.Board("player")
+            #self.window.show_view(game_view)
+        if self.theme_button.is_clicked:
+            print("Theme")
+            game_view = ThemeView()
+            self.window.show_view(game_view)
+        if self.return_button.is_clicked:
+            game_view = MenuView()
+            self.window.show_view(game_view)
+"""
+
+
+
+"""
+    # Almond theme
+    light_square_color = arcade.color.ALMOND
+    dark_sqaure_color = arcade.color.SADDLE_BROWN
+    bg_color = arcade.color.BRUNSWICK_GREEN
+    
+    # Pink theme
+    light_square_color = arcade.color.CAMEO_PINK
+    dark_square_color = arcade.color.CHINA_PINK
+    bg_color = arcade.color.WHITE
+    
+    # Ocean theme
+    light_square_color = arcade.color.
+    dark_square_color = arcade.color.
+    bg_color = arcade.color.
+    
+    # Midnight theme
+    light_square_color = arcade.color.
+    dark_square_color = arcade.color.
+    bg_color = arcade.color.
+    """
 
 def main():
     window = arcade.Window(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
