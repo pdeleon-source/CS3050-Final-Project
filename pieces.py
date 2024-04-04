@@ -204,7 +204,8 @@ class Piece(arcade.AnimatedTimeBasedSprite):
             # Then check to see if the rook is there
             if isinstance(self, Rook) and self.moves >= 3:
             # Then check to see if there ae no pieces between the king and rook
-                if
+                if self.board[row][col + 1] is None and self.board[row][col + 2] is None:
+                    pass
             # Then do the switch
 
     def promotable(self) -> bool:
