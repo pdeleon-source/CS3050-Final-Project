@@ -610,6 +610,7 @@ class King(Piece):
         if isinstance(self, King) and self.moves == 0:
             # Then check to see if the rook is there
             if isinstance(self, Rook) and self.rank >= 3:
+                pass
             # Then check to see if there ae no pieces between the king and rook
 
             # Then do the switch
