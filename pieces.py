@@ -229,6 +229,16 @@ class Piece(arcade.AnimatedTimeBasedSprite):
 
         return None
 
+    def castle(self):
+        # check to see it is a king is in its original position
+        if isinstance(self, King) and self.moves == 0:
+            # Then check to see if the rook is there
+            if isinstance(self, Rook) and self.moves >= 3:
+            # Then check to see if there ae no pieces between the king and rook
+                if self.board[row][col + 1] is None and self.board[row][col + 2] is None:
+                    pass
+            # Then do the switch
+
     def promotable(self) -> bool:
         """
         Returns true if the current piece is a promotable pawn
@@ -681,10 +691,6 @@ class King(Piece):
             [2, 3, 1, 0, 0, 1, 3, 2]
         ]
 
-        # TODO: We need to implement an 'attacking_squares' return for each piece
-
-    # this way we can track which squares/pieces are under attack and we know
-    # if a king can move to a square
     def available_moves(self):
         """
         Determines the King's valid moves based on its current position
@@ -714,6 +720,15 @@ class King(Piece):
 
         # print(movements)
         return movements, captures, attacking
+
+    def castle(self):
+        # check to see it is a king is in its original position
+        if isinstance(self, King) and self.moves == 0:
+            # Then check to see if the rook is there
+            if isinstance(self, Rook) and self.rank >= 3:
+            # Then check to see if there ae no pieces between the king and rook
+
+            # Then do the switch
 
     def __repr__(self):
         if self.allegiance == 'Black':
