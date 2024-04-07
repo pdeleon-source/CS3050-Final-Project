@@ -234,8 +234,9 @@ class Piece(arcade.AnimatedTimeBasedSprite):
         if isinstance(self, King) and self.moves == 0:
             # Then check to see if the rook is there
             if isinstance(self, Rook) and self.moves >= 3:
-            # Then check to see if there are no pieces between the king and rook
-                if
+            # Then check to see if there ae no pieces between the king and rook
+                if self.board[row][col + 1] is None and self.board[row][col + 2] is None:
+                    pass
             # Then do the switch
 
     def promotable(self) -> bool:
@@ -720,7 +721,14 @@ class King(Piece):
         # print(movements)
         return movements, captures, attacking
 
+    def castle(self):
+        # check to see it is a king is in its original position
+        if isinstance(self, King) and self.moves == 0:
+            # Then check to see if the rook is there
+            if isinstance(self, Rook) and self.rank >= 3:
+            # Then check to see if there ae no pieces between the king and rook
 
+            # Then do the switch
 
     def __repr__(self):
         if self.allegiance == 'Black':

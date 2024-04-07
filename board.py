@@ -80,7 +80,7 @@ black_allegiance = "Black"
 class Board(arcade.View):
     # TODO: Pass in list of theme colors or string representing theme?
     # TODO: Pass in sound on or off?
-    def __init__(self, versus):
+    def __init__(self, versus, theme):
         super().__init__()
         self.versus = versus
         # Add a variable to track whose turn it is
@@ -118,10 +118,27 @@ class Board(arcade.View):
         self.make_black_set()
         self.make_white_set()
 
-        # Give player pieces
+        # TODO: Pass in theme manager object instead?
+        """Set colors based on theme"""
+        if theme == "midnight":
+            self.light_square_color = arcade.color.BLUE
+            self.dark_square_color = arcade.color.DARK_BLUE
+            self.bg_color = arcade.color.MIDNIGHT_BLUE
+        elif theme == "pink":
+            self.light_square_color = arcade.color.CAMEO_PINK
+            self.dark_square_color = arcade.color.CHINA_PINK
+            self.bg_color = arcade.color.DUST_STORM
+        elif theme == "ocean":
+            self.light_square_color = arcade.color.LIGHT_BLUE
+            self.dark_square_color = arcade.color.BLUE
+            self.bg_color = arcade.color.OCEAN_BOAT_BLUE
+        else: # Default colors
+            self.light_square_color = arcade.color.ALMOND
+            self.dark_square_color = arcade.color.SADDLE_BROWN
+            self.bg_color = arcade.color.BRUNSWICK_GREEN
 
     def on_show(self):
-        arcade.set_background_color(arcade.color.BRUNSWICK_GREEN)
+        arcade.set_background_color(self.bg_color)
         # self.chess_piece.position = SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2
 
     def update(self, delta_time):
@@ -153,6 +170,8 @@ class Board(arcade.View):
     def on_draw(self):
         arcade.start_render()
 
+
+
         # Make even squares
         square_width = (SCREEN_WIDTH - 200) // COLS
         square_height = SCREEN_HEIGHT // ROWS
@@ -170,9 +189,9 @@ class Board(arcade.View):
                 elif self.selected[row][col]:
                     color = SELECTED_SQUARE_COLOR
                 elif (row + col) % 2 == 0:
-                    color = LIGHT_SQUARE_COLOR
+                    color = self.light_square_color
                 else:
-                    color = DARK_SQUARE_COLOR
+                    color = self.dark_square_color
 
                 arcade.draw_rectangle_filled(x + square_width // 2, y + square_height // 2, square_width, square_height,
                                              color)
@@ -477,6 +496,7 @@ class Board(arcade.View):
 
             print("============= Blacks Turn ============")
             self.print_board()
+            # self.print_capture()
             print("CAPTURES")
             self.print_capture()
             if computer_piece.allegiance == 'White':

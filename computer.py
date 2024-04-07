@@ -129,14 +129,28 @@ class Computer:
                 old_value = self.demo_board[new_position[0]][new_position[1]]
 
                 # Simulate the move
-                self.template_move_piece(piece, new_position)
+                # self.template_move_piece(piece, new_position)
                 score = self.minimax(depth - 1, False, piece, new_position)  # Opponent's turn
+
+                # TODO: Figure out what to do with this
+                # Add computer position evaluation !!!
+                target_piece = self.demo_board[new_position[0]][new_position[1]]
+                position_value = target_piece.get_value() if target_piece is not None else 0
+                evaluation_board = 0
+                if target_piece is not None:
+                    if target_piece.allegiance == "White":
+                        evaluation_board = target_piece.eval[new_position[0]][new_position[1]]
+                    else:
+                        evaluation_board = reversed(target_piece.eval)[new_position[0]][new_position[1]]
+
+                score += position_value + evaluation_board
+
 
                 print(f"Value: {score}")
                 print("=========================")
                 # Undo the move
-                self.demo_board[old_position[0]][old_position[1]] = piece
-                self.demo_board[new_position[0]][new_position[1]] = old_value
+                # self.demo_board[old_position[0]][old_position[1]] = piece
+                # self.demo_board[new_position[0]][new_position[1]] = old_value
 
                 # TODO: Figure out some logic here
                 # Computer should do the move that will get the player the LEAST amount of points
