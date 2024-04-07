@@ -436,7 +436,9 @@ class Board(arcade.View):
         self.selected_piece.move([row, col])
 
         """ Check if move is en passant """
-        cap = self.selected_piece.en_passant([row, col])
+        cap = None
+        if isinstance(self.selected_piece, p.Pawn):
+            cap = self.selected_piece.en_passant([row, col])
         if cap is not None:
             # self.captures.append(self.board[cap[0]][cap[1]])
             # self.imprison_piece(self.board[cap[0]][cap[1]])

@@ -135,7 +135,7 @@ class Piece(arcade.AnimatedTimeBasedSprite):
         self.temp_current_row = new_row
         self.temp_current_col = new_col
 
-        print(board)
+        # print(board)
         
         # find the king:
         for row in range(8):
@@ -324,9 +324,6 @@ class Pawn(Piece):
             pawn_first_moves = [(-1, 0), (-2, 0)]
             pawn_regular_moves = [(-1, 0)]
             pawn_captures = [(-1, -1), (-1, 1)]
-
-        # TODO: Check if the piece's king would be in check after the move
-        # If it would be, don't add the move
 
         # If first move
         if self.moves == 0:
@@ -536,17 +533,18 @@ class Rook(Piece):
                 attacking.append((row, col))
                 if self.board[row][col] is not None:
                     if self.board[row][col].allegiance == self.allegiance:
-                        attacking.append((row + 1, col))
+                        attacking.append((row + horiz_row, col + horiz_col))
                         break
                     else:
                         if not testing_move:
                             if self.test_player_move((row, col), self.board):
                                 caps.append((row, col))
-                        attacking.append((row + 1, col))
+                        attacking.append((row + horiz_row, col + horiz_col))
                         break
                 else:
                     if not testing_move:
                         if self.test_player_move((row, col), self.board):
+                            attacking.append((row + horiz_row, col + horiz_col))
                             moves.append((row, col))
 
                 row += horiz_row
@@ -559,17 +557,18 @@ class Rook(Piece):
                 attacking.append((row, col))
                 if self.board[row][col] is not None:
                     if self.board[row][col].allegiance == self.allegiance:
-                        attacking.append((row, col + 1))
+                        attacking.append((row + vert_row, col + vert_col))
                         break
                     else:
                         if not testing_move:
                             if self.test_player_move((row, col), self.board):
                                 caps.append((row, col))
-                        attacking.append((row, col + 1))
+                        attacking.append((row + vert_row, col + vert_col))
                         break
                 else:
                     if not testing_move:
                         if self.test_player_move((row, col), self.board):
+                            attacking.append((row + vert_row, col + vert_col))
                             moves.append((row, col))
 
                 row += vert_row
@@ -635,7 +634,6 @@ class Bishop(Piece):
                 if self.board[row][col] is not None:
                     if self.board[row][col].allegiance == self.allegiance:
                         attacking.append((row + diagonal_row, col + diagonal_col))
-                        break
                     else:
                         # Can capture piece but cannot move past it so exit loop
                         if not testing_move:
@@ -647,6 +645,7 @@ class Bishop(Piece):
                     if not testing_move:
                         if self.test_player_move((row, col), self.board):
                             movements.append((row, col))
+                            attacking.append((row + diagonal_row, col + diagonal_col))
 
                 row += diagonal_row
                 col += diagonal_col
@@ -695,7 +694,9 @@ class Queen(Piece):
 
         # Queen moves diagonally, so we check all four diagonal directions
         # Queen also moves horizontally and vertically
+        counter = 0
         for diagonal_row, diagonal_col in [(-1, -1), (-1, 1), (1, -1), (1, 1), (-1, 0), (0, -1), (1, 0), (0, 1)]:
+            counter += 1
             row, col = self.current_row + diagonal_row, self.current_col + diagonal_col
             while 0 <= row < 8 and 0 <= col < 8:
                 # TODO: Currently, attacking stops updating after it hits a piece
@@ -718,6 +719,7 @@ class Queen(Piece):
                     if not testing_move:
                         if self.test_player_move((row, col), self.board):
                             movements.append((row, col))
+                            attacking.append((row + diagonal_row, col + diagonal_col))
 
                 row += diagonal_row
                 col += diagonal_col
