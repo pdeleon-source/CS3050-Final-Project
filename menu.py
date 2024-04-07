@@ -13,6 +13,8 @@ import arcade
 import board
 import sys
 import time
+import tutorial as t
+import arcade.gui
 
 # Define screen dimensions
 # SCREEN_WIDTH = 800
@@ -136,6 +138,15 @@ class MenuView(arcade.View):
         self.quit_button = Button(CENTER_WIDTH, CENTER_HEIGHT - 160, 200, 40, None)
         self.game_view = None  # Placeholder for the game view instance
 
+        self.manager = arcade.gui.UIManager()
+        self.anchor = self.manager.add(arcade.gui.UIAnchorLayout())
+        self.submenu = t.SubMenu(
+            "Tutorial Menu",
+            "This is a tutorial submenu.",
+            "OK"
+        )
+        self.manager.add(self.submenu)
+
         # audio = arcade.load_sound(MENU_SOUND, True)
         # arcade.play_sound(audio, 1, -1, True)
 
@@ -177,6 +188,9 @@ class MenuView(arcade.View):
         self.settings_button.draw("", BUTTON_COLOR)
         self.quit_button.draw("Quit", BUTTON_COLOR)
 
+        if self.tutorial_button.is_clicked:
+            self.manager.draw()
+
     # def on_key_press(self, key, modifiers):
     #     if key == arcade.key.KEY_1:
     #         # Start game against another player
@@ -199,11 +213,16 @@ class MenuView(arcade.View):
         self.settings_button.on_mouse_press(x, y, button, modifiers)
         self.quit_button.on_mouse_press(x, y, button, modifiers)
 
+
+
     def on_mouse_release(self, x, y, button, modifiers):
         self.play_button.on_mouse_release(x, y, button, modifiers)
         self.tutorial_button.on_mouse_release(x, y, button, modifiers)
         self.settings_button.on_mouse_release(x, y, button, modifiers)
         self.quit_button.on_mouse_release(x, y, button, modifiers)
+
+        if self.tutorial_button.is_clicked:
+            self.manager.add(self.submenu)
 
     def update(self, delta_time):
         if self.play_button.is_clicked:
@@ -213,7 +232,13 @@ class MenuView(arcade.View):
             game_view = SettingsView(self.theme_manager.theme)
             self.window.show_view(game_view)
         if self.tutorial_button.is_clicked:
-            
+            self.manager.add(self.submenu)
+        # if self.tutorial_button.is_clicked:
+        #     if self.submenu.is_clicked:
+        #         print("i CLICKED IT!")
+        #         self.manager.remove(self.submenu)
+
+
         if self.quit_button.is_clicked:
             # Sleep so sound effect can play :)
             time.sleep(.15)

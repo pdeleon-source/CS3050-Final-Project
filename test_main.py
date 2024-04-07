@@ -1,58 +1,33 @@
-import arcade
+class MenuView(arcade.View):
+    def __init__(self, theme):
+        super().__init__()
+        # Other initialization code...
 
-class Button:
-    def __init__(self, x, y, width, height):
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
-        self.color = arcade.color.WHITE
-        self.hover_color = arcade.color.LIGHT_GRAY
-        self.clicked_color = arcade.color.GREEN
-        self.is_hovered = False
-        self.is_clicked = False
+        self.manager = arcade.gui.UIManager()
+        self.anchor = self.manager.add(arcade.gui.UIAnchorLayout())
 
-    def draw(self):
-        if self.is_clicked:
-            arcade.draw_rectangle_filled(self.x, self.y, self.width, self.height, self.clicked_color)
-        elif self.is_hovered:
-            arcade.draw_rectangle_filled(self.x, self.y, self.width, self.height, self.hover_color)
-        else:
-            arcade.draw_rectangle_filled(self.x, self.y, self.width, self.height, self.color)
+        # Create the submenu
+        self.submenu = t.SubMenu(
+            "Tutorial Menu",  # Change to your desired submenu title
+            "This is a tutorial submenu.",  # Change to your desired submenu description
+            "OK"  # Change to your desired submenu button label
+        )
+        self.manager.add(self.submenu)
 
-    def on_mouse_motion(self, x, y, dx, dy):
-        self.is_hovered = (self.x - self.width / 2 < x < self.x + self.width / 2 and
-                           self.y - self.height / 2 < y < self.y + self.height / 2)
+        # Other initialization code...
 
     def on_mouse_press(self, x, y, button, modifiers):
-        if self.is_hovered:
-            self.is_clicked = True
+        super().on_mouse_press(x, y, button, modifiers)
+        self.play_button.on_mouse_press(x, y, button, modifiers)
+        self.tutorial_button.on_mouse_press(x, y, button, modifiers)
+        self.settings_button.on_mouse_press(x, y, button, modifiers)
+        self.quit_button.on_mouse_press(x, y, button, modifiers)
 
-    def on_mouse_release(self, x, y, button, modifiers):
-        self.is_clicked = False
+        if self.tutorial_button.is_clicked:
+            self.manager.draw()  # Display the submenu
 
-class MyGame(arcade.Window):
-    def __init__(self, width, height, title):
-        super().__init__(width, height, title)
-        self.button = Button(200, 200, 100, 50)
-
-    def on_draw(self):
-        arcade.start_render()
-        self.button.draw()
-
-    def on_mouse_motion(self, x, y, dx, dy):
-        self.button.on_mouse_motion(x, y, dx, dy)
-
-    def on_mouse_press(self, x, y, button, modifiers):
-        self.button.on_mouse_press(x, y, button, modifiers)
-
-    def on_mouse_release(self, x, y, button, modifiers):
-        self.button.on_mouse_release(x, y, button, modifiers)
-
-def main():
-    window = MyGame(400, 400, "Button Example")
-    arcade.run()
-
-if __name__ == "__main__":
-    for i in range(4):
-        print (i)
+    def update(self, delta_time):
+        super().update(delta_time)
+        if self.tutorial_button.is_clicked:
+            if self.submenu.button.is_clicked:
+                self.manager.pop_view()  # Close the submenu if the button inside it is clicked
