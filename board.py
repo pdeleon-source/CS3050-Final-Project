@@ -463,6 +463,7 @@ class Board(arcade.View):
         castle = self.selected_piece.castle(self)
 
         if castle is not None:
+            pass
 
 
         self.board[self.selected_row][self.selected_col] = None
