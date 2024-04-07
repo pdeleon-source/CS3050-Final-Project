@@ -120,22 +120,31 @@ class Piece(arcade.AnimatedTimeBasedSprite):
     # WILL NOT actually move the piece on the board
     # Used to check if a piece moving will put/keep its king in check
     def test_player_move(self, new_pos, board) -> bool:
+        og_row = self.current_row
+        og_col = self.current_col
         new_row = new_pos[0]
         new_col = new_pos[1]
 
         destination = board[new_row][new_col]
 
         if destination is not None and destination.allegiance != self.allegiance:
-            self.temp_current_row = new_row
-            self.temp_current_col = new_col
-        elif destination is not None:
+            # is capture
+            pass
+        elif destination is not None and destination.allegiance == self.allegiance:
             # is own piece
             return False
         
         self.temp_current_row = new_row
         self.temp_current_col = new_col
 
-        # print(board)
+        board[new_row][new_col] = self
+        board[og_row][og_col] = None
+        for row in reversed(self.board):
+            printable_row = [0 if square is None else square for square in row]
+            print(printable_row)
+        # board.print_board()
+
+        placehold = 1
         
         # find the king:
         for row in range(8):
@@ -147,9 +156,13 @@ class Piece(arcade.AnimatedTimeBasedSprite):
                         king_in_check = square.under_attack(row, col)
                         if not king_in_check:
                             print("king no check")
+                            board[og_row][og_col] = self
+                            board[new_row][new_col] = destination
                             return True
                         else: 
                             print("king check")
+                            board[og_row][og_col] = self
+                            board[new_row][new_col] = destination
                             return False
 
     def template_move(self, new_pos, board):
@@ -539,7 +552,7 @@ class Rook(Piece):
                         if not testing_move:
                             if self.test_player_move((row, col), self.board):
                                 caps.append((row, col))
-                        attacking.append((row + horiz_row, col + horiz_col))
+                        # attacking.append((row + horiz_row, col + horiz_col))
                         break
                 else:
                     if not testing_move:
@@ -563,7 +576,7 @@ class Rook(Piece):
                         if not testing_move:
                             if self.test_player_move((row, col), self.board):
                                 caps.append((row, col))
-                        attacking.append((row + vert_row, col + vert_col))
+                        # attacking.append((row + vert_row, col + vert_col))
                         break
                 else:
                     if not testing_move:
@@ -639,7 +652,7 @@ class Bishop(Piece):
                         if not testing_move:
                             if self.test_player_move((row, col), self.board):
                                 captures.append((row, col))
-                        attacking.append((row + diagonal_row, col + diagonal_col))
+                        # attacking.append((row + diagonal_row, col + diagonal_col))
                         break
                 else:
                     if not testing_move:
@@ -713,7 +726,7 @@ class Queen(Piece):
                         if not testing_move:
                             if self.test_player_move((row, col), self.board):
                                 captures.append((row, col))
-                        attacking.append((row + diagonal_row, col + diagonal_col))
+                        # attacking.append((row + diagonal_row, col + diagonal_col))
                         break
                 else:
                     if not testing_move:
