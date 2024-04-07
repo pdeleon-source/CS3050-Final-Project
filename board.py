@@ -472,7 +472,7 @@ class Board(arcade.View):
             self.check_game_over('Black')
         else:
             self.check_game_over('White')
-        self.print_capture()
+        #self.print_capture()
         self.switch_turn()
 
     def switch_turn(self):
@@ -492,22 +492,16 @@ class Board(arcade.View):
 
         # Handle computer input for black's turn
         if self.current_turn == black_allegiance:
-            computer_moved = False
-            computer_piece = None
-            coords = []
-            while not computer_moved:
-                computer_piece = self.computer.select_piece()
-                row = computer_piece.current_row
-                col = computer_piece.current_col
-                coords = self.computer.move_piece(computer_piece)
-                if coords != 4:
-                    computer_moved = True
 
-                    self.computer_piece = computer_piece
-                    self.computer_piece.on_click(coords[1] * SQUARE_WIDTH - 37, coords[0] * SQUARE_HEIGHT - 35)
+            computer_piece, coords = self.computer.make_best_move(2)
+            print(f"Move {computer_piece} to {coords}")
+
+            self.computer_piece = computer_piece
+            self.computer_piece.on_click(coords[1] * SQUARE_WIDTH - 37, coords[0] * SQUARE_HEIGHT - 35)
 
             print("============= Blacks Turn ============")
             self.print_board()
+            # self.print_capture()
             print("CAPTURES")
             self.print_capture()
             if computer_piece.allegiance == 'White':
