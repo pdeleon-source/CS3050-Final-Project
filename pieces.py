@@ -116,6 +116,9 @@ class Piece(arcade.AnimatedTimeBasedSprite):
 
         return True
 
+    # Used to test move a piece
+    # WILL NOT actually move the piece on the board
+    # Used to check if a piece moving will put/keep its king in check
     def template_move(self, new_pos, board):
         new_row = new_pos[0]
         new_col = new_pos[1]
@@ -270,9 +273,6 @@ class Pawn(Piece):
             [0, 0, 0, 0, 0, 0, 0, 0]
         ]
 
-    # TODO: We need to implement an 'attacking_squares' return for each piece
-    # this way we can track which squares/pieces are under attack and we know
-    # if a king can move to a square
     def available_moves(self):
         moves = []
         caps = []
@@ -290,6 +290,9 @@ class Pawn(Piece):
             pawn_first_moves = [(-1, 0), (-2, 0)]
             pawn_regular_moves = [(-1, 0)]
             pawn_captures = [(-1, -1), (-1, 1)]
+
+        # TODO: Check if the piece's king would be in check after the move
+        # If it would be, don't add the move
 
         # If first move
         if self.moves == 0:
@@ -408,7 +411,6 @@ class Knight(Piece):
             [-5, -4, -3, -3, -3, -3, -4, -5]
         ]
 
-        # TODO: We need to implement an 'attacking_squares' return for each piece
 
     # this way we can track which squares/pieces are under attack and we know
     # if a king can move to a square
@@ -464,7 +466,6 @@ class Rook(Piece):
             [-.5, 0, 0, 0, 0, 0, 0, -.5],
             [0, 0, 0, .5, .5, 0, 0, 0]
         ]
-        # TODO: We need to implement an 'attacking_squares' return for each piece
 
     # this way we can track which squares/pieces are under attack and we know
     # if a king can move to a square
@@ -550,7 +551,6 @@ class Bishop(Piece):
             [-2, -1, -1, -1, -1, -1, -1, -2]
         ]
 
-        # TODO: We need to implement an 'attacking_squares' return for each piece
 
     # this way we can track which squares/pieces are under attack and we know
     # if a king can move to a square
@@ -623,7 +623,6 @@ class Queen(Piece):
             [-2, -1, -1, -.5, -.5, -1, -1, -2]
         ]
 
-        # TODO: We need to implement an 'attacking_squares' return for each piece
 
     # this way we can track which squares/pieces are under attack and we know
     # if a king can move to a square
@@ -727,7 +726,7 @@ class King(Piece):
             # Then check to see if the rook is there
             if isinstance(self, Rook) and self.rank >= 3:
             # Then check to see if there ae no pieces between the king and rook
-
+                pass
             # Then do the switch
 
     def __repr__(self):
