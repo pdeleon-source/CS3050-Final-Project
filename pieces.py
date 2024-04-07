@@ -359,16 +359,16 @@ class Pawn(Piece):
             # Current piece must be at rank 3 or higher
             if self.rank >= 3:
                 # Check if enemy pawn to the left
-                if self.current_col - 1 > 0:
-                    left = self.board[self.current_row][self.current_col - 1]
+                if self.current_col - direction > 0:
+                    left = self.board[self.current_row][self.current_col - direction]
                     if (isinstance(left, Pawn) and left.allegiance != self.allegiance and
                             0 <= move_x < 8 and 0 <= move_dy < 8):
                         if left.moves == 1 and left.rank == 4:
                             moves.append((move_x, move_dy))
 
                 # Check if enemy pawn to the right
-                if self.current_col + 1 < 8:
-                    right = self.board[self.current_row][self.current_col + 1]
+                if self.current_col + direction < 8:
+                    right = self.board[self.current_row][self.current_col + direction]
                     if (isinstance(right, Pawn) and right.allegiance != self.allegiance and
                             0 <= move_x < 8 and 0 <= move_uy < 8):
                         if right.moves == 1 and right.rank == 4:

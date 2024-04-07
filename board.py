@@ -72,15 +72,18 @@ BLK_POS = {
 }
 
 # Sound effects
-MOVE_SOUND = "sounds/checkmate.wav"
+MOVE_SOUND = "sounds/make_move.wav"
+CAPTURE_SOUND = "sounds/capture.wav"
+
 # p = pieces.Piece
 white_allegiance = "White"
 black_allegiance = "Black"
 
+
 class Board(arcade.View):
     # TODO: Pass in list of theme colors or string representing theme?
     # TODO: Pass in sound on or off?
-    def __init__(self, versus, theme):
+    def __init__(self, versus, theme, volume):
         super().__init__()
         self.versus = versus
         # Add a variable to track whose turn it is
@@ -137,6 +140,8 @@ class Board(arcade.View):
             self.dark_square_color = arcade.color.SADDLE_BROWN
             self.bg_color = arcade.color.BRUNSWICK_GREEN
         self.theme = theme
+        self.volume = volume
+
     def on_show(self):
         arcade.set_background_color(self.bg_color)
 
@@ -170,8 +175,6 @@ class Board(arcade.View):
 
     def on_draw(self):
         arcade.start_render()
-
-
 
         # Make even squares
         square_width = (SCREEN_WIDTH - 200) // COLS
@@ -266,7 +269,7 @@ class Board(arcade.View):
             if (row, col) in self.valid_moves:
                 # Move the selected piece to the clicked spot
                 self.move_piece(row, col)
-                arcade.play_sound(audio, 1.0, -1, False)
+                arcade.play_sound(audio, self.volume, -1, False)
             # If the clicked spot is a capture move
             elif (row, col) in self.capture_moves:
                 # Record capture in list
