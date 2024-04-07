@@ -468,8 +468,8 @@ class ManageTheme:
             self.dark_square_color = arcade.color.CHINA_PINK
             # self.bg_color = arcade.color.WHITE
         elif theme == "ocean":
-            self.light_square_color = arcade.color.LIGHT_BLUE
-            self.dark_square_color = arcade.color.BLUE
+            self.light_square_color = arcade.color.PALE_ROBIN_EGG_BLUE
+            self.dark_square_color = arcade.color.DARK_CYAN
             # self.bg_color = arcade.color.WHITE
         else:  # Default colors
             self.light_square_color = arcade.color.ALMOND
