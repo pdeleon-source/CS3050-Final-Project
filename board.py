@@ -464,6 +464,7 @@ class Board(arcade.View):
 
 
 
+
         self.board[self.selected_row][self.selected_col] = None
         self.board[row][col] = piece
 
