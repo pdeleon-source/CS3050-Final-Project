@@ -1,5 +1,7 @@
 # for rooks in each turn, one value in the coordinate cannot change
 # for bishops, both values must change
+from typing import Tuple
+
 import arcade
 import copy
 
@@ -36,6 +38,8 @@ class Piece(arcade.AnimatedTimeBasedSprite):
         self.board = board
         self.current_row = current_pos[0]
         self.current_col = current_pos[1]
+        self.temp_current_row = current_pos[0]
+        self.temp_current_col = current_pos[1]
 
         self.position = (self.current_col, self.current_row)
         self.board[self.current_row][self.current_col] = self
@@ -45,8 +49,10 @@ class Piece(arcade.AnimatedTimeBasedSprite):
         self.target_y = self.current_row * SQUARE_HEIGHT
         if self.allegiance == "White":
             self.rank = self.current_row + 1
+            self.value = 1
         else:
             self.rank = abs(8 - self.current_row)
+            self.value = -1
 
     def capture(self):
         self.captured = True
@@ -62,6 +68,9 @@ class Piece(arcade.AnimatedTimeBasedSprite):
                                           self.y + CAPTURE_BOX // 2,
                                           CAPTURE_BOX, CAPTURE_BOX,
                                           self.texture)
+
+    def get_value(self):
+        return self.value
 
     def move(self, new_pos) -> bool:
         new_row = new_pos[0]
@@ -102,8 +111,78 @@ class Piece(arcade.AnimatedTimeBasedSprite):
         print(f"{self} Moves = {self.moves}")
         self.current_row = new_row
         self.current_col = new_col
+        self.temp_current_col = new_col
+        self.temp_current_row = new_row
 
         return True
+
+    # Used to test move a piece
+    # WILL NOT actually move the piece on the board
+    # Used to check if a piece moving will put/keep its king in check
+    def test_player_move(self, new_pos, board) -> bool:
+        og_row = self.current_row
+        og_col = self.current_col
+        new_row = new_pos[0]
+        new_col = new_pos[1]
+
+        destination = board[new_row][new_col]
+
+        if destination is not None and destination.allegiance != self.allegiance:
+            # is capture
+            pass
+        elif destination is not None and destination.allegiance == self.allegiance:
+            # is own piece
+            return False
+        
+        self.temp_current_row = new_row
+        self.temp_current_col = new_col
+
+        board[new_row][new_col] = self
+        board[og_row][og_col] = None
+        # for row in reversed(self.board):
+        #     printable_row = [0 if square is None else square for square in row]
+        #     print(printable_row)
+        # board.print_board()
+
+        placehold = 1
+        
+        # find the king:
+        for row in range(8):
+            for col in range(8):
+                square = board[row][col]
+                if isinstance(square, King):
+                    if square.allegiance == self.allegiance:
+                        # If the king is in check still, return false
+                        king_in_check = square.under_attack(row, col)
+                        if not king_in_check:
+                            # print("king no check")
+                            board[og_row][og_col] = self
+                            board[new_row][new_col] = destination
+                            return True
+                        else: 
+                            # print("king check")
+                            board[og_row][og_col] = self
+                            board[new_row][new_col] = destination
+                            return False
+
+    def template_move(self, new_pos, board):
+        new_row = new_pos[0]
+        new_col = new_pos[1]
+
+        destination = board[new_row][new_col]
+
+        # All conditions passed so move Bishop piece
+
+        if self.allegiance == "White":
+            self.rank = new_row + 1
+        else:
+            self.rank = abs(8 - new_row)
+
+        # Update variables
+        self.temp_current_row = new_row
+        self.temp_current_col = new_col
+
+        return board
 
     def under_attack(self, row, col) -> bool:
         """
@@ -121,24 +200,25 @@ class Piece(arcade.AnimatedTimeBasedSprite):
                 if curr_square is not None and curr_square.allegiance != self.allegiance:
                     if not isinstance(curr_square, King):
                         # Checks if move would put king in check of another piece
-                        movement, captures, attacked = curr_square.available_moves()
-                        if (row, col) in attacked :
-                                # If not, it gets added to the kings available moves
-                                return True
+                        movement, captures, attacked = curr_square.available_moves(True)
+                        if (row, col) in attacked:
+                            # If not, it gets added to the kings available moves
+                            return True
                     else:
                         attacked = []
-                        for square_col, square_row in [(1, 0), (0, 1), (-1, 0), (0, -1), (1, 1), (1, -1), (-1, 1), (-1, -1)]:
-                            final_row = r+square_row
-                            final_col = c+square_col
+                        for square_col, square_row in [(1, 0), (0, 1), (-1, 0), (0, -1), (1, 1), (1, -1), (-1, 1),
+                                                       (-1, -1)]:
+                            final_row = r + square_row
+                            final_col = c + square_col
                             if final_row < 0 or final_row > 7 or final_col < 0 or final_col > 7:
                                 pass
                             else:
                                 attacked.append((final_row, final_col))
                         # print(curr_square.allegiance + " KING ATTACKING SQUARES: ")
                         # print(attacked)
-                        if (row, col) in attacked :
-                                # If not, it gets added to the kings available moves
-                                return True
+                        if (row, col) in attacked:
+                            # If not, it gets added to the kings available moves
+                            return True
         return False
 
     def on_click(self, x, y):
@@ -198,6 +278,29 @@ class Piece(arcade.AnimatedTimeBasedSprite):
 
         return None
 
+    def castle(self):
+        """
+            Does the castle. Checks if the king or rook on either side has made any moves, then checks if
+            there are any pieces in the first rank between the king and the rook, then returns whether or
+            not it is possible
+        :return:
+        """
+        def king_side(self, col):
+            if isinstance(self, King) and self.moves == 0:
+                # Then check to see if the rook is there
+                if isinstance(self, Rook) and self.moves == 0:
+                    # if there are no pieces between the king and the rook
+                    if self.board[0][col + 1] is None and self.board[0][col + 2] is None:
+                        return True
+
+        def queen_side(self, col):
+            if isinstance(self, King) and self.moves == 0:
+                # Then check to see if the rook is there
+                if isinstance(self, Rook) and self.moves == 0:
+                    # if there are no pieces between the king and the rook
+                    if self.board[0][col - 1] is None and self.board[0][col - 2] is None and self.board[0][col - 3] is None:
+                        return True
+
     def promotable(self) -> bool:
         """
         Returns true if the current piece is a promotable pawn
@@ -210,17 +313,27 @@ class Piece(arcade.AnimatedTimeBasedSprite):
 
 
 class Pawn(Piece):
+
     def __init__(self, allegiance, board, current_pos):
         super().__init__(allegiance, board, current_pos)
         if self.allegiance == 'Black':
             self.texture = arcade.load_texture("pieces_png/black-pawn.png")
+            self.value = -10
         else:
             self.texture = arcade.load_texture("pieces_png/white-pawn.png")
+            self.value = 10
+        self.eval = [
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [5, 5, 5, 5, 5, 5, 5, 5],
+            [1, 1, 2, 3, 3, 2, 1, 1],
+            [.5, .5, 1, 2.5, 2.5, 1, .5, .5],
+            [0, 0, 0, 2, 2, 0, 0, 0],
+            [.5, -.5, -1, 0, 0, -1, -.5, .5],
+            [.5, 1, 1, -2, -2, 1, 1, .5],
+            [0, 0, 0, 0, 0, 0, 0, 0]
+        ]
 
-    # TODO: We need to implement an 'attacking_squares' return for each piece
-    # this way we can track which squares/pieces are under attack and we know
-    # if a king can move to a square
-    def available_moves(self):
+    def available_moves(self, testing_move):
         moves = []
         caps = []
         attacking = []
@@ -252,7 +365,9 @@ class Pawn(Piece):
                 if self.board[row][col] is not None:
                     break
                 else:
-                    moves.append((row, col))
+                    if not testing_move:
+                        if self.test_player_move((row, col), self.board):
+                            moves.append((row, col))
             # Attempt captures
             for cap_row, cap_col in pawn_captures:
                 row, col = self.current_row + cap_row, self.current_col + cap_col
@@ -263,7 +378,9 @@ class Pawn(Piece):
                 else:
                     # If enemy pawn in square, capture
                     if self.board[row][col] is not None and self.board[row][col].allegiance != self.allegiance:
-                        caps.append((row, col))
+                        if not testing_move:
+                            if self.test_player_move((row, col), self.board):
+                                caps.append((row, col))
 
             return moves, caps, attacking
 
@@ -276,7 +393,9 @@ class Pawn(Piece):
                     continue
                 # Append to moves if square is empty
                 elif self.board[row][col] is None:
-                    moves.append((row, col))
+                    if not testing_move:
+                        if self.test_player_move((row, col), self.board):
+                            moves.append((row, col))
                 # If all conditions failed, there are no more possible moves so exit loop
                 else:
                     break
@@ -289,7 +408,9 @@ class Pawn(Piece):
                 else:
                     # If enemy pawn in square, capture
                     if self.board[row][col] is not None and self.board[row][col].allegiance != self.allegiance:
-                        caps.append((row, col))
+                        if not testing_move:
+                            if self.test_player_move((row, col), self.board):
+                                caps.append((row, col))
 
             """En Passant"""
             # Determine direction
@@ -306,20 +427,24 @@ class Pawn(Piece):
             # Current piece must be at rank 3 or higher
             if self.rank >= 3:
                 # Check if enemy pawn to the left
-                if self.current_col - 1 > 0:
-                    left = self.board[self.current_row][self.current_col - 1]
+                if self.current_col - direction > 0:
+                    left = self.board[self.current_row][self.current_col - direction]
                     if (isinstance(left, Pawn) and left.allegiance != self.allegiance and
                             0 <= move_x < 8 and 0 <= move_dy < 8):
                         if left.moves == 1 and left.rank == 4:
-                            moves.append((move_x, move_dy))
+                            if not testing_move:
+                                if self.test_player_move((row, col), self.board):
+                                    moves.append((move_x, move_dy))
 
                 # Check if enemy pawn to the right
-                if self.current_col + 1 < 8:
-                    right = self.board[self.current_row][self.current_col + 1]
+                if self.current_col + direction < 8:
+                    right = self.board[self.current_row][self.current_col + direction]
                     if (isinstance(right, Pawn) and right.allegiance != self.allegiance and
                             0 <= move_x < 8 and 0 <= move_uy < 8):
                         if right.moves == 1 and right.rank == 4:
-                            moves.append((move_x, move_uy))
+                            if not testing_move:
+                                if self.test_player_move((row, col), self.board):
+                                    moves.append((move_x, move_uy))
 
             return moves, caps, attacking
 
@@ -340,13 +465,25 @@ class Knight(Piece):
         super().__init__(allegiance, board, current_pos)
         if self.allegiance == 'Black':
             self.texture = arcade.load_texture("pieces_png/black-knight.png")
+            self.value = -32
         else:
             self.texture = arcade.load_texture("pieces_png/white-knight.png")
+            self.value = 32
+        self.eval = [
+            [-5, -4, -3, -3, -3, -3, -4, -5],
+            [-4, -2, 0, 0, 0, 0, -2, -4],
+            [-3, 0, 1, 1.5, 1.5, 1, 0, -3],
+            [-3, .5, 1.5, 2, 2, 1.5, .5, -3],
+            [-3, 0, 1.5, 2, 2, 1.5, 0, -3],
+            [-3, .5, 1, 1.5, 1.5, 1, .1, -3],
+            [-4, -2, 0, .5, .5, 0, -2, -4],
+            [-5, -4, -3, -3, -3, -3, -4, -5]
+        ]
 
-    # TODO: We need to implement an 'attacking_squares' return for each piece
+
     # this way we can track which squares/pieces are under attack and we know
     # if a king can move to a square
-    def available_moves(self):
+    def available_moves(self, testing_move):
         movements = []
         captures = []
         attacking = []
@@ -363,10 +500,14 @@ class Knight(Piece):
                         # print(":D")
                     else:
                         # Can capture piece but cannot move past it so exit loop
-                        captures.append((row, col))
+                        if not testing_move:
+                            if self.test_player_move((row, col), self.board):
+                                captures.append((row, col))
                         # print(":D")
                 else:
-                    movements.append((row, col))
+                    if not testing_move:
+                        if self.test_player_move((row, col), self.board):
+                            movements.append((row, col))
 
                 # row += diagonal_row
                 # col += diagonal_col
@@ -384,13 +525,24 @@ class Rook(Piece):
         super().__init__(allegiance, board, current_pos)
         if self.allegiance == 'Black':
             self.texture = arcade.load_texture("pieces_png/black-rook.png")
+            self.value = -50
         else:
             self.texture = arcade.load_texture("pieces_png/white-rook.png")
+            self.value = 50
+        self.eval = [
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [.5, 1, 1, 1, 1, 1, 1, .5],
+            [-.5, 0, 0, 0, 0, 0, 0, -.5],
+            [-.5, 0, 0, 0, 0, 0, 0, -.5],
+            [-.5, 0, 0, 0, 0, 0, 0, -.5],
+            [-.5, 0, 0, 0, 0, 0, 0, -.5],
+            [-.5, 0, 0, 0, 0, 0, 0, -.5],
+            [0, 0, 0, .5, .5, 0, 0, 0]
+        ]
 
-    # TODO: We need to implement an 'attacking_squares' return for each piece
     # this way we can track which squares/pieces are under attack and we know
     # if a king can move to a square
-    def available_moves(self):
+    def available_moves(self, testing_move):
         moves = []
         caps = []
         attacking = []
@@ -407,14 +559,20 @@ class Rook(Piece):
                 attacking.append((row, col))
                 if self.board[row][col] is not None:
                     if self.board[row][col].allegiance == self.allegiance:
-                        attacking.append((row+1, col))
+                        attacking.append((row + horiz_row, col + horiz_col))
                         break
                     else:
-                        caps.append((row, col))
-                        attacking.append((row+1, col))
+                        if not testing_move:
+                            if self.test_player_move((row, col), self.board):
+                                caps.append((row, col))
+                            if isinstance(self.board[row][col], King):
+                                attacking.append((row + horiz_row, col + horiz_col))
                         break
                 else:
-                    moves.append((row, col))
+                    if not testing_move:
+                        if self.test_player_move((row, col), self.board):
+                            attacking.append((row + horiz_row, col + horiz_col))
+                            moves.append((row, col))
 
                 row += horiz_row
                 col += horiz_col
@@ -426,14 +584,20 @@ class Rook(Piece):
                 attacking.append((row, col))
                 if self.board[row][col] is not None:
                     if self.board[row][col].allegiance == self.allegiance:
-                        attacking.append((row, col+1))
+                        attacking.append((row + vert_row, col + vert_col))
                         break
                     else:
-                        caps.append((row, col))
-                        attacking.append((row, col+1))
+                        if not testing_move:
+                            if self.test_player_move((row, col), self.board):
+                                caps.append((row, col))
+                        if isinstance(self.board[row][col], King):
+                            attacking.append((row + vert_row, col + vert_col))
                         break
                 else:
-                    moves.append((row, col))
+                    if not testing_move:
+                        if self.test_player_move((row, col), self.board):
+                            attacking.append((row + vert_row, col + vert_col))
+                            moves.append((row, col))
 
                 row += vert_row
                 col += vert_col
@@ -457,13 +621,25 @@ class Bishop(Piece):
         super().__init__(allegiance, board, current_pos)
         if self.allegiance == 'Black':
             self.texture = arcade.load_texture("pieces_png/black-bishop.png")
+            self.value = -33
         else:
             self.texture = arcade.load_texture("pieces_png/white-bishop.png")
+            self.value = 33
+        self.eval = [
+            [-2, -1, -1, -1, -1, -1, -1, -2],
+            [-1, 0, 0, 0, 0, 0, 0, -1],
+            [-1, 0, .5, 1, 1, .5, 0, -1],
+            [-1, .5, .5, 1, 1, .5, .5, -1],
+            [-1, 0, 1, 1, 1, 1, 0, -1],
+            [-1, 1, 1, 1, 1, 1, 1, -1],
+            [-1, .5, 0, 0, 0, 0, .5, -1],
+            [-2, -1, -1, -1, -1, -1, -1, -2]
+        ]
 
-    # TODO: We need to implement an 'attacking_squares' return for each piece
+
     # this way we can track which squares/pieces are under attack and we know
     # if a king can move to a square
-    def available_moves(self):
+    def available_moves(self, testing_move):
         """
         Determines the Bishop's valid moves based on its current index
         :return: a list of available moves and a list of potential captures
@@ -485,15 +661,20 @@ class Bishop(Piece):
                 attacking.append((row, col))
                 if self.board[row][col] is not None:
                     if self.board[row][col].allegiance == self.allegiance:
-                        attacking.append((row+diagonal_row, col+diagonal_col))
-                        break
+                        attacking.append((row + diagonal_row, col + diagonal_col))
                     else:
                         # Can capture piece but cannot move past it so exit loop
-                        captures.append((row, col))
-                        attacking.append((row+diagonal_row, col+diagonal_col))
+                        if not testing_move:
+                            if self.test_player_move((row, col), self.board):
+                                captures.append((row, col))
+                        if isinstance(self.board[row][col], King):
+                            attacking.append((row + diagonal_row, col + diagonal_col))
                         break
                 else:
-                    movements.append((row, col))
+                    if not testing_move:
+                        if self.test_player_move((row, col), self.board):
+                            movements.append((row, col))
+                            attacking.append((row + diagonal_row, col + diagonal_col))
 
                 row += diagonal_row
                 col += diagonal_col
@@ -517,20 +698,34 @@ class Queen(Piece):
         super().__init__(allegiance, board, current_pos)
         if self.allegiance == 'Black':
             self.texture = arcade.load_texture("pieces_png/black-queen.png")
+            self.value = -90
         else:
             self.texture = arcade.load_texture("pieces_png/white-queen.png")
+            self.value = 90
+        self.eval = [
+            [-2, -1, -1, -.5, -.5, -1, -1, -2],
+            [-1, 0, 0, 0, 0, 0, 0, -1],
+            [-1, 0, .5, .5, .5, .5, 0, -1],
+            [-.5, 0, .5, .5, .5, .5, 0, -.5],
+            [0, 0, .5, .5, .5, .5, 0, -.5],
+            [-1, .5, .5, .5, .5, .5, 0, -1],
+            [-1, 0, .5, 0, 0, 0, 0, -1],
+            [-2, -1, -1, -.5, -.5, -1, -1, -2]
+        ]
 
-    # TODO: We need to implement an 'attacking_squares' return for each piece
+
     # this way we can track which squares/pieces are under attack and we know
     # if a king can move to a square
-    def available_moves(self):
+    def available_moves(self, testing_move):
         movements = []
         captures = []
         attacking = []
 
         # Queen moves diagonally, so we check all four diagonal directions
         # Queen also moves horizontally and vertically
+        counter = 0
         for diagonal_row, diagonal_col in [(-1, -1), (-1, 1), (1, -1), (1, 1), (-1, 0), (0, -1), (1, 0), (0, 1)]:
+            counter += 1
             row, col = self.current_row + diagonal_row, self.current_col + diagonal_col
             while 0 <= row < 8 and 0 <= col < 8:
                 # TODO: Currently, attacking stops updating after it hits a piece
@@ -541,14 +736,20 @@ class Queen(Piece):
                 attacking.append((row, col))
                 if self.board[row][col] is not None:
                     if self.board[row][col].allegiance == self.allegiance:
-                        attacking.append((row+diagonal_row, col+diagonal_col))
+                        attacking.append((row + diagonal_row, col + diagonal_col))
                         break
                     else:
-                        captures.append((row, col))
-                        attacking.append((row+diagonal_row, col+diagonal_col))
+                        if not testing_move:
+                            if self.test_player_move((row, col), self.board):
+                                captures.append((row, col))
+                        if isinstance(self.board[row][col], King):
+                            attacking.append((row + diagonal_row, col + diagonal_col))
                         break
                 else:
-                    movements.append((row, col))
+                    if not testing_move:
+                        if self.test_player_move((row, col), self.board):
+                            movements.append((row, col))
+                            attacking.append((row + diagonal_row, col + diagonal_col))
 
                 row += diagonal_row
                 col += diagonal_col
@@ -572,10 +773,22 @@ class King(Piece):
         super().__init__(allegiance, board, current_pos)
         if self.allegiance == 'Black':
             self.texture = arcade.load_texture("pieces_png/black-king.png")
+            self.value = -900
         else:
             self.texture = arcade.load_texture("pieces_png/white-king.png")
+            self.value = 900
+        self.eval = [
+            [-3, -4, -4, -5, -5, -4, -4, -3],
+            [-3, -4, -4, -5, -5, -4, -4, -3],
+            [-3, -4, -4, -5, -5, -4, -4, -3],
+            [-3, -4, -4, -5, -5, -4, -4, -3],
+            [-2, -3, -3, -4, -4, -3, -3, -2],
+            [-1, -2, -2, -2, -2, -2, -2, -1],
+            [2, 2, 0, 0, 0, 0, 2, 2],
+            [2, 3, 1, 0, 0, 1, 3, 2]
+        ]
 
-    def available_moves(self):
+    def available_moves(self, testing_move):
         """
         Determines the King's valid moves based on its current position
         :return: a list of available moves and a list of potential captures
@@ -610,8 +823,9 @@ class King(Piece):
         if isinstance(self, King) and self.moves == 0:
             # Then check to see if the rook is there
             if isinstance(self, Rook) and self.rank >= 3:
+                pass
             # Then check to see if there ae no pieces between the king and rook
-
+                pass
             # Then do the switch
 
     def __repr__(self):
@@ -632,11 +846,11 @@ if __name__ == "__main__":
 
     for row in range(7, -1, -1):
         print(chess_board[row])
-    print(pawn.available_moves())
+    print(pawn.available_moves(False))
     pawn.move([2, 1])
     for row in range(7, -1, -1):
         print(chess_board[row])
-    print(pawn.available_moves())
+    print(pawn.available_moves(False))
     pawn.move([3, 1])
     for row in range(7, -1, -1):
         print(chess_board[row])
@@ -649,10 +863,10 @@ if __name__ == "__main__":
         print(chess_board[row])
 
     pawn2.move([5, 2])
-    print(pawn2.available_moves())
+    print(pawn2.available_moves(False))
     for row in range(7, -1, -1):
         print(chess_board[row])
-    print(pawn.available_moves())
+    print(pawn.available_moves(False))
     print(pawn.en_passant([6, 2]))
     pawn.move([6, 2])
 

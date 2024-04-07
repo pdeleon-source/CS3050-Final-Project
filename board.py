@@ -1,3 +1,4 @@
+import pieces
 # Board Class
 """
 TODO: Main menu
@@ -72,13 +73,18 @@ BLK_POS = {
 }
 
 # Sound effects
-MOVE_SOUND = "sounds/checkmate.wav"
+MOVE_SOUND = "sounds/make_move.wav"
+CAPTURE_SOUND = "sounds/capture.wav"
+
 # p = pieces.Piece
 white_allegiance = "White"
 black_allegiance = "Black"
 
+
 class Board(arcade.View):
-    def __init__(self, versus):
+    # TODO: Pass in list of theme colors or string representing theme?
+    # TODO: Pass in sound on or off?
+    def __init__(self, versus, theme, volume):
         super().__init__()
         self.versus = versus
         # Add a variable to track whose turn it is
@@ -116,10 +122,30 @@ class Board(arcade.View):
         self.make_black_set()
         self.make_white_set()
 
-        # Give player pieces
+        # TODO: Pass in theme manager object instead?
+        """Set colors based on theme"""
+        if theme == "midnight":
+            self.light_square_color = arcade.color.QUEEN_BLUE
+            self.dark_square_color = arcade.color.DARK_MIDNIGHT_BLUE
+            self.bg_color = arcade.color.MIDNIGHT_BLUE
+        elif theme == "pink":
+            self.light_square_color = arcade.color.CAMEO_PINK
+            self.dark_square_color = arcade.color.CHINA_PINK
+            self.bg_color = arcade.color.DUST_STORM
+        elif theme == "ocean":
+            self.light_square_color = arcade.color.PALE_ROBIN_EGG_BLUE
+            self.dark_square_color = arcade.color.DARK_CYAN
+            self.bg_color = arcade.color.MEDIUM_AQUAMARINE
+        else: # Default colors
+            self.light_square_color = arcade.color.ALMOND
+            self.dark_square_color = arcade.color.SADDLE_BROWN
+            self.bg_color = arcade.color.BRUNSWICK_GREEN
+        self.theme = theme
+        self.volume = volume
 
     def on_show(self):
-        arcade.set_background_color(arcade.color.BRUNSWICK_GREEN)
+        arcade.set_background_color(self.bg_color)
+
         # self.chess_piece.position = SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2
 
     def update(self, delta_time):
@@ -155,6 +181,10 @@ class Board(arcade.View):
         square_width = (SCREEN_WIDTH - 200) // COLS
         square_height = SCREEN_HEIGHT // ROWS
 
+        if self.theme == "midnight":
+            background = arcade.load_texture("pieces_png/midnight.jpg")
+            background.draw_sized(center_x=SCREEN_WIDTH/2, center_y=SCREEN_HEIGHT/2,
+                                  width=SCREEN_WIDTH, height=SCREEN_HEIGHT)
 
         for row in range(ROWS):
             for col in range(COLS):
@@ -168,9 +198,9 @@ class Board(arcade.View):
                 elif self.selected[row][col]:
                     color = SELECTED_SQUARE_COLOR
                 elif (row + col) % 2 == 0:
-                    color = LIGHT_SQUARE_COLOR
+                    color = self.light_square_color
                 else:
-                    color = DARK_SQUARE_COLOR
+                    color = self.dark_square_color
 
                 arcade.draw_rectangle_filled(x + square_width // 2, y + square_height // 2, square_width, square_height,
                                              color)
@@ -231,26 +261,22 @@ class Board(arcade.View):
         row = y // square_height
 
         # Init sound
-        audio = arcade.load_sound(MOVE_SOUND, False)
+        move_audio = arcade.load_sound(MOVE_SOUND, False)
 
         # If a piece is selected
-        # if self.current_turn == white_allegiance:
         if any(self.selected[r][c] for r in range(ROWS) for c in range(COLS)):
             # If the clicked spot is a valid move
             if (row, col) in self.valid_moves:
                 # Move the selected piece to the clicked spot
                 self.move_piece(row, col)
-                arcade.play_sound(audio, 1.0, -1, False)
+                arcade.play_sound(move_audio, self.volume, -1, False)
             # If the clicked spot is a capture move
             elif (row, col) in self.capture_moves:
                 # Record capture in list
-                #self.imprison_piece(self.board[row][col])
                 self.make_capture(self.board[row][col])
-                #self.captures.append(self.board[row][col])
                 self.captured_piece = self.board[row][col]
                 # Move the selected piece to the clicked spot
                 self.move_piece(row, col)
-                #arcade.play_sound(audio, 1.0, -1, False)
 
             # If the clicked spot is another piece
             elif isinstance(self.board[row][col], p.Piece):
@@ -264,7 +290,7 @@ class Board(arcade.View):
                     self.selected_piece = self.board[row][col]
                     # Find valid moves for the new piece
                     piece = self.board[row][col]
-                    self.valid_moves, self.capture_moves, self.attack_moves = piece.available_moves()
+                    self.valid_moves, self.capture_moves, self.attack_moves = piece.available_moves(False)
 
             # If the clicked spot is neither a valid move nor another piece, deselect all squares
             else:
@@ -283,7 +309,7 @@ class Board(arcade.View):
                     self.selected_col = col
                     # Find valid moves for the selected piece
                     piece = self.board[row][col]
-                    self.valid_moves, self.capture_moves, self.attack_moves = piece.available_moves()
+                    self.valid_moves, self.capture_moves, self.attack_moves = piece.available_moves(False)
                     # print(self.valid_moves, self.capture_moves)
 
         # Print out Console Board with toggled Squares
@@ -415,7 +441,9 @@ class Board(arcade.View):
         self.selected_piece.move([row, col])
 
         """ Check if move is en passant """
-        cap = self.selected_piece.en_passant([row, col])
+        cap = None
+        if isinstance(self.selected_piece, p.Pawn):
+            cap = self.selected_piece.en_passant([row, col])
         if cap is not None:
             # self.captures.append(self.board[cap[0]][cap[1]])
             # self.imprison_piece(self.board[cap[0]][cap[1]])
@@ -430,6 +458,14 @@ class Board(arcade.View):
         else:
             self.board[row][col] = piece
         """
+
+        cas = self.selected_piece.castle(self)
+
+        if cas is not None:
+            # Do you make the switch here?
+
+
+
 
         self.board[self.selected_row][self.selected_col] = None
         self.board[row][col] = piece
@@ -446,7 +482,7 @@ class Board(arcade.View):
             self.check_game_over('Black')
         else:
             self.check_game_over('White')
-        self.print_capture()
+        #self.print_capture()
         self.switch_turn()
 
     def switch_turn(self):
@@ -466,22 +502,16 @@ class Board(arcade.View):
 
         # Handle computer input for black's turn
         if self.current_turn == black_allegiance:
-            computer_moved = False
-            computer_piece = None
-            coords = []
-            while not computer_moved:
-                computer_piece = self.computer.select_piece()
-                row = computer_piece.current_row
-                col = computer_piece.current_col
-                coords = self.computer.move_piece(computer_piece)
-                if coords != 4:
-                    computer_moved = True
 
-                    self.computer_piece = computer_piece
-                    self.computer_piece.on_click(coords[1] * SQUARE_WIDTH - 37, coords[0] * SQUARE_HEIGHT - 35)
+            computer_piece, coords = self.computer.make_best_move(2)
+            print(f"Move {computer_piece} to {coords}")
+
+            self.computer_piece = computer_piece
+            self.computer_piece.on_click(coords[1] * SQUARE_WIDTH - 37, coords[0] * SQUARE_HEIGHT - 35)
 
             print("============= Blacks Turn ============")
             self.print_board()
+            # self.print_capture()
             print("CAPTURES")
             self.print_capture()
             if computer_piece.allegiance == 'White':
@@ -489,9 +519,13 @@ class Board(arcade.View):
             else:
                 self.check_game_over('White')
             self.switch_turn()
+
     def make_capture(self, piece):
         allegiance = piece.allegiance
         offset = CAPTURE_BOX // 2
+
+        cap_audio = arcade.load_sound(CAPTURE_SOUND, False)
+        arcade.play_sound(cap_audio, self.volume, -1, False)
 
         for row in range(4):
             for col in range(4):
@@ -539,7 +573,7 @@ class Board(arcade.View):
 
         all_moves = []
         for i in pieces:
-            moves, caps, attacks = i.available_moves()
+            moves, caps, attacks = i.available_moves(False)
             # record if each piece has any moves available
             for j in moves:
                 all_moves.append(j)
