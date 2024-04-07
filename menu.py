@@ -126,10 +126,12 @@ class MenuView(arcade.View):
         super().__init__()
         self.logo = arcade.load_texture("pieces_png/chess_logo.png")
         self.settings_png = arcade.load_texture("pieces_png/settings_cog.png")
+        self.tutorial_png = arcade.load_texture("pieces_png/Black_question_mark.png")
 
         self.play_button = Button(CENTER_WIDTH, CENTER_HEIGHT - 25, 200, 40, None)  # Center - 40, Height was 60
-        self.tutorial_button = Button(CENTER_WIDTH, CENTER_HEIGHT - 70, 200, 40, None)  # Center - 110, Height was 60
+        #self.tutorial_button = Button(CENTER_WIDTH, CENTER_HEIGHT - 70, 200, 40, None)  # Center - 110, Height was 60
         #self.settings_button = Button(CENTER_WIDTH, CENTER_HEIGHT - 115, 200, 40, None)
+        self.tutorial_button = Button(SCREEN_WIDTH - (SQUARE_WIDTH // 2) * 3 , SCREEN_HEIGHT - SQUARE_HEIGHT // 2, 60, 60, self.tutorial_png)
         self.settings_button = Button(SCREEN_WIDTH - SQUARE_WIDTH // 2, SCREEN_HEIGHT - SQUARE_HEIGHT // 2, 60, 60, self.settings_png)
         self.quit_button = Button(CENTER_WIDTH, CENTER_HEIGHT - 160, 200, 40, None)
         self.game_view = None  # Placeholder for the game view instance
@@ -170,7 +172,7 @@ class MenuView(arcade.View):
         # Draw the logo stuff
         self.logo.draw_sized(center_x=CENTER_WIDTH, center_y=CENTER_HEIGHT, width=700, height=580)  # Was w=600h=500
         self.play_button.draw("Play", BUTTON_COLOR)
-        self.tutorial_button.draw("Tutorials", BUTTON_COLOR)
+        self.tutorial_button.draw("", BUTTON_COLOR)
         # self.settings_button.draw("Settings", BUTTON_COLOR)
         self.settings_button.draw("", BUTTON_COLOR)
         self.quit_button.draw("Quit", BUTTON_COLOR)
@@ -210,7 +212,8 @@ class MenuView(arcade.View):
         if self.settings_button.is_clicked:
             game_view = SettingsView(self.theme_manager.theme)
             self.window.show_view(game_view)
-        # if self.tutorial_button.is_clicked:
+        if self.tutorial_button.is_clicked:
+            
         if self.quit_button.is_clicked:
             # Sleep so sound effect can play :)
             time.sleep(.15)
