@@ -236,10 +236,15 @@ class Piece(arcade.AnimatedTimeBasedSprite):
                 # Then check to see if the rook is there
                 if isinstance(self, Rook) and self.moves == 0:
                     # if there are no pieces between the king and the rook
-                    if
+                    if self.board[0][col + 1] is None and self.board[0][col + 2] is None and self.board[0][col + 3] is None:
+                        # then do the switch
+
 
         def queen_side(self):
-            pass
+            if isinstance(self, King) and self.moves == 0:
+                # Then check to see if the rook is there
+                if isinstance(self, Rook) and self.moves == 0:
+                    # if there are no pieces between the king and the rook
 
 
     def promotable(self) -> bool:
