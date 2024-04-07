@@ -261,26 +261,22 @@ class Board(arcade.View):
         row = y // square_height
 
         # Init sound
-        audio = arcade.load_sound(MOVE_SOUND, False)
+        move_audio = arcade.load_sound(MOVE_SOUND, False)
 
         # If a piece is selected
-        # if self.current_turn == white_allegiance:
         if any(self.selected[r][c] for r in range(ROWS) for c in range(COLS)):
             # If the clicked spot is a valid move
             if (row, col) in self.valid_moves:
                 # Move the selected piece to the clicked spot
                 self.move_piece(row, col)
-                arcade.play_sound(audio, self.volume, -1, False)
+                arcade.play_sound(move_audio, self.volume, -1, False)
             # If the clicked spot is a capture move
             elif (row, col) in self.capture_moves:
                 # Record capture in list
-                #self.imprison_piece(self.board[row][col])
                 self.make_capture(self.board[row][col])
-                #self.captures.append(self.board[row][col])
                 self.captured_piece = self.board[row][col]
                 # Move the selected piece to the clicked spot
                 self.move_piece(row, col)
-                #arcade.play_sound(audio, 1.0, -1, False)
 
             # If the clicked spot is another piece
             elif isinstance(self.board[row][col], p.Piece):
@@ -520,9 +516,13 @@ class Board(arcade.View):
             else:
                 self.check_game_over('White')
             self.switch_turn()
+
     def make_capture(self, piece):
         allegiance = piece.allegiance
         offset = CAPTURE_BOX // 2
+
+        cap_audio = arcade.load_sound(CAPTURE_SOUND, False)
+        arcade.play_sound(cap_audio, self.volume, -1, False)
 
         for row in range(4):
             for col in range(4):
