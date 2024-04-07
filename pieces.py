@@ -234,7 +234,9 @@ class Piece(arcade.AnimatedTimeBasedSprite):
         def king_side(self):
             if isinstance(self, King) and self.moves == 0:
                 # Then check to see if the rook is there
-                if isinstance(self, Rook) and self.moves >= 3:
+                if isinstance(self, Rook) and self.moves == 0:
+                    # if there are no pieces between the king and the rook
+                    if
 
         def queen_side(self):
             pass
