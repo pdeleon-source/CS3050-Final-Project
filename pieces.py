@@ -234,7 +234,7 @@ class Piece(arcade.AnimatedTimeBasedSprite):
         if isinstance(self, King) and self.moves == 0:
             # Then check to see if the rook is there
             if isinstance(self, Rook) and self.moves >= 3:
-            # Then check to see if there ae no pieces between the king and rook
+            # Then check to see if there are no pieces between the king and rook
                 if
             # Then do the switch
 
