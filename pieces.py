@@ -139,9 +139,9 @@ class Piece(arcade.AnimatedTimeBasedSprite):
 
         board[new_row][new_col] = self
         board[og_row][og_col] = None
-        for row in reversed(self.board):
-            printable_row = [0 if square is None else square for square in row]
-            print(printable_row)
+        # for row in reversed(self.board):
+        #     printable_row = [0 if square is None else square for square in row]
+        #     print(printable_row)
         # board.print_board()
 
         placehold = 1
@@ -155,12 +155,12 @@ class Piece(arcade.AnimatedTimeBasedSprite):
                         # If the king is in check still, return false
                         king_in_check = square.under_attack(row, col)
                         if not king_in_check:
-                            print("king no check")
+                            # print("king no check")
                             board[og_row][og_col] = self
                             board[new_row][new_col] = destination
                             return True
                         else: 
-                            print("king check")
+                            # print("king check")
                             board[og_row][og_col] = self
                             board[new_row][new_col] = destination
                             return False
