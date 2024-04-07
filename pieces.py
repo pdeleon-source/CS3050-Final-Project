@@ -552,7 +552,8 @@ class Rook(Piece):
                         if not testing_move:
                             if self.test_player_move((row, col), self.board):
                                 caps.append((row, col))
-                        # attacking.append((row + horiz_row, col + horiz_col))
+                            if isinstance(self.board[row][col], King):
+                                attacking.append((row + horiz_row, col + horiz_col))
                         break
                 else:
                     if not testing_move:
@@ -576,7 +577,8 @@ class Rook(Piece):
                         if not testing_move:
                             if self.test_player_move((row, col), self.board):
                                 caps.append((row, col))
-                        # attacking.append((row + vert_row, col + vert_col))
+                        if isinstance(self.board[row][col], King):
+                            attacking.append((row + vert_row, col + vert_col))
                         break
                 else:
                     if not testing_move:
@@ -652,7 +654,8 @@ class Bishop(Piece):
                         if not testing_move:
                             if self.test_player_move((row, col), self.board):
                                 captures.append((row, col))
-                        # attacking.append((row + diagonal_row, col + diagonal_col))
+                        if isinstance(self.board[row][col], King):
+                            attacking.append((row + diagonal_row, col + diagonal_col))
                         break
                 else:
                     if not testing_move:
@@ -726,7 +729,8 @@ class Queen(Piece):
                         if not testing_move:
                             if self.test_player_move((row, col), self.board):
                                 captures.append((row, col))
-                        # attacking.append((row + diagonal_row, col + diagonal_col))
+                        if isinstance(self.board[row][col], King):
+                            attacking.append((row + diagonal_row, col + diagonal_col))
                         break
                 else:
                     if not testing_move:
