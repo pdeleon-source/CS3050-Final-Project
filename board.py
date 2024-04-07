@@ -121,8 +121,8 @@ class Board(arcade.View):
         # TODO: Pass in theme manager object instead?
         """Set colors based on theme"""
         if theme == "midnight":
-            self.light_square_color = arcade.color.BLUE
-            self.dark_square_color = arcade.color.DARK_BLUE
+            self.light_square_color = arcade.color.QUEEN_BLUE
+            self.dark_square_color = arcade.color.DARK_MIDNIGHT_BLUE
             self.bg_color = arcade.color.MIDNIGHT_BLUE
         elif theme == "pink":
             self.light_square_color = arcade.color.CAMEO_PINK
@@ -136,9 +136,10 @@ class Board(arcade.View):
             self.light_square_color = arcade.color.ALMOND
             self.dark_square_color = arcade.color.SADDLE_BROWN
             self.bg_color = arcade.color.BRUNSWICK_GREEN
-
+        self.theme = theme
     def on_show(self):
         arcade.set_background_color(self.bg_color)
+
         # self.chess_piece.position = SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2
 
     def update(self, delta_time):
@@ -176,6 +177,10 @@ class Board(arcade.View):
         square_width = (SCREEN_WIDTH - 200) // COLS
         square_height = SCREEN_HEIGHT // ROWS
 
+        if self.theme == "midnight":
+            background = arcade.load_texture("pieces_png/midnight.jpg")
+            background.draw_sized(center_x=SCREEN_WIDTH/2, center_y=SCREEN_HEIGHT/2,
+                                  width=SCREEN_WIDTH, height=SCREEN_HEIGHT)
 
         for row in range(ROWS):
             for col in range(COLS):

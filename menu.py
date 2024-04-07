@@ -460,8 +460,8 @@ class ManageTheme:
 
     def set_theme(self, theme):
         if theme == "midnight":
-            self.light_square_color = arcade.color.BLUE
-            self.dark_square_color = arcade.color.DARK_BLUE
+            self.light_square_color = arcade.color.QUEEN_BLUE
+            self.dark_square_color = arcade.color.DARK_MIDNIGHT_BLUE
             # self.bg_color = arcade.color.BRUNSWICK_GREEN
         elif theme == "pink":
             self.light_square_color = arcade.color.CAMEO_PINK
