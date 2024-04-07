@@ -1,3 +1,4 @@
+import pieces
 # Board Class
 """
 TODO: Main menu
@@ -460,10 +461,11 @@ class Board(arcade.View):
             self.board[row][col] = piece
         """
 
-        castle = self.selected_piece.castle(self)
+        cas = self.selected_piece.castle(self)
 
-        if castle is not None:
-            pass
+        if cas is not None:
+            # Do you make the switch here?
+
 
 
         self.board[self.selected_row][self.selected_col] = None
