@@ -230,14 +230,27 @@ class Piece(arcade.AnimatedTimeBasedSprite):
         return None
 
     def castle(self):
-        # check to see it is a king is in its original position
-        if isinstance(self, King) and self.moves == 0:
-            # Then check to see if the rook is there
-            if isinstance(self, Rook) and self.moves >= 3:
-            # Then check to see if there ae no pieces between the king and rook
-                if self.board[row][col + 1] is None and self.board[row][col + 2] is None:
-                    pass
-            # Then do the switch
+        """
+            Does the castle. Checks if the king or rook on either side has made any moves, then checks if
+            there are any pieces in the first rank between the king and the rook, then returns whether or
+            not it is possible
+        :return:
+        """
+        def king_side(self, col):
+            if isinstance(self, King) and self.moves == 0:
+                # Then check to see if the rook is there
+                if isinstance(self, Rook) and self.moves == 0:
+                    # if there are no pieces between the king and the rook
+                    if self.board[0][col + 1] is None and self.board[0][col + 2] is None:
+                        return True
+
+        def queen_side(self, col):
+            if isinstance(self, King) and self.moves == 0:
+                # Then check to see if the rook is there
+                if isinstance(self, Rook) and self.moves == 0:
+                    # if there are no pieces between the king and the rook
+                    if self.board[0][col - 1] is None and self.board[0][col - 2] is None and self.board[0][col - 3] is None:
+                        return True
 
     def promotable(self) -> bool:
         """
