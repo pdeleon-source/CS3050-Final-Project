@@ -448,19 +448,17 @@ class Board(arcade.View):
             self.captured_piece = self.board[row][col]
             self.board[cap[0]][cap[1]] = None
 
-        """ Change to queen if pawn promotable
+        """ Change to queen if pawn promotable"""
         if self.selected_piece.promotable():
             queen = p.Queen(self.selected_piece.allegiance, self.board, self.board[row][col])
             self.board[row][col] = queen
         else:
             self.board[row][col] = piece
-        """
 
-        castle = self.selected_piece.castle(self)
-
-        if castle is not None:
+        """Check if castle move"""
+        if self.selected_piece.castle(row, col):
             pass
-
+            # TODO: Move rook and king
 
         self.board[self.selected_row][self.selected_col] = None
         self.board[row][col] = piece

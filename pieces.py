@@ -229,12 +229,21 @@ class Piece(arcade.AnimatedTimeBasedSprite):
 
         return None
 
-    def castle(self):
+    def castle(self, row, col):
         """
             Does the castle. Checks if the king or rook on either side has made any moves, then checks if
             there are any pieces in the first rank between the king and the rook, then returns whether or
             not it is possible
         :return:
+        """
+
+        if isinstance(self, King) and self.current_row == row:
+            if abs(self.current_col - col) >= 2:
+                return True
+
+        return False
+
+
         """
         def king_side(self, col):
             if isinstance(self, King) and self.moves == 0:
@@ -251,6 +260,8 @@ class Piece(arcade.AnimatedTimeBasedSprite):
                     # if there are no pieces between the king and the rook
                     if self.board[0][col - 1] is None and self.board[0][col - 2] is None and self.board[0][col - 3] is None:
                         return True
+                    
+        """
 
     def promotable(self) -> bool:
         """
@@ -730,8 +741,41 @@ class King(Piece):
 
                 row += move_row
                 col += move_col
+        left = self.board[self.current_row][self.current_col - 4]
+        right = self.board[self.current_row][self.current_col + 3]
 
-        # print(movements)
+        row = self.current_row
+        left_none = self.current_col - 2
+        left_rook = self.current_col - 4
+        right_none = self.current_col + 2
+        right_rook = self.current_col + 3
+
+        # If there is a rook to the left
+        if isinstance(left, Rook) and left.moves == 0 and left.allegiance == self.allegiance:
+            if (self.board[self.current_row][self.current_col - 1] is None and
+                    self.board[self.current_row][self.current_col - 2] is None
+                    and self.board[self.current_row][self.current_col - 3] is None):
+
+                attacking.append((row, left_none))
+                attacking.append((row, left_rook))
+
+                if not self.under_attack(row, left_none):
+                    movements.append((row, left_none))
+                if not self.under_attack(row, left_rook):
+                    movements.append((row, left_rook))
+
+        # If there is a rook to the right
+        if isinstance(right, Rook) and right.moves == 0 and right.allegiance == self.allegiance:
+            if (self.board[self.current_row][self.current_col + 1] is None and
+                    self.board[self.current_row][self.current_col + 2] is None):
+                attacking.append((self.current_row, right_none))
+                attacking.append((self.current_row, right_rook))
+
+                if not self.under_attack(row, right_none):
+                    movements.append((self.current_row, right_none))
+                if not self.under_attack(row, right_rook):
+                    movements.append((self.current_row, right_rook))
+
         return movements, captures, attacking
 
     def castle(self):
@@ -757,34 +801,16 @@ if __name__ == "__main__":
     # bish = Bishop("White", chess_board, [3, 3])
     ###kween = Queen("White", chess_board, [3, 3])
     # king = King("White", chess_board, 2, 2)
-    pawn = Pawn("White", chess_board, [0, 1])
-    pawn2 = Pawn("Black", chess_board, [7, 2])
+    white_king = King("White", chess_board, [0, 4])
+    black_king = King("Black", chess_board, [7, 4])
+    white_rook_left = Rook("White", chess_board, [0, 0])
+    white_rook_right = Rook("White", chess_board, [0, 7])
+    black_rook_left = Rook("Black", chess_board, [7, 0])
+    black_rook_right = Rook("Black", chess_board, [7, 7])
 
     for row in range(7, -1, -1):
         print(chess_board[row])
-    print(pawn.available_moves())
-    pawn.move([2, 1])
-    for row in range(7, -1, -1):
-        print(chess_board[row])
-    print(pawn.available_moves())
-    pawn.move([3, 1])
-    for row in range(7, -1, -1):
-        print(chess_board[row])
-    # print(pawn2.available_moves())
-    pawn.move([4, 1])
-    for row in range(7, -1, -1):
-        print(chess_board[row])
-    pawn.move([5, 1])
-    for row in range(7, -1, -1):
-        print(chess_board[row])
 
-    pawn2.move([5, 2])
-    print(pawn2.available_moves())
-    for row in range(7, -1, -1):
-        print(chess_board[row])
-    print(pawn.available_moves())
-    print(pawn.en_passant([6, 2]))
-    pawn.move([6, 2])
+    print(white_king.available_moves())
+    print(black_king.available_moves())
 
-    for row in range(7, -1, -1):
-        print(chess_board[row])
