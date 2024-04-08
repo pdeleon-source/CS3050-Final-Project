@@ -289,7 +289,7 @@ class Board(arcade.View):
                     self.selected_piece = self.board[row][col]
                     # Find valid moves for the new piece
                     piece = self.board[row][col]
-                    self.valid_moves, self.capture_moves, self.attack_moves = piece.available_moves()
+                    self.valid_moves, self.capture_moves, self.attack_moves = piece.available_moves(False)
 
             # If the clicked spot is neither a valid move nor another piece, deselect all squares
             else:
@@ -308,7 +308,7 @@ class Board(arcade.View):
                     self.selected_col = col
                     # Find valid moves for the selected piece
                     piece = self.board[row][col]
-                    self.valid_moves, self.capture_moves, self.attack_moves = piece.available_moves()
+                    self.valid_moves, self.capture_moves, self.attack_moves = piece.available_moves(False)
                     # print(self.valid_moves, self.capture_moves)
 
         # Print out Console Board with toggled Squares
@@ -566,7 +566,7 @@ class Board(arcade.View):
 
         all_moves = []
         for i in pieces:
-            moves, caps, attacks = i.available_moves()
+            moves, caps, attacks = i.available_moves(False)
             # record if each piece has any moves available
             for j in moves:
                 all_moves.append(j)
