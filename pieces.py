@@ -278,7 +278,7 @@ class Piece(arcade.AnimatedTimeBasedSprite):
 
         return None
 
-    def castle(self, row, col):
+    def castle(self):
         """
             Does the castle. Checks if the king or rook on either side has made any moves, then checks if
             there are any pieces in the first rank between the king and the rook, then returns whether or
@@ -286,14 +286,51 @@ class Piece(arcade.AnimatedTimeBasedSprite):
         :return:
         """
 
+        if not isinstance(self, King) or self.current_col - 4 < 0 or self.current_col + 3 >= 8:
+            return None
+
+        castle_moves = []
+        # Get corner squares adjacent to King
+        left = self.board[self.current_row][self.current_col - 4]
+        right = self.board[self.current_row][self.current_col + 3]
+
+        row = self.current_row
+        left_none = self.current_col - 2
+        left_rook = self.current_col - 4
+        right_none = self.current_col + 2
+        right_rook = self.current_col + 3
+
+        # If there is a rook to the left
+        if isinstance(left, Rook) and left.moves == 0 and left.allegiance == self.allegiance:
+            # Squares between rook and king are empty
+            if (self.board[self.current_row][self.current_col - 1] is None and
+                    self.board[self.current_row][self.current_col - 2] is None
+                    and self.board[self.current_row][self.current_col - 3] is None):
+                # Returns column king will move to, the location of the rook, and the column rook will move to
+                castle_moves.append((row, left_none, left_rook, left_none + 1))
+                castle_moves.append((row, left_rook, left_rook, left_rook + 1))
+
+        # If there is a rook to the right
+        if isinstance(right, Rook) and right.moves == 0 and right.allegiance == self.allegiance:
+            # Squares between rook and king are empty
+            if (self.board[self.current_row][self.current_col + 1] is None and
+                    self.board[self.current_row][self.current_col + 2] is None):
+                castle_moves.append((self.current_row, right_none, right_rook, right_none - 1))
+                castle_moves.append((self.current_row, right_rook, right_rook, right_rook - 1))
+
+        if len(castle_moves) == 0:
+            return None
+        else:
+            return castle_moves
+
+    """
         if isinstance(self, King) and self.current_row == row:
+            # If king is moving two or more squares
             if abs(self.current_col - col) >= 2:
                 return True
 
         return False
 
-
-        """
         def king_side(self, col):
             if isinstance(self, King) and self.moves == 0:
                 # Then check to see if the rook is there
@@ -310,7 +347,7 @@ class Piece(arcade.AnimatedTimeBasedSprite):
                     if self.board[0][col - 1] is None and self.board[0][col - 2] is None and self.board[0][col - 3] is None:
                         return True
                     
-        """
+    """
 
     def promotable(self) -> bool:
         """
@@ -825,6 +862,8 @@ class King(Piece):
 
                 row += move_row
                 col += move_col
+
+        """
         left = self.board[self.current_row][self.current_col - 4]
         right = self.board[self.current_row][self.current_col + 3]
 
@@ -859,18 +898,16 @@ class King(Piece):
                     movements.append((self.current_row, right_none))
                 if not self.under_attack(row, right_rook):
                     movements.append((self.current_row, right_rook))
+        """
+
+        castle = self.castle()
+        if castle is not None:
+            for cas_row, cas_col, rook_col, new_rook_col in castle:
+                attacking.append((cas_row, cas_col))
+                if not self.under_attack(cas_row, cas_col):
+                    movements.append((cas_row, cas_col))
 
         return movements, captures, attacking
-
-    def castle(self):
-        # check to see it is a king is in its original position
-        if isinstance(self, King) and self.moves == 0:
-            # Then check to see if the rook is there
-            if isinstance(self, Rook) and self.rank >= 3:
-                pass
-            # Then check to see if there ae no pieces between the king and rook
-                pass
-            # Then do the switch
 
     def __repr__(self):
         if self.allegiance == 'Black':
@@ -895,6 +932,6 @@ if __name__ == "__main__":
     for row in range(7, -1, -1):
         print(chess_board[row])
 
-    print(white_king.available_moves())
-    print(black_king.available_moves())
+    print(white_king.available_moves(False))
+    print(black_king.available_moves(False))
 

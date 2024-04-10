@@ -332,6 +332,7 @@ class Board(arcade.View):
     def make_black_set(self):
         allegiance = 'Black'
 
+
         # Bishops in Column 2, 4 Row 0
         bishop_1 = p.Bishop(allegiance, self.board, BLK_POS['bishop'][0])
         self.add_to_board(bishop_1, BLK_POS['bishop'][0])
@@ -342,25 +343,25 @@ class Board(arcade.View):
         # # Queen
         queen = p.Queen(allegiance, self.board, BLK_POS['queen'])
         self.add_to_board(queen, BLK_POS['queen'])
-
+        
         # # King
         king = p.King(allegiance, self.board, BLK_POS['king'])
         self.add_to_board(king, BLK_POS['king'])
 
-        # # Rooks
+        # Rooks
         rook1 = p.Rook(allegiance, self.board, BLK_POS['rook'][0])
         self.add_to_board(rook1, BLK_POS['rook'][0])
 
         rook2 = p.Rook(allegiance, self.board, BLK_POS['rook'][1])
         self.add_to_board(rook2, BLK_POS['rook'][1])
-
+    
         # # Knight
         knight1 = p.Knight(allegiance, self.board, BLK_POS['knight'][0])
         self.add_to_board(knight1, BLK_POS['knight'][0])
 
         knight2 = p.Knight(allegiance, self.board, BLK_POS['knight'][1])
         self.add_to_board(knight2, BLK_POS['knight'][1])
-
+        
         # Pawn
         for col in range(COLS):
             pawn = p.Pawn(allegiance, self.board, [6, col])
@@ -370,6 +371,7 @@ class Board(arcade.View):
         # Bishops in Column 2, 4 Row 0
         allegiance = 'White'
 
+        # Bishops 
         bishop_1 = p.Bishop(allegiance, self.board, WHT_POS['bishop'][0])
         self.add_to_board(bishop_1, WHT_POS['bishop'][0])
 
@@ -379,6 +381,7 @@ class Board(arcade.View):
         # # Queen
         queen = p.Queen(allegiance, self.board, WHT_POS['queen'])
         self.add_to_board(queen, WHT_POS['queen'])
+
 
         # King
         king = p.King(allegiance, self.board, WHT_POS['king'])
@@ -430,51 +433,76 @@ class Board(arcade.View):
         self.capture_moves = []
 
     def move_piece(self, row, col):
+        piece = self.board[self.selected_row][self.selected_col]
+        print(f"Piece before move {piece} and selected {self.selected_piece}")
 
         # Get the piece object
-        piece = self.board[self.selected_row][self.selected_col]
-
         self.selected_piece.on_click(col * SQUARE_WIDTH - 37, row * SQUARE_HEIGHT - 35)
 
         # Deselect the piece and switch turn after animation is complete
         self.selected_piece.move([row, col])
 
-        """ Check if move is en passant """
-        cap = self.selected_piece.en_passant([row, col])
-        if cap is not None:
-            # self.captures.append(self.board[cap[0]][cap[1]])
-            # self.imprison_piece(self.board[cap[0]][cap[1]])
-            self.make_capture(self.board[cap[0]][cap[1]])
-            self.captured_piece = self.board[row][col]
-            self.board[cap[0]][cap[1]] = None
-
-        """ Change to queen if pawn promotable"""
-        if self.selected_piece.promotable():
-            queen = p.Queen(self.selected_piece.allegiance, self.board, self.board[row][col])
-            self.board[row][col] = queen
-        else:
-            self.board[row][col] = piece
-
         """Check if castle move"""
-        if self.selected_piece.castle(row, col):
-            pass
-            # TODO: Move rook and king
+        castle = self.selected_piece.castle()
+        if castle is not None:
+            print(f"Piece during move {self.selected_piece}")
+
+            for cas_row, cas_col, rook_col, new_rook_col in castle:
+                if cas_row == row and cas_col == col:
+                    # Move the King
+                    #piece = None
+                    self.selected_piece.on_click(col * SQUARE_WIDTH - 37, row * SQUARE_HEIGHT - 35)
+                    self.selected_piece.move([row, col])
+                    print(f"Piece during move {self.selected_piece}")
+                    #self.board[self.selected_row][self.selected_col] = None
+                    #self.board[row][col] = piece
+
+                    print("CASTLE MOVE")
+                    self.selected_piece = self.board[cas_row][rook_col]
+                    self.selected_piece.on_click(new_rook_col * SQUARE_WIDTH - 37, cas_row * SQUARE_HEIGHT - 35)
+                    self.selected_piece.move([cas_row, new_rook_col])
+                    print(f"Piece during rook move {self.selected_piece}")
+                    #if self.board[cas_row][rook_col] is not None:
+                    self.board[cas_row][rook_col] = None
+                    self.board[cas_row][new_rook_col] = self.selected_piece
+
+                    break
+        else:
+
+            """ Check if move is en passant """
+            cap = self.selected_piece.en_passant([row, col])
+            if cap is not None:
+                # self.captures.append(self.board[cap[0]][cap[1]])
+                # self.imprison_piece(self.board[cap[0]][cap[1]])
+                self.make_capture(self.board[cap[0]][cap[1]])
+                self.captured_piece = self.board[row][col]
+                self.board[cap[0]][cap[1]] = None
+
+            """ Change to queen if pawn promotable"""
+            if self.selected_piece.promotable():
+                queen = p.Queen(self.selected_piece.allegiance, self.board, [row, col])
+                self.board[row][col] = queen
+            else:
+                self.board[row][col] = piece
+            print(f"Piece after move {self.selected_piece}")
 
         self.board[self.selected_row][self.selected_col] = None
         self.board[row][col] = piece
 
-
-        # Wait for the animation to finish
-        # time.sleep(1)  # Adjust the delay as needed
+            # Wait for the animation to finish
+            # time.sleep(1)  # Adjust the delay as needed
 
         self.deselect_all()
 
         print("============= Whites Turn ===========")
         self.print_board()
+        """
         if piece.allegiance == 'White':
             self.check_game_over('Black')
         else:
             self.check_game_over('White')
+            """
+
         #self.print_capture()
         self.switch_turn()
 
@@ -598,7 +626,7 @@ class Board(arcade.View):
             # I'm thinking this gives an end game screen that says who won (if anyone did)
             # and a button to view the board or quit back to menu
             # If the user views the board, they should still have a button to return to menu
-            exit()
+            #exit()
 
 
 
