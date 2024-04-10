@@ -467,24 +467,19 @@ class Board(arcade.View):
                     self.board[cas_row][new_rook_col] = self.selected_piece
 
                     break
-        else:
 
-            """ Check if move is en passant """
-            cap = self.selected_piece.en_passant([row, col])
-            if cap is not None:
-                # self.captures.append(self.board[cap[0]][cap[1]])
-                # self.imprison_piece(self.board[cap[0]][cap[1]])
-                self.make_capture(self.board[cap[0]][cap[1]])
-                self.captured_piece = self.board[row][col]
-                self.board[cap[0]][cap[1]] = None
+        """ Check if move is en passant """
+        cap = self.selected_piece.en_passant([row, col])
+        if cap is not None:
+            # self.captures.append(self.board[cap[0]][cap[1]])
+            # self.imprison_piece(self.board[cap[0]][cap[1]])
+            self.make_capture(self.board[cap[0]][cap[1]])
+            self.captured_piece = self.board[row][col]
+            self.board[cap[0]][cap[1]] = None
 
-            """ Change to queen if pawn promotable"""
-            if self.selected_piece.promotable():
-                queen = p.Queen(self.selected_piece.allegiance, self.board, [row, col])
-                self.board[row][col] = queen
-            else:
-                self.board[row][col] = piece
-            print(f"Piece after move {self.selected_piece}")
+        """ Change to queen if pawn promotable"""
+        if self.selected_piece.promotable():
+            piece = p.Queen(self.selected_piece.allegiance, self.board, [row, col])
 
         self.board[self.selected_row][self.selected_col] = None
         self.board[row][col] = piece
