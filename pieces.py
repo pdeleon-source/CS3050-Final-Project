@@ -264,6 +264,9 @@ class Piece(arcade.AnimatedTimeBasedSprite):
         :return row, col:
         """
 
+        if not isinstance(self, Pawn):
+            return None
+
         if self.allegiance == "White":
             direction = 1
         else:
@@ -286,7 +289,8 @@ class Piece(arcade.AnimatedTimeBasedSprite):
         :return:
         """
 
-        if not isinstance(self, King) or self.current_col - 4 < 0 or self.current_col + 3 >= 8:
+        if not isinstance(self, King) or self.moves != 0 or self.current_col - 4 < 0 or self.current_col + 3 >= 8:
+            print(f"Self: {self} left rook: {self.current_col - 4} right rook: {self.current_col + 3}")
             return None
 
         castle_moves = []
