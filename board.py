@@ -123,6 +123,8 @@ class Board(arcade.View):
         self.make_black_set()
         self.make_white_set()
 
+        self.promotion_triggered = False
+
         """Set colors based on theme"""
         if theme == "midnight":
             self.light_square_color = arcade.color.QUEEN_BLUE
@@ -173,12 +175,14 @@ class Board(arcade.View):
                     self.computer_piece.update()
                     if self.captured_piece is not None:
                         self.captured_piece.update()
-                if self.selected_piece.promotable():
-                    self.promote_pawn_to_queen(self.selected_piece.current_row, self.selected_piece.current_col)
-                    pass
-                elif self.computer_piece is not None and self.computer_piece.promotable():
-                    self.promote_pawn_to_queen(self.computer_piece.current_row, self.computer_piece.current_col)
 
+                if not self.promotion_triggered:
+                    if self.selected_piece.promotable():
+                        self.promote_pawn_to_queen(self.selected_piece.current_row, self.selected_piece.current_col)
+                        self.promotion_triggered = True
+                    elif self.computer_piece is not None and self.computer_piece.promotable():
+                        self.promote_pawn_to_queen(self.computer_piece.current_row, self.computer_piece.current_col)
+                        self.promotion_triggered = True
     def on_draw(self):
         arcade.start_render()
 
@@ -501,16 +505,17 @@ class Board(arcade.View):
         self.switch_turn()
 
     def promote_pawn_to_queen(self, row, col):
-        print("PROMOTING1")
-        print(f"row: {row}, selected: {self.selected_piece.current_row} col: {col}, selected: {self.selected_piece.current_col}")
         if row == self.selected_piece.current_row and col == self.selected_piece.current_col:
-            print("PROMOTING2")
             promote_audio = arcade.load_sound(PROMOTE_SOUND, False)
             arcade.play_sound(promote_audio, self.volume, -1, False)
             piece = p.Queen(self.selected_piece.allegiance, self.board, [row, col])
             self.board[row][col] = piece
+            print("Promoted....")
+
+        #self.deselect_all()
 
     def switch_turn(self):
+        self.promotion_triggered = False
         # Switch the turn between white and black
         if self.current_turn == white_allegiance:
             self.current_turn = black_allegiance
