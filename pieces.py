@@ -229,12 +229,10 @@ class Piece(arcade.AnimatedTimeBasedSprite):
             self.target_x = x + (CAPTURE_BOX // 2) + 100
             self.target_y = y + CAPTURE_BOX // 2
 
-    # def capture(self, x, y):
-    #     self.target_x = x + (CAP_BOX // 2) + 100
-    #     self.target_y = y + CAP_BOX // 2
+    def animate_promote(self, row, col):
+        queen = Queen(self.allegiance, self.board, [row, col])
+        self.board[row][col] = queen
 
-    # if self.allegiance == "Black":
-    #     print(f"New Pos: {self.target_x} {self.target_y}")
     def update(self):
         # Move the dot towards the target position
         if not self.captured:
@@ -868,43 +866,6 @@ class King(Piece):
 
                 row += move_row
                 col += move_col
-
-        """
-        left = self.board[self.current_row][self.current_col - 4]
-        right = self.board[self.current_row][self.current_col + 3]
-
-        row = self.current_row
-        left_none = self.current_col - 2
-        left_rook = self.current_col - 4
-        right_none = self.current_col + 2
-        right_rook = self.current_col + 3
-
-        # If there is a rook to the left
-        if isinstance(left, Rook) and left.moves == 0 and left.allegiance == self.allegiance:
-            if (self.board[self.current_row][self.current_col - 1] is None and
-                    self.board[self.current_row][self.current_col - 2] is None
-                    and self.board[self.current_row][self.current_col - 3] is None):
-
-                attacking.append((row, left_none))
-                attacking.append((row, left_rook))
-
-                if not self.under_attack(row, left_none):
-                    movements.append((row, left_none))
-                if not self.under_attack(row, left_rook):
-                    movements.append((row, left_rook))
-
-        # If there is a rook to the right
-        if isinstance(right, Rook) and right.moves == 0 and right.allegiance == self.allegiance:
-            if (self.board[self.current_row][self.current_col + 1] is None and
-                    self.board[self.current_row][self.current_col + 2] is None):
-                attacking.append((self.current_row, right_none))
-                attacking.append((self.current_row, right_rook))
-
-                if not self.under_attack(row, right_none):
-                    movements.append((self.current_row, right_none))
-                if not self.under_attack(row, right_rook):
-                    movements.append((self.current_row, right_rook))
-        """
 
         castle = self.castle()
         if castle is not None:
