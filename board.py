@@ -26,6 +26,8 @@ import copy
 
 from datetime import datetime, timedelta
 
+import time
+
 
 # How fast to move, and how fast to run the animation
 MOVEMENT_SPEED = 5
@@ -170,6 +172,7 @@ class Board(arcade.View):
                     if self.captured_piece is not None:
                         self.captured_piece.update()
 
+
     def on_draw(self):
         arcade.start_render()
 
@@ -258,6 +261,9 @@ class Board(arcade.View):
                 # Move the selected piece to the clicked spot
                 self.move_piece(row, col)
                 arcade.play_sound(move_audio, self.volume, -1, False)
+                self.check_promotable(row, col)
+                # TODO: FIX
+
             # If the clicked spot is a capture move
             elif (row, col) in self.capture_moves:
                 # Record capture in list
@@ -265,9 +271,10 @@ class Board(arcade.View):
                 self.captured_piece = self.board[row][col]
                 # Move the selected piece to the clicked spot
                 self.move_piece(row, col)
+                self.check_promotable(row, col)
+                # TODO: FIX
 
             # If the clicked spot is another piece
-
             elif isinstance(self.board[row][col], p.Piece):
                 if self.board[row][col].allegiance == self.current_turn:
                     # Deselect the previously selected piece
@@ -285,6 +292,9 @@ class Board(arcade.View):
             else:
                 self.deselect_all()
 
+            #self.check_promotable(row, col)
+            # TODO: FIX
+
         # If no piece is selected
         else:
             # If the clicked spot contains a piece
@@ -301,11 +311,6 @@ class Board(arcade.View):
                     self.valid_moves, self.capture_moves, self.attack_moves = piece.available_moves(False)
                     # print(self.valid_moves, self.capture_moves)
 
-        # Print out Console Board with toggled Squares
-        # print("===============================")
-        # self.print_board()
-        # print("===============================\n\n")
-
     def print_board(self):
         for row in reversed(self.board):
             printable_row = [0 if square is None else square for square in row]
@@ -321,7 +326,7 @@ class Board(arcade.View):
 
     def make_black_set(self):
         allegiance = 'Black'
-        """
+
         # Bishops in Column 2, 4 Row 0
         bishop_1 = p.Bishop(allegiance, self.board, BLK_POS['bishop'][0])
         self.add_to_board(bishop_1, BLK_POS['bishop'][0])
@@ -356,12 +361,12 @@ class Board(arcade.View):
         for col in range(COLS):
             pawn = p.Pawn(allegiance, self.board, [6, col])
             self.add_to_board(pawn, [6, col])
-"""
+
     def make_white_set(self):
         # Bishops in Column 2, 4 Row 0
         allegiance = 'White'
         """
-        # Bishops 
+        # Bishops   
         bishop_1 = p.Bishop(allegiance, self.board, WHT_POS['bishop'][0])
         self.add_to_board(bishop_1, WHT_POS['bishop'][0])
 
@@ -371,8 +376,8 @@ class Board(arcade.View):
         # # Queen
         queen = p.Queen(allegiance, self.board, WHT_POS['queen'])
         self.add_to_board(queen, WHT_POS['queen'])
-
         """
+
         # King
         king = p.King(allegiance, self.board, WHT_POS['king'])
         self.add_to_board(king, WHT_POS['king'])
@@ -385,7 +390,7 @@ class Board(arcade.View):
         self.add_to_board(rook2, WHT_POS['rook'][1])
 
         # #Knight
-        """
+
         knight1 = p.Knight(allegiance, self.board, WHT_POS['knight'][0])
         self.add_to_board(knight1, WHT_POS['knight'][0])
 
@@ -410,7 +415,6 @@ class Board(arcade.View):
     #         elif self.board[move[0]][move[1]].allegiance != self.selected_piece.allegiance:
     #             valid_moves.append(move)
     #     return valid_moves
-    """
 
     def deselect_all(self):
         # Deselect all squares
@@ -428,9 +432,14 @@ class Board(arcade.View):
         piece = self.board[self.selected_row][self.selected_col]
         print(f"Piece before move {piece} and selected {self.selected_piece}")
 
+        # Get the piece object
+        piece.on_click(col * SQUARE_WIDTH - 37, row * SQUARE_HEIGHT - 35)
+
+        # Deselect the piece and switch turn after animation is complete
+        piece.move([row, col])
+
         """Check if castle move"""
         castle = self.selected_piece.castle()
-        print(castle)
         if castle is not None:
             print(f"Piece during move {self.selected_piece}")
 
@@ -438,13 +447,14 @@ class Board(arcade.View):
                 if cas_row == row and cas_col == col:
                     print("CASTLE HAPPENING....")
                     # Move the King
-                    #self.selected_piece.on_click(col * SQUARE_WIDTH - 37, row * SQUARE_HEIGHT - 35)
-                    #self.selected_piece.move([row, col])
+                    # self.selected_piece.on_click(col * SQUARE_WIDTH - 37, row * SQUARE_HEIGHT - 35)
+                    # self.selected_piece.move([row, col])
                     print(f"Piece during move {self.selected_piece}")
-                    #self.board[self.selected_row][self.selected_col] = None
-                    #self.board[row][col] = piece
+                    # self.board[self.selected_row][self.selected_col] = None
+                    # self.board[row][col] = piece
 
                     print("CASTLE MOVE")
+                    self.deselect_all()
                     self.selected_piece = self.board[cas_row][rook_col]
                     self.selected_piece.on_click(new_rook_col * SQUARE_WIDTH - 37, cas_row * SQUARE_HEIGHT - 35)
                     self.selected_piece.move([cas_row, new_rook_col])
@@ -453,12 +463,6 @@ class Board(arcade.View):
                     self.board[cas_row][new_rook_col] = self.selected_piece
 
                     break
-
-        # Get the piece object
-        piece.on_click(col * SQUARE_WIDTH - 37, row * SQUARE_HEIGHT - 35)
-
-        # Deselect the piece and switch turn after animation is complete
-        piece.move([row, col])
 
         """ Check if move is en passant """
         cap = self.selected_piece.en_passant([row, col])
@@ -469,9 +473,8 @@ class Board(arcade.View):
             self.captured_piece = self.board[row][col]
             self.board[cap[0]][cap[1]] = None
 
-        """ Change to queen if pawn promotable"""
-        if self.selected_piece.promotable():
-            piece = p.Queen(self.selected_piece.allegiance, self.board, [row, col])
+        """ Change to queen if pawn promotable """
+        # Check promotable
 
         self.board[self.selected_row][self.selected_col] = None
         self.board[row][col] = piece
@@ -483,15 +486,21 @@ class Board(arcade.View):
 
         print("============= Whites Turn ===========")
         self.print_board()
-        """
+
+
         if piece.allegiance == 'White':
             self.check_game_over('Black')
         else:
             self.check_game_over('White')
-            """
+
 
         #self.print_capture()
         self.switch_turn()
+
+    def check_promotable(self, row, col):
+        if self.selected_piece.promotable():
+            piece = p.Queen(self.selected_piece.allegiance, self.board, [row, col])
+            self.board[row][col] = piece
 
     def switch_turn(self):
         # Switch the turn between white and black
