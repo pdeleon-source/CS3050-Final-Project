@@ -288,7 +288,7 @@ class Piece(arcade.AnimatedTimeBasedSprite):
         """
 
         if not isinstance(self, King) or self.moves != 0 or self.current_col - 4 < 0 or self.current_col + 3 >= 8:
-            print(f"Self: {self} left rook: {self.current_col - 4} right rook: {self.current_col + 3}")
+            # print(f"Self: {self} left rook: {self.current_col - 4} right rook: {self.current_col + 3}")
             return None
 
         castle_moves = []
@@ -356,7 +356,7 @@ class Piece(arcade.AnimatedTimeBasedSprite):
         Returns true if the current piece is a promotable pawn
         :return:
         """
-        if isinstance(self, Pawn) and self.rank == 8:
+        if isinstance(self, Pawn) and self.rank == 8 and self.moves >= 5:
             return True
         else:
             return False

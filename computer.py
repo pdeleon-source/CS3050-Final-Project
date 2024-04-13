@@ -144,8 +144,6 @@ class Computer:
                         evaluation_board = reversed(target_piece.eval)[new_position[0]][new_position[1]]
 
                 score += position_value + evaluation_board
-
-
                 print(f"Value: {score}")
                 print("=========================")
                 # Undo the move

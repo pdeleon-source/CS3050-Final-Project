@@ -205,6 +205,7 @@ class MenuView(arcade.View):
 
         # User chose to play the game
         if self.play_button.is_clicked:
+            time.sleep(.1)
             game_view = GameView(self.theme_manager, self.volume)
             self.window.show_view(game_view)
         # User chose to toggle settings
@@ -271,7 +272,6 @@ class GameView(arcade.View):
         arcade.start_render()
 
         # Make even squares
-
         ROWS = SCREEN_WIDTH // SQUARE_WIDTH
         COLS = SCREEN_HEIGHT // SQUARE_HEIGHT
 
