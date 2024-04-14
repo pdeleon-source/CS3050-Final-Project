@@ -6,6 +6,7 @@ from arcade.experimental.uistyle import UIFlatButtonStyle
 
 import time
 
+
 class SettingsMenu(arcade.gui.UIMouseFilterMixin, arcade.gui.UIAnchorLayout):
     """Acts like a fake view/window."""
 
@@ -39,11 +40,14 @@ class SettingsMenu(arcade.gui.UIMouseFilterMixin, arcade.gui.UIAnchorLayout):
 
         # Create the on-off toggle and a label
         toggle_label = arcade.gui.UILabel(text=toggle_label, text_color=arcade.color.BLACK)
+        self.toggle_value = False if sound_manager.get_volume == 0 else True
+
         toggle = arcade.gui.UITextureToggle(
             on_texture=on_texture,
             off_texture=off_texture,
             width=20,
-            height=20
+            height=20,
+            value=self.toggle_value
         )
 
         default_button = arcade.gui.UIFlatButton(text="Default",

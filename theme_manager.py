@@ -1,5 +1,5 @@
 """
-ManageTheme class for handling theme colors.
+ManageTheme class for handling theme colors and background in an Arcade-based application.
 
 This class manages the theme colors for the game board, including light and dark square colors
 based on the selected theme. It also provides a method to set the background image based on the theme.
@@ -26,7 +26,7 @@ class ManageTheme:
         if cls._instance is None:
             cls._instance = super().__new__(cls)
             cls._instance.theme = theme
-            cls._instance.light_square_color, cls._instance.dark_square_color = cls.get_theme(theme)
+            cls._instance.light_square_color, cls._instance.dark_square_color = cls.get_theme(cls._instance, theme)
 
         return cls._instance
 
