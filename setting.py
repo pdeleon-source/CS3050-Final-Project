@@ -18,7 +18,7 @@ class SettingsMenu(arcade.gui.UIMouseFilterMixin, arcade.gui.UIAnchorLayout):
         frame.with_padding(all=20)
 
         # Add a background to the window.
-        frame.with_background(texture=arcade.load_texture("pieces_png/grey_panel.png"),
+        frame.with_background(texture=arcade.load_texture("assets/grey_panel.png"),
                               end=(25, 25),
                               start=(25, 25))
 

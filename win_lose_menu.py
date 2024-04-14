@@ -25,7 +25,7 @@ class WinLoseMenu(arcade.gui.UIMouseFilterMixin, arcade.gui.UIAnchorLayout):
 
         if winner == "black":
             banner_image = arcade.gui.UISpriteWidget(
-                sprite=arcade.Sprite(texture=arcade.load_texture("pieces_png/black_banner.png")),
+                sprite=arcade.Sprite(texture=arcade.load_texture("banners/black_banner.png")),
                 width=450,
                 height=110)
         elif winner == "white":
@@ -35,12 +35,12 @@ class WinLoseMenu(arcade.gui.UIMouseFilterMixin, arcade.gui.UIAnchorLayout):
                 height=110)
         else:
             banner_image = arcade.gui.UISpriteWidget(
-                sprite=arcade.Sprite(texture=arcade.load_texture("pieces_png/draw_banner.png")),
+                sprite=arcade.Sprite(texture=arcade.load_texture("banners/draw_banner.png")),
                 width=450,
                 height=110)
 
         frame.with_background(texture=arcade.load_texture(
-            "pieces_png/grey_panel.png"), start=(7, 7), end=(7, 7))
+            "assets/grey_panel.png"), start=(7, 7), end=(7, 7))
 
         # The type of event listener we used earlier for the button will not work here.
         replay_button = arcade.gui.UIFlatButton(text="Replay",
@@ -60,7 +60,7 @@ class WinLoseMenu(arcade.gui.UIMouseFilterMixin, arcade.gui.UIAnchorLayout):
         widget_layout = arcade.gui.UIBoxLayout(align="center", space_between=0)
 
         image = arcade.gui.UISpriteWidget(
-            sprite=arcade.Sprite(texture=arcade.load_texture("pieces_png/piece_background.png")),
+            sprite=arcade.Sprite(texture=arcade.load_texture("assets/piece_background.png")),
             width=60,
             height=60)
 

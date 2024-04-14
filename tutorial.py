@@ -84,7 +84,7 @@ class SubMenu(arcade.gui.UIMouseFilterMixin, arcade.gui.UIAnchorLayout):
         # Add a background to the window.
         # Nine patch smoothes the edges.
         self.frame.with_background(texture=arcade.load_texture(
-            "pieces_png/grey_panel.png"), start=(7, 7), end=(7, 7))
+            "assets/grey_panel.png"), start=(7, 7), end=(7, 7))
 
         widget_layout = arcade.gui.UIBoxLayout(align="center", space_between=10)
         widget_layout.add(self.title_label)

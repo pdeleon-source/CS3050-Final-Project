@@ -169,9 +169,9 @@ class Board(arcade.View):
         arcade.set_background_color(self.bg_color)
 
         # Load the button labels in the menu
-        self.settings_png = arcade.load_texture("pieces_png/settings_cog.png")
-        self.tutorial_png = arcade.load_texture("pieces_png/Black_question_mark.png")
-        self.exit_png = arcade.load_texture("pieces_png/letter_x.png")
+        self.settings_png = arcade.load_texture("assets/settings_cog.png")
+        self.tutorial_png = arcade.load_texture("assets/Black_question_mark.png")
+        self.exit_png = arcade.load_texture("assets/letter_x.png")
 
         # Then make the height and width of those buttons
         settings_button = arcade.gui.UITextureButton(x=SCREEN_WIDTH - (SQUARE_WIDTH // 2) - 60,
@@ -317,7 +317,7 @@ class Board(arcade.View):
 
         # the board will change depending on the theme
         if self.theme == "midnight":
-            background = arcade.load_texture("pieces_png/midnight.jpg")
+            background = arcade.load_texture("assets/midnight.jpg")
             background.draw_sized(center_x=SCREEN_WIDTH / 2, center_y=SCREEN_HEIGHT / 2,
                                    width=SCREEN_WIDTH, height=SCREEN_HEIGHT)
         else:
@@ -820,6 +820,9 @@ class Board(arcade.View):
             computer_piece, coords, computer_cap, capped_piece = self.computer.make_best_move(2)
 
             print(f"Move {computer_piece} to {coords}")
+            old_coords = [computer_piece.current_row, computer_piece.current_col]
+            self.board[old_coords[0], old_coords[1]] = None
+            self.board[coords[0], coords[1]] = computer_piece
 
             if computer_cap:
                 self.make_capture(capped_piece)
@@ -917,9 +920,6 @@ class Board(arcade.View):
             end_game = True
 
         return end_game
-
-        return end_game
-
 
 
         # print("PIECES")

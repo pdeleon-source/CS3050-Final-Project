@@ -109,7 +109,6 @@ class Computer:
 
         # Update the piece's position in the board_array
         if valid_move:
-            print(f"moved {piece} from [{current_row} {current_col}]")
             self.board_array[current_row][current_col] = None
             self.board_array[move_coords[0]][move_coords[1]] = piece
 
@@ -134,8 +133,6 @@ class Computer:
         for piece in available_pieces:
             possible_moves, possible_captures, attacks = piece.available_moves(False)
             old_position = [piece.temp_current_row, piece.temp_current_col]
-            print("=========================")
-            print(f"Piece: {piece}")
             for new_position in possible_moves + possible_captures:
                 old_value = self.demo_board[new_position[0]][new_position[1]]
 
@@ -155,8 +152,6 @@ class Computer:
                         evaluation_board = reversed(target_piece.eval)[new_position[0]][new_position[1]]
 
                 score += position_value + evaluation_board
-                print(f"Value: {score}")
-                print("=========================")
                 # Undo the move
                 # self.demo_board[old_position[0]][old_position[1]] = piece
                 # self.demo_board[new_position[0]][new_position[1]] = old_value
@@ -206,17 +201,12 @@ class Computer:
         piece, move = self.get_best(best_moves)
 
         if self.board_array[move[0]][move[1]] != self.allegiance and self.board_array[move[0]][move[1]] is not None:
-            # print("***CAPTURE***")
             is_cap = True
             capped_piece = self.board_array[move[0]][move[1]]
 
 
-        if piece is not None and move is not None:
-            self.move_piece(piece, move)
-
-        print("=========================")
-        print(f"Piece: {piece}, Move: {move}")
-        print("=========================")
+        # if piece is not None and move is not None:
+        #     self.move_piece(piece, move)
 
         return piece, move, is_cap, capped_piece
 
@@ -262,10 +252,8 @@ class Computer:
                     if eval < max_eval:
                         max_eval = eval
                         best_move = (piece, new_position)
-                        # print(f"New best move for black: {best_move}, Eval: {min_eval}")
 
             if best_move:
-                print(f"Best move for black: {best_move}, Eval: {max_eval}")
                 self.template_move_piece(best_move[0], best_move[1])
                 best_move = None
             return max_eval
@@ -293,10 +281,8 @@ class Computer:
                     if eval < min_eval:
                         min_eval = eval
                         best_move = (piece, move)
-                        # print(f"New best move for white: {best_move}, Eval: {max_eval}")
 
             if best_move:
-                print(f"Best move for white: {best_move}, Eval: {min_eval}")
                 self.template_move_piece(best_move[0], best_move[1])
                 best_move = None
 

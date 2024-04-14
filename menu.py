@@ -99,9 +99,9 @@ class MenuView(arcade.View):
         self.manager = arcade.gui.UIManager()
 
         # Load game logo
-        self.logo = arcade.load_texture("pieces_png/chess_logo.png")
-        self.settings_png = arcade.load_texture("pieces_png/settings_cog.png")
-        self.tutorial_png = arcade.load_texture("pieces_png/Black_question_mark.png")
+        self.logo = arcade.load_texture("banners/chess_logo.png")
+        self.settings_png = arcade.load_texture("assets/settings_cog.png")
+        self.tutorial_png = arcade.load_texture("assets/Black_question_mark.png")
 
         # Create button objects for each option
         play_button = arcade.gui.UIFlatButton(x=CENTER_WIDTH - 100,
@@ -226,9 +226,9 @@ class GameView(arcade.View):
         super().__init__()
 
         self.manager = arcade.gui.UIManager()
-        self.logo = arcade.load_texture("pieces_png/game_banner.png")
-        self.settings_png = arcade.load_texture("pieces_png/settings_cog.png")
-        self.tutorial_png = arcade.load_texture("pieces_png/Black_question_mark.png")
+        self.logo = arcade.load_texture("banners/game_banner.png")
+        self.settings_png = arcade.load_texture("assets/settings_cog.png")
+        self.tutorial_png = arcade.load_texture("assets/Black_question_mark.png")
 
         player_button = arcade.gui.UIFlatButton(x=CENTER_WIDTH - 125,
                                                 y=CENTER_HEIGHT,
@@ -377,9 +377,10 @@ class GameView(arcade.View):
         # Disable the UIManager when the view is hidden.
         self.manager.disable()
 
-
 def main():
-    window = arcade.Window(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
+    screen_width, screen_height = arcade.get_display_size()
+
+    window = arcade.Window(screen_width, screen_height, "Chess")
     menu_view = MenuView("default", 1.0)
     window.show_view(menu_view)
     arcade.run()
