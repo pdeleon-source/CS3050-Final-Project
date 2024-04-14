@@ -68,7 +68,7 @@ class Computer:
         while all_moves == []:
             piece_location = random.randrange(0, len(available_pieces))
             piece_selection = available_pieces[piece_location]
-            possible_moves, possible_captures, attacks = piece_selection.available_moves()
+            possible_moves, possible_captures, attacks = piece_selection.available_moves(False)
             all_moves = possible_moves + possible_captures
 
         # select a random square
@@ -129,7 +129,7 @@ class Computer:
 
         available_pieces = self.select_piece()
         for piece in available_pieces:
-            possible_moves, possible_captures, attacks = piece.available_moves()
+            possible_moves, possible_captures, attacks = piece.available_moves(False)
             old_position = [piece.temp_current_row, piece.temp_current_col]
             print("=========================")
             print(f"Piece: {piece}")
@@ -152,8 +152,6 @@ class Computer:
                         evaluation_board = reversed(target_piece.eval)[new_position[0]][new_position[1]]
 
                 score += position_value + evaluation_board
-
-
                 print(f"Value: {score}")
                 print("=========================")
                 # Undo the move
@@ -235,7 +233,7 @@ class Computer:
             best_move = None
             available_pieces = self.temp_select_piece("Black")
             for piece in available_pieces:
-                possible_moves, possible_captures, attacks = piece.available_moves()
+                possible_moves, possible_captures, attacks = piece.available_moves(False)
                 old_position = [piece.temp_current_row, piece.temp_current_col]
                 for new_position in possible_moves + possible_captures:
                     # Simulate the move
@@ -266,7 +264,7 @@ class Computer:
             best_move = None
             available_pieces = self.temp_select_piece("White")
             for piece in available_pieces:
-                possible_moves, possible_captures, attacks = piece.available_moves()
+                possible_moves, possible_captures, attacks = piece.available_moves(False)
                 old_position = (piece.temp_current_row, piece.temp_current_col)
 
                 for move in possible_moves + possible_captures:

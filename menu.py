@@ -1,15 +1,8 @@
-# for rooks in each turn, one value in the coordinate cannot change
-# for bishops, both values must change
-
 """
-Create a display Menu, that starts up the chess game
-- Give user two options
-- Computer V Computer: normal game
-- Player V Player: some stuff
-- Later we need to implement Puzzle and Tutorial buttons
+This program creates a display menu which provides the user with options. The user may
+choose to play against a player or a computer or to view tutorials. The user may also
+visit a settings menu to change the theme or toggle sound.
 """
-
-# TODO: Replace Button Class, for arcade 2.7.1.dev11 mmmmm make a THING
 
 import arcade
 import board
@@ -53,20 +46,21 @@ DARK_SQUARE_COLOR_PINK = arcade.color.CHINA_PINK
 BG_COLOR_PINK = arcade.color.WHITE
 
 DEFAULT_THEME = [arcade.color.ALMOND, arcade.color.SADDLE_BROWN, arcade.color.BRUNSWICK_GREEN]
-PINK_THEME = [arcade.color.CAMEO_PINK, arcade.color.CHINA_PINK, arcade.color.WHITE]
-
+PINK_THEME = [arcade.color.CAMEO_PINK, arcade.color.CHINA_PINK, arcade.color.DUST_STORM]
+OCEAN_THEME = [arcade.color.PALE_ROBIN_EGG_BLUE, arcade.color.DARK_CYAN, arcade.color.MEDIUM_AQUAMARINE]
+MIDNIGHT_THEME = [arcade.color.QUEEN_BLUE, arcade.color.DARK_MIDNIGHT_BLUE, arcade.color.MIDNIGHT_BLUE]
 BUTTON_COLOR = arcade.color.WHITE
 
 # Define sound effects - must be .wav :(
 BUTTON_SOUND = "sounds/doink.wav"
 MENU_SOUND = "sounds/bob.wav"
 
-VOLUME = 1
-
 theme_manager = ManageTheme("default")
 game_manager = ManageGame("_")
 
-# Render button
+VOLUME = 1
+
+#Render Button Style
 default_style = {
     "normal": UIFlatButtonStyle(
         font_size=12,
@@ -102,6 +96,84 @@ default_style = {
     )
 }
 
+
+class Button:
+    """
+        Creates an interactive button that the user can click
+    """
+    def __init__(self, x, y, width, height, volume):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+
+        self.hover_color = arcade.color.LIGHT_GRAY
+        self.clicked_color = arcade.color.GREEN
+        self.is_hovered = False
+        self.is_clicked = False
+
+        # Volume of sound
+        self.volume = volume
+
+
+    def draw(self, text, color):
+        """
+            Draws the button to the screen based on its current state
+            :param text:
+            :param color:
+        """
+        # Button will look different based on if it is clicked or hovered over
+        if self.is_clicked:
+            arcade.draw_rectangle_filled(self.x, self.y, self.width, self.height, self.clicked_color)
+        elif self.is_hovered:
+            arcade.draw_rectangle_filled(self.x, self.y, self.width, self.height, self.hover_color)
+        else:
+            arcade.draw_rectangle_filled(self.x, self.y, self.width + 5, self.height + 5, TEXT_COLOR)
+            arcade.draw_rectangle_filled(self.x, self.y, self.width, self.height, color)
+
+            # If the button is a theme button
+            if color == arcade.color.ALMOND:
+                self.draw_checkers(arcade.color.SADDLE_BROWN)
+            elif color == arcade.color.CAMEO_PINK:
+                self.draw_checkers(arcade.color.CHINA_PINK)
+            elif color == arcade.color.QUEEN_BLUE:
+                self.draw_checkers(arcade.color.DARK_MIDNIGHT_BLUE)
+            elif color == arcade.color.PALE_ROBIN_EGG_BLUE:
+                self.draw_checkers(arcade.color.DARK_CYAN)
+
+        # Write text to button
+        arcade.draw_text(text, self.x - len(text) * 5, self.y - self.height // 10, TEXT_COLOR, 16)
+
+    def on_mouse_motion(self, x, y, dx, dy):
+        # Detect user mouse movement
+        self.is_hovered = (self.x - self.width / 2 < x < self.x + self.width / 2 and
+                           self.y - self.height / 2 < y < self.y + self.height / 2)
+
+    def on_mouse_press(self, x, y, button, modifiers):
+        # Detect user clicks
+        if self.is_hovered:
+            # Play sound if button clicked
+            audio = arcade.load_sound(BUTTON_SOUND, False)
+            arcade.play_sound(audio, self.volume, -1, False)
+
+            self.is_clicked = True
+
+    def on_mouse_release(self, x, y, button, modifiers):
+        self.is_clicked = False
+
+    def draw_checkers(self, color):
+        """
+        This method is for theme buttons, which have a special design. Draws
+        a checkered pattern of a specified color on the button.
+        :param color:
+        """
+        arcade.draw_rectangle_filled(self.x + self.width // 4, self.y +
+                                     self.width // 4, self.width // 2,
+                                     self.height // 2, color)
+        arcade.draw_rectangle_filled(self.x - self.width // 4, self.y -
+                                     self.width // 4, self.width // 2,
+                                     self.height // 2, color)
+
 def set_volume(self, lvl):
     self.volume = lvl
 
@@ -111,13 +183,25 @@ def play_button_sound():
 
 
 class MenuView(arcade.View):
-    def __init__(self, theme):
+    """
+        The main menu. Has options which allow the user to choose a game mode,
+        change settings, and quit the game.
+    """
+    def __init__(self, theme, volume):
         super().__init__()
         self.manager = arcade.gui.UIManager()
 
+        # Load game logo
         self.logo = arcade.load_texture("pieces_png/chess_logo.png")
         self.settings_png = arcade.load_texture("pieces_png/settings_cog.png")
         self.tutorial_png = arcade.load_texture("pieces_png/Black_question_mark.png")
+
+        # Create button objects for each option
+        # self.play_button = Button(CENTER_WIDTH, CENTER_HEIGHT - 25, 200, 40, volume)  # Center - 40, Height was 60
+        # self.tutorial_button = Button(CENTER_WIDTH, CENTER_HEIGHT - 70, 200, 40, volume)  # Center - 110, Height was 60
+        # self.settings_button = Button(CENTER_WIDTH, CENTER_HEIGHT - 115, 200, 40, volume)
+        # self.quit_button = Button(CENTER_WIDTH, CENTER_HEIGHT - 160, 200, 40, volume)
+
 
         play_button = arcade.gui.UIFlatButton(x=CENTER_WIDTH - 100,
                                               y=CENTER_HEIGHT - 70,
@@ -187,12 +271,18 @@ class MenuView(arcade.View):
 
         self.game_view = None  # Placeholder for the game view instance
 
-        # Create theme object and set theme
+
+        self.theme_manager = ManageTheme(theme)
+        self.volume = volume
 
     def on_show(self):
         arcade.set_background_color(BG_COLOR)
 
     def on_draw(self):
+        """
+        Draws the menu background as a checkered pattern based on the current theme colors.
+        """
+
         self.clear()
         arcade.start_render()
 
@@ -201,6 +291,7 @@ class MenuView(arcade.View):
         r = SCREEN_HEIGHT // SQUARE_WIDTH
         c = SCREEN_WIDTH // SQUARE_HEIGHT
 
+        # Get current theme colors
         light_square_color, dark_square_color = theme_manager.get_colors()
 
         for row in range(r + 1):
@@ -216,6 +307,7 @@ class MenuView(arcade.View):
                 arcade.draw_rectangle_filled(x + SQUARE_WIDTH // 2, y + SQUARE_HEIGHT // 2, SQUARE_WIDTH, SQUARE_HEIGHT,
                                              color)
 
+        # Draw the logo and buttons
         self.logo.draw_sized(center_x=CENTER_WIDTH, center_y=CENTER_HEIGHT, width=700, height=580)  # Was w=600h=500
         self.manager.draw()
 
@@ -227,7 +319,6 @@ class MenuView(arcade.View):
         # Disable the UIManager when the view is hidden.
         self.manager.disable()
 
-# Testing
 class GameView(arcade.View):
     def __init__(self, theme):
         super().__init__()
@@ -383,7 +474,7 @@ class GameView(arcade.View):
 
 def main():
     window = arcade.Window(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
-    menu_view = MenuView("default")
+    menu_view = MenuView("default", 1.0)
     window.show_view(menu_view)
     arcade.run()
 
