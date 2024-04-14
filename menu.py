@@ -19,10 +19,6 @@ import arcade.gui.widgets
 import arcade.gui.widgets
 from arcade.experimental.uistyle import UIFlatButtonStyle
 
-# Define screen dimensions
-# SCREEN_WIDTH = 800
-# SCREEN_HEIGHT = 600
-
 SCREEN_WIDTH, SCREEN_HEIGHT = arcade.get_display_size()
 
 SCREEN_TITLE = "Chess Game Intro"
@@ -42,16 +38,6 @@ TEXT_COLOR = arcade.color.BLACK
 LIGHT_SQUARE_COLOR = arcade.color.ALMOND
 DARK_SQUARE_COLOR = arcade.color.SADDLE_BROWN
 
-LIGHT_SQUARE_COLOR_PINK = arcade.color.CAMEO_PINK
-DARK_SQUARE_COLOR_PINK = arcade.color.CHINA_PINK
-BG_COLOR_PINK = arcade.color.WHITE
-
-DEFAULT_THEME = [arcade.color.ALMOND, arcade.color.SADDLE_BROWN, arcade.color.BRUNSWICK_GREEN]
-PINK_THEME = [arcade.color.CAMEO_PINK, arcade.color.CHINA_PINK, arcade.color.DUST_STORM]
-OCEAN_THEME = [arcade.color.PALE_ROBIN_EGG_BLUE, arcade.color.DARK_CYAN, arcade.color.MEDIUM_AQUAMARINE]
-MIDNIGHT_THEME = [arcade.color.QUEEN_BLUE, arcade.color.DARK_MIDNIGHT_BLUE, arcade.color.MIDNIGHT_BLUE]
-BUTTON_COLOR = arcade.color.WHITE
-
 # Define sound effects - must be .wav :(
 BUTTON_SOUND = "sounds/doink.wav"
 MENU_SOUND = "sounds/bob.wav"
@@ -62,7 +48,6 @@ sound_manager = ManageSound(1)
 
 VOLUME = 1
 
-#Render Button Style
 default_style = {
     "normal": UIFlatButtonStyle(
         font_size=12,
@@ -98,9 +83,11 @@ default_style = {
     )
 }
 
+
 def play_button_sound():
     audio = arcade.load_sound(BUTTON_SOUND, False)
     arcade.play_sound(audio, sound_manager.get_volume(), -1, False)
+
 
 class MenuView(arcade.View):
     """
