@@ -123,12 +123,15 @@ class Board(arcade.View):
         # Add a variable to track whose turn it is
         self.current_turn = white_allegiance  # Start with white's turn
 
+        # create an empty list of moves, valid moves, and captures
         self.valid_moves = []
         self.capture_moves = []
         self.captures = []
         self.white_capture_board = np.array([[None for _ in range(2)] for _ in range(8)])
         self.black_capture_board = np.array([[None for _ in range(2)] for _ in range(8)])
 
+        # As of now, there are no pieces that are captured, or belonging to the computer, nor
+        # is there a selected position
         arcade.set_background_color(arcade.color.WHITE)
         self.board = np.array([[None for _ in range(COLS)] for _ in range(ROWS)])
         self.prev_board = copy.copy(self.board)
@@ -165,10 +168,12 @@ class Board(arcade.View):
 
         arcade.set_background_color(self.bg_color)
 
+        # Load the button labels in the menu
         self.settings_png = arcade.load_texture("pieces_png/settings_cog.png")
         self.tutorial_png = arcade.load_texture("pieces_png/Black_question_mark.png")
         self.exit_png = arcade.load_texture("pieces_png/letter_x.png")
 
+        # Then make the height and width of those buttons
         settings_button = arcade.gui.UITextureButton(x=SCREEN_WIDTH - (SQUARE_WIDTH // 2) - 60,
                                                      y=(SCREEN_HEIGHT - SQUARE_HEIGHT // 2) - 60,
                                                      width=60,
