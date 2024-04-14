@@ -238,11 +238,19 @@ class Board(arcade.View):
         self.explosions_list.update()
 
         if self.current_turn_start is not None:
-            elapsed_time = datetime.now() - self.current_turn_start
-            if self.current_turn == white_allegiance:
-                self.WHITE_TIME -= elapsed_time
+            if self.versus == "player":
+                elapsed_time = datetime.now() - self.current_turn_start
+                if self.current_turn == "White":
+                    self.WHITE_TIME -= elapsed_time
+                else:
+                    self.BLACK_TIME -= elapsed_time
+           
             else:
-                self.BLACK_TIME -= elapsed_time
+                elapsed_time = datetime.now() - self.current_turn_start
+                if self.current_turn == "White":
+                    self.WHITE_TIME -= elapsed_time
+                else:
+                    self.BLACK_TIME -= elapsed_time
 
             # Check if time has run out for either player
             if self.WHITE_TIME <= timedelta(seconds=0):
