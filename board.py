@@ -758,14 +758,6 @@ class Board(arcade.View):
             self.board[self.selected_row][self.selected_col] = None
             self.board[row][col] = piece
 
-            # Wait for the animation to finish
-            # time.sleep(1)  # Adjust the delay as needed
-
-            """ Change to queen if pawn promotable """
-            # TODO: Save me
-            # if self.selected_piece.promotable():
-            #     self.promote_pawn_to_queen(row, col)
-
         self.deselect_all()
 
         print("============= Whites Turn ===========")
