@@ -206,7 +206,7 @@ class Computer:
         piece, move = self.get_best(best_moves)
 
         if self.board_array[move[0]][move[1]] != self.allegiance and self.board_array[move[0]][move[1]] is not None:
-            print("***CAPTURE***")
+            # print("***CAPTURE***")
             is_cap = True
             capped_piece = self.board_array[move[0]][move[1]]
 
