@@ -188,8 +188,6 @@ class Board(arcade.View):
 
         @settings_button.event("on_click")
         def on_click_switch_button(event):
-            # game_view = SettingsView(self.theme_manager.theme)
-            # self.window.show_view(game_view)
             sound_manager.play_button_sound()
             settings_menu = s.SettingsMenu(
                 "Settings",
@@ -231,17 +229,15 @@ class Board(arcade.View):
     def on_show(self):
         arcade.set_background_color(self.bg_color)
         self.manager.enable()
-        # self.chess_piece.position = SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2
 
     def on_hide_view(self):
         # Disable the UIManager when the view is hidden.
         self.manager.disable()
 
-
-
     def on_update(self, delta_time):
         self.explosions_list.update()
 
+        # Provide conditions for the timer, check to see if the turn has begun
         if self.current_turn_start is not None:
             elapsed_time = datetime.now() - self.current_turn_start
             if self.current_turn == white_allegiance:
@@ -259,6 +255,7 @@ class Board(arcade.View):
 
             self.current_turn_start = datetime.now()
 
+        # Put conditions on the piece the user will select
         if self.selected_piece is not None:
             self.selected_piece.update()
             if self.selected_piece.x == self.selected_piece.target_x and self.selected_piece.y == self.selected_piece.target_y:
@@ -310,19 +307,13 @@ class Board(arcade.View):
         self.bg_color, self.black_capture_bg, self.white_capture_bg = theme_manager.get_background(self.theme)
         self.light_square_color, self.dark_square_color = theme_manager.get_theme(self.theme)
 
+        # the board will change depending on the theme
         if self.theme == "midnight":
             background = arcade.load_texture("pieces_png/midnight.jpg")
             background.draw_sized(center_x=SCREEN_WIDTH / 2, center_y=SCREEN_HEIGHT / 2,
                                    width=SCREEN_WIDTH, height=SCREEN_HEIGHT)
         else:
             arcade.set_background_color(self.bg_color)
-        #
-        # elif self.theme == "ocean":
-        #     background = arcade.load_texture("pieces_png/ocean.jpg")
-        #     background.draw_sized(center_x=SCREEN_WIDTH / 2, center_y=SCREEN_HEIGHT / 2,
-        #                           width=SCREEN_WIDTH, height=SCREEN_HEIGHT)
-        # else:
-
 
         # Make even squares
         square_width = (BOARD_WIDTH - 200) // COLS
@@ -342,9 +333,6 @@ class Board(arcade.View):
                                       color=self.light_square_color,
                                       border_width=3)
 
-        # TODO Clean this up
-
-        #BLACK CAPTURE ZONE
         arcade.draw_rectangle_outline(center_x=(2 * square_width) + (SCREEN_WIDTH / 12),
                                       center_y=(4 * square_height) + (SCREEN_HEIGHT // 6),
                                       width=square_width * 2 + 10,
@@ -365,7 +353,7 @@ class Board(arcade.View):
                                      height=square_height * 8,
                                      color=self.black_capture_bg)
 
-        #WHITE CAPTURE ZONE
+        # WHITE CAPTURE ZONE
         arcade.draw_rectangle_outline(center_x=SCREEN_WIDTH - ((2 * square_width) + (SCREEN_WIDTH / 12)),
                                       center_y=(4 * square_height) + (SCREEN_HEIGHT // 6),
                                       width=square_width * 2 + 10,
@@ -388,6 +376,8 @@ class Board(arcade.View):
 
         for row in range(ROWS):
             for col in range(COLS):
+                # for the rows and columns it needs to be adjusted for the width and height
+                # of each screen
                 x = (col * square_width) + (SCREEN_WIDTH / 3.25)
                 y = (row * square_height) + (SCREEN_HEIGHT // 6)
 
