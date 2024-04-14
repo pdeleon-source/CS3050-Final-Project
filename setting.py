@@ -58,17 +58,17 @@ class SettingsMenu(arcade.gui.UIMouseFilterMixin, arcade.gui.UIAnchorLayout):
         pink_button = arcade.gui.UIFlatButton(text="Pink",
                                               width=100,
                                               height=40,
-                                              style=self.get_button_styled(arcade.color.PINK))
+                                              style=self.get_button_styled(arcade.color.CAMEO_PINK))
 
         ocean_button = arcade.gui.UIFlatButton(text="Ocean",
                                                width=100,
                                                height=40,
-                                               style=self.get_button_styled(arcade.color.OCEAN_BOAT_BLUE))
+                                               style=self.get_button_styled(arcade.color.PALE_ROBIN_EGG_BLUE))
 
         midnight_button = arcade.gui.UIFlatButton(text="Midnight",
                                                   width=100,
                                                   height=40,
-                                                  style=self.get_button_styled(arcade.color.MIDNIGHT_BLUE))
+                                                  style=self.get_button_styled(arcade.color.QUEEN_BLUE))
 
         grid = arcade.gui.UIGridLayout(column_count=2, row_count=4, horizontal_spacing=13, vertical_spacing=20)
 

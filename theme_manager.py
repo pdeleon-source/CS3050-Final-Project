@@ -47,14 +47,14 @@ class ManageTheme:
         - theme (str): The new theme for the game, such as "midnight", "pink", "ocean", or "default".
         """
         if theme == "midnight":
-            self.light_square_color = arcade.color.BLUE
-            self.dark_square_color = arcade.color.DARK_BLUE
+            self.light_square_color = arcade.color.QUEEN_BLUE
+            self.dark_square_color = arcade.color.DARK_MIDNIGHT_BLUE
         elif theme == "pink":
             self.light_square_color = arcade.color.CAMEO_PINK
             self.dark_square_color = arcade.color.CHINA_PINK
         elif theme == "ocean":
-            self.light_square_color = arcade.color.LIGHT_BLUE
-            self.dark_square_color = arcade.color.BLUE
+            self.light_square_color = arcade.color.PALE_ROBIN_EGG_BLUE
+            self.dark_square_color = arcade.color.DARK_CYAN
         else:  # Default colors
             self.light_square_color = arcade.color.ALMOND
             self.dark_square_color = arcade.color.SADDLE_BROWN
@@ -72,11 +72,11 @@ class ManageTheme:
         - tuple: A tuple containing the light and dark square colors for the specified theme.
         """
         if theme == "midnight":
-            return arcade.color.BLUE, arcade.color.DARK_BLUE
+            return arcade.color.QUEEN_BLUE, arcade.color.DARK_MIDNIGHT_BLUE
         elif theme == "pink":
             return arcade.color.CAMEO_PINK, arcade.color.CHINA_PINK
         elif theme == "ocean":
-            return arcade.color.LIGHT_BLUE, arcade.color.BLUE
+            return arcade.color.PALE_ROBIN_EGG_BLUE, arcade.color.DARK_CYAN
         else:  # Default colors
             return arcade.color.ALMOND, arcade.color.SADDLE_BROWN
 
@@ -93,8 +93,8 @@ class ManageTheme:
         if theme == "midnight":
             return arcade.color.MIDNIGHT_BLUE, (0, 0, 139, 75), (0, 0, 255, 75)
         elif theme == "pink":
-            return arcade.color.BRILLIANT_ROSE, (222, 111, 161, 75), (238, 187, 204, 75)
+            return arcade.color.DUST_STORM, (222, 111, 161, 75), (238, 187, 204, 75)
         elif theme == "ocean":
-            return arcade.color.OCEAN_BOAT_BLUE, (0, 0, 255, 75), (173, 216, 230, 75)
+            return arcade.color.MEDIUM_AQUAMARINE, (0, 0, 255, 75), (173, 216, 230, 75)
         else:  # Default colors
             return arcade.color.BRUNSWICK_GREEN, (139, 69, 19, 75), (234, 222, 203, 75)
