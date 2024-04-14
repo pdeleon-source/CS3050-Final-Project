@@ -198,10 +198,18 @@ class Computer:
         return best_move
 
     def make_best_move(self, depth):
+        is_cap = False
+        capped_piece = None
         self.demo_board = copy(self.board_array)
         best_moves = self.evaluate(depth)
 
         piece, move = self.get_best(best_moves)
+
+        if self.board_array[move[0]][move[1]] != self.allegiance and self.board_array[move[0]][move[1]] is not None:
+            print("***CAPTURE***")
+            is_cap = True
+            capped_piece = self.board_array[move[0]][move[1]]
+
 
         if piece is not None and move is not None:
             self.move_piece(piece, move)
@@ -210,7 +218,7 @@ class Computer:
         print(f"Piece: {piece}, Move: {move}")
         print("=========================")
 
-        return piece, move
+        return piece, move, is_cap, capped_piece
 
     # Fix alpha beta pruning, need to pass in min and max as parameters, so they can be checked :D
     # Also have the computer assess picking the best move for itself, right now it picks a move
