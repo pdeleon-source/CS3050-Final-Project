@@ -2,6 +2,8 @@
 
 import arcade
 
+import arcade.gui
+
 import pieces as p
 
 import computer
@@ -14,24 +16,35 @@ from datetime import datetime, timedelta
 
 import menu as menu
 
+import tutorial as t
+import setting as s
+
+from theme_manager import ManageTheme
+from game_manager import ManageGame
+from sound_manager import ManageSound
+
+import win_lose_menu as w
 
 # How fast to move, and how fast to run the animation
 MOVEMENT_SPEED = 5
 UPDATES_PER_FRAME = 5
 
 # Set the dimensions of the chessboard
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
+SCREEN_WIDTH, SCREEN_HEIGHT = arcade.get_display_size()
+
+BOARD_WIDTH = 800
+BOARD_HEIGHT = 600
 ROWS = 8
 COLS = 8
-SQUARE_WIDTH = (SCREEN_WIDTH - 200) // 8
-SQUARE_HEIGHT = SCREEN_HEIGHT // 8
+SQUARE_WIDTH = (BOARD_WIDTH - 200) // 8
+SQUARE_HEIGHT = BOARD_HEIGHT // 8
 
-CAPTURE_BOX = 100 // 4
+CAPTURE_HEIGHT = SQUARE_HEIGHT * 8
+CAPTURE_WIDTH = SQUARE_WIDTH * 2
 
 # Set the colors for the chessboard squares
-LIGHT_SQUARE_COLOR = arcade.color.ALMOND
-DARK_SQUARE_COLOR = arcade.color.SADDLE_BROWN
+# LIGHT_SQUARE_COLOR = arcade.color.ALMOND
+# DARK_SQUARE_COLOR = arcade.color.SADDLE_BROWN
 SELECTED_SQUARE_COLOR = arcade.color.CYAN
 VALID_MOVE_COLOR = arcade.color.GREEN
 VALID_CAPTURE_COLOR = arcade.color.RED
@@ -69,19 +82,48 @@ CASTLE_SOUND = "sounds/castle.wav" # TODO: Add sound to castle function
 white_allegiance = "White"
 black_allegiance = "Black"
 
+theme_manager = ManageTheme("default")
+game_manager = ManageGame("_")
+sound_manager = ManageSound(1)
+
+BULLET_SPEED = 5
+
+EXPLOSION_TEXTURE_COUNT = 60
+class Explosion(arcade.Sprite):
+    """ This class creates an explosion animation """
+
+    def __init__(self, texture_list):
+        super().__init__()
+
+        # Start at the first frame
+        self.current_texture = 0
+        self.textures = texture_list
+
+    def update(self):
+
+        # Update to the next frame of the animation. If we are at the end
+        # of our frames, then delete this sprite.
+        self.current_texture += 1
+        if self.current_texture < len(self.textures):
+            self.set_texture(self.current_texture)
+        else:
+            self.remove_from_sprite_lists()
+
 
 class Board(arcade.View):
-    def __init__(self, versus, theme, volume):
+    def __init__(self, versus):
         super().__init__()
         self.versus = versus
+        self.manager = arcade.gui.UIManager()
+
         # Add a variable to track whose turn it is
         self.current_turn = white_allegiance  # Start with white's turn
 
         self.valid_moves = []
         self.capture_moves = []
         self.captures = []
-        self.white_capture_board = np.array([[None for _ in range(4)] for _ in range(4)])
-        self.black_capture_board = np.array([[None for _ in range(4)] for _ in range(4)])
+        self.white_capture_board = np.array([[None for _ in range(2)] for _ in range(8)])
+        self.black_capture_board = np.array([[None for _ in range(2)] for _ in range(8)])
 
         arcade.set_background_color(arcade.color.WHITE)
         self.board = np.array([[None for _ in range(COLS)] for _ in range(ROWS)])
@@ -91,6 +133,12 @@ class Board(arcade.View):
         self.captured_piece = None
         self.selected_row = None
         self.selected_col = None
+
+        self.explosions_list = arcade.SpriteList()
+        self.explosion_texture_list = []
+
+        # Setup explosions
+        self.setup_explosions()
 
         self.WHITE_TIME = timedelta(minutes=5)
         self.BLACK_TIME = timedelta(minutes=5)
@@ -108,37 +156,82 @@ class Board(arcade.View):
         # Create Pieces and add pieces to board
         self.make_black_set()
         self.make_white_set()
+        self.theme = theme_manager.theme
+        self.bg_color, self.black_capture_bg, self.white_capture_bg = theme_manager.get_background(self.theme)
+
+        arcade.set_background_color(self.bg_color)
+
+        self.settings_png = arcade.load_texture("pieces_png/settings_cog.png")
+        self.tutorial_png = arcade.load_texture("pieces_png/Black_question_mark.png")
+        self.exit_png = arcade.load_texture("pieces_png/letter_x.png")
+
+        settings_button = arcade.gui.UITextureButton(x=SCREEN_WIDTH - (SQUARE_WIDTH // 2) - 60,
+                                                     y=(SCREEN_HEIGHT - SQUARE_HEIGHT // 2) - 60,
+                                                     width=60,
+                                                     height=60,
+                                                     texture=self.settings_png)
+
+        tutorial_button = arcade.gui.UITextureButton(x=(SCREEN_WIDTH - (SQUARE_WIDTH // 2) * 3) - 60,
+                                                     y=(SCREEN_HEIGHT - SQUARE_HEIGHT // 2) - 60,
+                                                     width=60,
+                                                     height=60,
+                                                     texture=self.tutorial_png)
+
+        @settings_button.event("on_click")
+        def on_click_switch_button(event):
+            # game_view = SettingsView(self.theme_manager.theme)
+            # self.window.show_view(game_view)
+            sound_manager.play_button_sound()
+            settings_menu = s.SettingsMenu(
+                "Settings",
+                "Volume",
+                theme_manager,
+                sound_manager
+            )
+            self.manager.add(
+                settings_menu
+            )
+        @tutorial_button.event("on_click")
+        def on_click_switch_button(event):
+            sound_manager.play_button_sound()
+            tutorial_menu = t.SubMenu(
+                "Tutorial Menu"
+            )
+            self.manager.add(
+                tutorial_menu
+            )
+
+        self.manager.add(tutorial_button)
+        self.manager.add(settings_button)
 
         # Bools to avoid loops
         self.promotion_triggered = False
         self.castle_triggered = False
 
-        """Set colors based on theme"""
-        if theme == "midnight":
-            self.light_square_color = arcade.color.QUEEN_BLUE
-            self.dark_square_color = arcade.color.DARK_MIDNIGHT_BLUE
-            self.bg_color = arcade.color.MIDNIGHT_BLUE
-        elif theme == "pink":
-            self.light_square_color = arcade.color.CAMEO_PINK
-            self.dark_square_color = arcade.color.CHINA_PINK
-            self.bg_color = arcade.color.DUST_STORM
-        elif theme == "ocean":
-            self.light_square_color = arcade.color.PALE_ROBIN_EGG_BLUE
-            self.dark_square_color = arcade.color.DARK_CYAN
-            self.bg_color = arcade.color.MEDIUM_AQUAMARINE
-        else: # Default colors
-            self.light_square_color = arcade.color.ALMOND
-            self.dark_square_color = arcade.color.SADDLE_BROWN
-            self.bg_color = arcade.color.BRUNSWICK_GREEN
-        self.theme = theme
-        self.volume = volume
+    def setup_explosions(self):
+        columns = 16
+        count = 60
+        sprite_width = 256
+        sprite_height = 256
+        file_name = ":resources:images/spritesheets/explosion.png"
+
+        # Load the explosions from a sprite sheet
+        self.explosion_texture_list = arcade.load_spritesheet(file_name, sprite_width, sprite_height, columns, count)
 
     def on_show(self):
         arcade.set_background_color(self.bg_color)
-
+        self.manager.enable()
         # self.chess_piece.position = SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2
 
-    def update(self, delta_time):
+    def on_hide_view(self):
+        # Disable the UIManager when the view is hidden.
+        self.manager.disable()
+
+
+
+    def on_update(self, delta_time):
+        self.explosions_list.update()
+
         if self.current_turn_start is not None:
             elapsed_time = datetime.now() - self.current_turn_start
             if self.current_turn == white_allegiance:
@@ -189,27 +282,102 @@ class Board(arcade.View):
                                 # self.castle_rook(cas_row, rook_col, new_rook_col)
                                 # self.castle_triggered = True
 
+        if game_manager.get_game_type() == "Replay":
+            game_manager.set_game_type("_")
+            self.__init__(self.versus)
+        elif game_manager.get_game_type() == "Main_Menu":
+            game_manager.set_game_type("_")
+            game_view = menu.MenuView(theme_manager.theme, sound_manager.get_volume())
+            self.window.show_view(game_view)
+
+
+
     def on_draw(self):
+        self.clear()
         arcade.start_render()
 
-        # Make even squares
-        square_width = (SCREEN_WIDTH - 200) // COLS
-        square_height = SCREEN_HEIGHT // ROWS
+        self.theme = theme_manager.theme
+        self.bg_color, self.black_capture_bg, self.white_capture_bg = theme_manager.get_background(self.theme)
+        self.light_square_color, self.dark_square_color = theme_manager.get_theme(self.theme)
 
         if self.theme == "midnight":
             background = arcade.load_texture("pieces_png/midnight1.jpg")
-            background.draw_sized(center_x=SCREEN_WIDTH/2, center_y=SCREEN_HEIGHT/2,
+            background.draw_sized(center_x=SCREEN_WIDTH / 2, center_y=SCREEN_HEIGHT / 2,
                                   width=SCREEN_WIDTH, height=SCREEN_HEIGHT)
-        """
+
         elif self.theme == "ocean":
             background = arcade.load_texture("pieces_png/ocean.jpg")
             background.draw_sized(center_x=SCREEN_WIDTH / 2, center_y=SCREEN_HEIGHT / 2,
                                   width=SCREEN_WIDTH, height=SCREEN_HEIGHT)
-        """
+        else:
+            arcade.set_background_color(self.bg_color)
+
+        # Make even squares
+        square_width = (BOARD_WIDTH - 200) // COLS
+        square_height = BOARD_HEIGHT // ROWS
+
+        arcade.draw_rectangle_outline(center_x=((4 * square_width) + (SCREEN_WIDTH / 3.25)),
+                                      center_y=(4 * square_height) + (SCREEN_HEIGHT // 6),
+                                      width=square_width * 8 + 10,
+                                      height=square_height * 8 + 10,
+                                      color=self.light_square_color,
+                                      border_width=2)
+
+        arcade.draw_rectangle_outline(center_x=((4 * square_width) + (SCREEN_WIDTH / 3.25)),
+                                      center_y=(4 * square_height) + (SCREEN_HEIGHT // 6),
+                                      width=square_width * 8 + 20,
+                                      height=square_height * 8 + 20,
+                                      color=self.light_square_color,
+                                      border_width=3)
+
+        # TODO Clean this up
+
+        #BLACK CAPTURE ZONE
+        arcade.draw_rectangle_outline(center_x=(2 * square_width) + (SCREEN_WIDTH / 12),
+                                      center_y=(4 * square_height) + (SCREEN_HEIGHT // 6),
+                                      width=square_width * 2 + 10,
+                                      height=square_height * 8 + 10,
+                                      color=self.light_square_color,
+                                      border_width=2)
+
+        arcade.draw_rectangle_outline(center_x=(2 * square_width) + (SCREEN_WIDTH / 12),
+                                      center_y=(4 * square_height) + (SCREEN_HEIGHT // 6),
+                                      width=square_width * 2 + 20,
+                                      height=square_height * 8 + 20,
+                                      color=self.light_square_color,
+                                      border_width=2)
+
+        arcade.draw_rectangle_filled(center_x=(2 * square_width) + (SCREEN_WIDTH / 12),
+                                     center_y=(4 * square_height) + (SCREEN_HEIGHT // 6),
+                                     width=square_width * 2,
+                                     height=square_height * 8,
+                                     color=self.black_capture_bg)
+
+        #WHITE CAPTURE ZONE
+        arcade.draw_rectangle_outline(center_x=SCREEN_WIDTH - ((2 * square_width) + (SCREEN_WIDTH / 12)),
+                                      center_y=(4 * square_height) + (SCREEN_HEIGHT // 6),
+                                      width=square_width * 2 + 10,
+                                      height=square_height * 8 + 10,
+                                      color=self.light_square_color,
+                                      border_width=2)
+
+        arcade.draw_rectangle_outline(center_x=SCREEN_WIDTH - ((2 * square_width) + (SCREEN_WIDTH / 12)),
+                                      center_y=(4 * square_height) + (SCREEN_HEIGHT // 6),
+                                      width=square_width * 2 + 20,
+                                      height=square_height * 8 + 20,
+                                      color=self.light_square_color,
+                                      border_width=2)
+
+        arcade.draw_rectangle_filled(center_x=SCREEN_WIDTH - ((2 * square_width) + (SCREEN_WIDTH / 12)),
+                                     center_y=(4 * square_height) + (SCREEN_HEIGHT // 6),
+                                     width=square_width * 2,
+                                     height=square_height * 8,
+                                     color=self.white_capture_bg)
+
         for row in range(ROWS):
             for col in range(COLS):
-                x = (col * square_width) + 100
-                y = row * square_height
+                x = (col * square_width) + (SCREEN_WIDTH / 3.25)
+                y = (row * square_height) + (SCREEN_HEIGHT // 6)
 
                 if (row, col) in self.capture_moves:
                     color = VALID_CAPTURE_COLOR
@@ -232,8 +400,8 @@ class Board(arcade.View):
                 if isinstance(piece, p.Piece):
                     piece.draw()
 
-        for row in range(4):
-            for col in range(4):
+        for row in range(8):
+            for col in range(2):
                 # Draw the piece if it exists at this position
                 white_piece = self.white_capture_board[row][col]
                 black_piece = self.black_capture_board[row][col]
@@ -244,31 +412,90 @@ class Board(arcade.View):
                     black_piece.draw()
 
         # Draw the timers for white and black players
-        self.draw_timer(WHITE_TIMER_POSITION, self.WHITE_TIME, "White's")
-        self.draw_timer(BLACK_TIMER_POSITION, self.BLACK_TIME, "Black's")
+        self.draw_timer(self.WHITE_TIME, "White")
+        self.draw_timer(self.BLACK_TIME, "Black")
 
-    def draw_timer(self, position, remaining_time, player):
-        title_text = f"{player} Timer:"
-        timer_text = f"{remaining_time.seconds // 60:02d}:{remaining_time.seconds % 60:02d}"
-        arcade.draw_text(title_text, position[0], position[1], arcade.color.BLACK, TIMER_FONT_SIZE, anchor_x="center")
-        arcade.draw_text(timer_text, position[0], position[1] - TIMER_FONT_SIZE * 2, arcade.color.BLACK, TIMER_FONT_SIZE, anchor_x="center")
+
+
+        self.manager.draw()
+
+        self.explosions_list.draw()
+
+    def draw_timer(self, remaining_time, player):
+
+        square_width = (BOARD_WIDTH - 200) // COLS
+        square_height = BOARD_HEIGHT // ROWS
+
+        # Whites time and Title
+        if player == "White":
+            arcade.draw_rectangle_outline(center_x=((4 * square_width) + (SCREEN_WIDTH / 3.25)),
+                                          center_y=(SCREEN_HEIGHT // 12),
+                                          width=square_width * 4 + 10,
+                                          height=square_height * 0.5 + 10,
+                                          color=self.light_square_color,
+                                          border_width=2)
+
+            arcade.draw_rectangle_outline(center_x=((4 * square_width) + (SCREEN_WIDTH / 3.25)),
+                                          center_y=(SCREEN_HEIGHT // 12),
+                                          width=square_width * 4 + 20,
+                                          height=square_height * 0.5 + 20,
+                                          color=self.light_square_color,
+                                          border_width=3)
+
+            arcade.draw_text(text=f"{remaining_time.seconds // 60:02d}:{remaining_time.seconds % 60:02d}",
+                             start_x=((4 * square_width) + (SCREEN_WIDTH / 3.25)),
+                             start_y=(SCREEN_HEIGHT // 14.5),
+                             color=self.light_square_color,
+                             font_size=25,
+                             font_name="Kenney Blocks",
+                             anchor_x="center"
+                             )
+        else:
+            # Blacks timer and Title
+            arcade.draw_rectangle_outline(center_x=((4 * square_width) + (SCREEN_WIDTH / 3.25)),
+                                          center_y=SCREEN_HEIGHT - (SCREEN_HEIGHT // 14),
+                                          width=square_width * 4 + 10,
+                                          height=square_height * 0.5 + 10,
+                                          color=self.light_square_color,
+                                          border_width=2)
+
+            arcade.draw_rectangle_outline(center_x=((4 * square_width) + (SCREEN_WIDTH / 3.25)),
+                                          center_y=SCREEN_HEIGHT - (SCREEN_HEIGHT // 14),
+                                          width=square_width * 4 + 20,
+                                          height=square_height * 0.5 + 20,
+                                          color=self.light_square_color,
+                                          border_width=3)
+
+            arcade.draw_text(text=f"{remaining_time.seconds // 60:02d}:{remaining_time.seconds % 60:02d}",
+                             start_x=((4 * square_width) + (SCREEN_WIDTH / 3.25)),
+                             start_y=SCREEN_HEIGHT - (SCREEN_HEIGHT / 11.5),
+                             color=self.light_square_color,
+                             font_size=25,
+                             font_name="Kenney Blocks",
+                             anchor_x="center"
+                             )
 
     def on_mouse_press(self, x, y, button, modifiers):
         global current_turn_start
+
+        if self.selected_piece is not None and self.selected_piece.is_moving:
+            # Piece is still moving, do not allow any interaction
+            return
 
         # Start the timer when a player makes a move
         self.current_turn_start = datetime.now()
 
         # Square boundaries
-        square_width = (SCREEN_WIDTH - 200) // COLS
-        square_height = SCREEN_HEIGHT // ROWS
+        square_width = (BOARD_WIDTH - 200) // COLS
+        square_height = BOARD_HEIGHT // ROWS
 
         # Map to corresponding column and row
-        col = (x - 100) // square_width
-        row = y // square_height
+        if x < (SCREEN_WIDTH / 3.25):
+            return
 
-        # Init sound
-        move_audio = arcade.load_sound(MOVE_SOUND, False)
+        col = int((x - (SCREEN_WIDTH / 3.25)) // square_width)
+        row = int((y - (SCREEN_HEIGHT // 6)) // square_height)
+
 
         # If a piece is selected
         if any(self.selected[r][c] for r in range(ROWS) for c in range(COLS)):
@@ -276,7 +503,7 @@ class Board(arcade.View):
             if (row, col) in self.valid_moves:
                 # Move the selected piece to the clicked spot
                 self.move_piece(row, col)
-                arcade.play_sound(move_audio, self.volume, -1, False)
+                sound_manager.play_move_sound()
 
             # If the clicked spot is a capture move
             elif (row, col) in self.capture_moves:
@@ -285,6 +512,25 @@ class Board(arcade.View):
                 self.captured_piece = self.board[row][col]
 
                 # Move the selected piece to the clicked spot
+                self.move_piece(row, col)
+
+                # Make an explosion
+                explosion = Explosion(self.explosion_texture_list)
+
+                x = (col * SQUARE_WIDTH) + (SCREEN_WIDTH / 3.25) + SQUARE_WIDTH // 2
+                y = (row * SQUARE_HEIGHT) + (SCREEN_HEIGHT // 6) + SQUARE_HEIGHT // 2
+
+                # Move it to the location of the coin
+                explosion.center_x = x
+                explosion.center_y = y
+
+                # Call update() because it sets which image we start on
+                explosion.update()
+
+                # Add to a list of sprites that are explosions
+                self.explosions_list.append(explosion)
+                # arcade.play_sound(audio, 1.0, -1, False)
+
                 self.move_piece(row, col)
 
             # If the clicked spot is another piece
@@ -377,7 +623,7 @@ class Board(arcade.View):
         # Bishops in Column 2, 4 Row 0
         allegiance = 'White'
 
-        # Bishops   
+        # Bishops
         bishop_1 = p.Bishop(allegiance, self.board, WHT_POS['bishop'][0])
         self.add_to_board(bishop_1, WHT_POS['bishop'][0])
 
@@ -393,7 +639,7 @@ class Board(arcade.View):
         king = p.King(allegiance, self.board, WHT_POS['king'])
         self.add_to_board(king, WHT_POS['king'])
 
-        #Rooks
+        # Rooks
         rook1 = p.Rook(allegiance, self.board, WHT_POS['rook'][0])
         self.add_to_board(rook1, WHT_POS['rook'][0])
 
@@ -447,8 +693,11 @@ class Board(arcade.View):
         piece = self.board[self.selected_row][self.selected_col]
         print(f"Piece before move {piece} and selected {self.selected_piece}")
 
-        # Get the piece object
-        piece.on_click(col * SQUARE_WIDTH - 37, row * SQUARE_HEIGHT - 35)
+        x = (col * SQUARE_WIDTH) + (SCREEN_WIDTH / 3.25)
+        y = (row * SQUARE_HEIGHT) + (SCREEN_HEIGHT // 6)
+
+        self.selected_piece.on_click(x, y)
+        print(self.selected_piece)
 
         # Deselect the piece and switch turn after animation is complete
         piece.move([row, col])
@@ -505,17 +754,15 @@ class Board(arcade.View):
         print("============= Whites Turn ===========")
         self.print_board()
 
-        # if piece.allegiance == 'White':
-        #     self.check_game_over('Black')
-        # else:
-        #     self.check_game_over('White')
-
-        #self.print_capture()
+        if piece.allegiance == 'White':
+            self.check_game_over('Black')
+        else:
+            self.check_game_over('White')
+        # self.print_capture()
         self.switch_turn()
 
     def promote_pawn_to_queen(self, row, col):
-        promote_audio = arcade.load_sound(PROMOTE_SOUND, False)
-        arcade.play_sound(promote_audio, self.volume, -1, False)
+        sound_manager.play_promote_sound()
 
         piece = p.Queen(self.selected_piece.allegiance, self.board, [row, col])
         self.board[row][col] = piece
@@ -556,7 +803,10 @@ class Board(arcade.View):
             print(f"Move {computer_piece} to {coords}")
 
             self.computer_piece = computer_piece
-            self.computer_piece.on_click(coords[1] * SQUARE_WIDTH - 37, coords[0] * SQUARE_HEIGHT - 35)
+            x = (coords[1] * SQUARE_WIDTH) + (SCREEN_WIDTH / 3.25)
+            y = (coords[0] * SQUARE_HEIGHT) + (SCREEN_HEIGHT // 6)
+
+            self.computer_piece.on_click(x, y)
 
             print("============= Blacks Turn ============")
             self.print_board()
@@ -570,26 +820,25 @@ class Board(arcade.View):
             self.switch_turn()
 
     def make_capture(self, piece):
-        allegiance = piece.allegiance
-        offset = CAPTURE_BOX // 2
+        # allegiance = piece.allegiance
+        offset = SQUARE_WIDTH
 
-        cap_audio = arcade.load_sound(CAPTURE_SOUND, False)
-        arcade.play_sound(cap_audio, self.volume, -1, False)
+        sound_manager.play_capture_sound()
 
-        for row in range(4):
-            for col in range(4):
+        for row in range(8):
+            for col in range(2):
                 if piece.allegiance == "White":
                     if self.white_capture_board[row][col] is None:
-                        x = col * CAPTURE_BOX + (SCREEN_WIDTH - 100)
-                        y = row * CAPTURE_BOX + (SCREEN_HEIGHT - 100)
+                        x = col * SQUARE_WIDTH + (SCREEN_WIDTH / 12) + offset
+                        y = row * SQUARE_HEIGHT + (SCREEN_HEIGHT // 6)
                         self.white_capture_board[row][col] = piece
                         piece.update_target(x, y)
                         self.captured_piece = piece
                         return
                 elif piece.allegiance == "Black":
                     if self.black_capture_board[row][col] is None:
-                        x = col * CAPTURE_BOX  # + (SCREEN_WIDTH - 100)
-                        y = row * CAPTURE_BOX  # + (SCREEN_HEIGHT - 100)
+                        x = SCREEN_WIDTH - (col * SQUARE_WIDTH + (SCREEN_WIDTH / 12) + (2 * offset))
+                        y = row * SQUARE_HEIGHT + (SCREEN_HEIGHT // 6)
                         self.black_capture_board[row][col] = piece
                         piece.update_target(x, y)
                         self.captured_piece = piece
@@ -630,26 +879,16 @@ class Board(arcade.View):
 
         # if there are no possible moves and the king is in check
         if all_moves == [] and king_in_check:
-            # end the game, other side wins
             if pieces[0].allegiance == 'White':
-                print('Black wins!')
+                win_menu = w.WinLoseMenu(theme_manager, "black", game_manager)
+                self.manager.add(win_menu)
             else:
-                print('White wins!')
-            # TODO: End the game
-            # I'm thinking this gives an end game screen that says who won (if anyone did)
-            # and a button to view the board or quit back to menu
-            # If the user views the board, they should still have a button to return to menu
-            exit()
-
-        # if there are no possible moves and the king is NOT in check
+                win_menu = w.WinLoseMenu(theme_manager, "white", game_manager)
+                self.manager.add(win_menu)
         elif all_moves == [] and not king_in_check:
-            # end the game, draw
-            print("It's a draw!")
-            # TODO: End the game
-            # I'm thinking this gives an end game screen that says who won (if anyone did)
-            # and a button to view the board or quit back to menu
-            # If the user views the board, they should still have a button to return to menu
-            #exit()
+            win_menu = w.WinLoseMenu(theme_manager, "draw", game_manager)
+            self.manager.add(win_menu)
+
 
 
 

@@ -6,12 +6,14 @@ import arcade
 import copy
 
 MOVE_SPEED = 5
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
+SCREEN_WIDTH, SCREEN_HEIGHT = arcade.get_display_size()
 CAPTURE_BOX = 100 // 4
 
-SQUARE_WIDTH = (SCREEN_WIDTH - 200) // 8
-SQUARE_HEIGHT = SCREEN_HEIGHT // 8
+BOARD_WIDTH = 800
+BOARD_HEIGHT = 600
+
+SQUARE_WIDTH = (BOARD_WIDTH - 200) // 8
+SQUARE_HEIGHT = BOARD_HEIGHT // 8
 
 """
 TODO: 
@@ -41,12 +43,15 @@ class Piece(arcade.AnimatedTimeBasedSprite):
         self.temp_current_row = current_pos[0]
         self.temp_current_col = current_pos[1]
 
+        self.is_moving = False
+
         self.position = (self.current_col, self.current_row)
         self.board[self.current_row][self.current_col] = self
-        self.x = self.current_col * SQUARE_WIDTH + 100
-        self.y = self.current_row * SQUARE_HEIGHT
-        self.target_x = self.current_col * SQUARE_WIDTH + 100
-        self.target_y = self.current_row * SQUARE_HEIGHT
+
+        self.x = self.current_col * SQUARE_WIDTH + (SCREEN_WIDTH / 3.25)
+        self.y = self.current_row * SQUARE_HEIGHT + (SCREEN_HEIGHT // 6)
+        self.target_x = self.current_col * SQUARE_WIDTH + (SCREEN_WIDTH / 3.25)
+        self.target_y = self.current_row * SQUARE_HEIGHT + (SCREEN_HEIGHT // 6)
         if self.allegiance == "White":
             self.rank = self.current_row + 1
             self.value = 1
@@ -58,16 +63,10 @@ class Piece(arcade.AnimatedTimeBasedSprite):
         self.captured = True
 
     def draw(self):
-        if not self.captured:
-            arcade.draw_texture_rectangle((self.x + SQUARE_WIDTH // 2),
-                                          self.y + SQUARE_HEIGHT // 2,
-                                          SQUARE_WIDTH, SQUARE_HEIGHT,
-                                          self.texture)
-        else:
-            arcade.draw_texture_rectangle(self.x + CAPTURE_BOX // 2,
-                                          self.y + CAPTURE_BOX // 2,
-                                          CAPTURE_BOX, CAPTURE_BOX,
-                                          self.texture)
+        arcade.draw_texture_rectangle((self.x + SQUARE_WIDTH // 2),
+                                      self.y + SQUARE_HEIGHT // 2,
+                                      SQUARE_WIDTH, SQUARE_HEIGHT,
+                                      self.texture)
 
     def get_value(self):
         return self.value
@@ -223,8 +222,9 @@ class Piece(arcade.AnimatedTimeBasedSprite):
 
     def on_click(self, x, y):
         if not self.captured:
-            self.target_x = x + (SQUARE_WIDTH // 2) + 100
-            self.target_y = y + SQUARE_HEIGHT // 2
+            self.target_x = x
+            self.target_y = y
+            self.is_moving = True
         else:
             self.target_x = x + (CAPTURE_BOX // 2) + 100
             self.target_y = y + CAPTURE_BOX // 2
@@ -246,6 +246,9 @@ class Piece(arcade.AnimatedTimeBasedSprite):
 
             self.x += dx
             self.y += dy
+
+        if self.target_x == self.x and self.target_y == self.y:
+            self.is_moving = False
 
     def update_target(self, target_x, target_y):
         self.capture()

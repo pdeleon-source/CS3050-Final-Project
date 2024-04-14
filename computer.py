@@ -4,12 +4,20 @@
 
 import random
 from pieces import Piece
-import pieces as p
-import numpy as np
-from copy import copy
 
-SQUARE_WIDTH = 400 // 8
-SQUARE_HEIGHT = 400 // 8
+from copy import copy
+import arcade
+
+SCREEN_WIDTH, SCREEN_HEIGHT = arcade.get_display_size()
+
+BOARD_WIDTH = 800
+BOARD_HEIGHT = 600
+
+SQUARE_WIDTH = (BOARD_WIDTH - 200) // 8
+SQUARE_HEIGHT = BOARD_HEIGHT // 8
+
+# SQUARE_WIDTH = 400 // 8
+# SQUARE_HEIGHT = 400 // 8
 
 
 # this will be a class that can move pieces legally around the chess board
