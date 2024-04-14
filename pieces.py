@@ -1,10 +1,11 @@
-# for rooks in each turn, one value in the coordinate cannot change
-# for bishops, both values must change
-from typing import Tuple
+"""
+    This program implements the functionality for all the pieces in the game. It has a Piece superclass
+    and subclasses to represent the Pawn, Rook, Bishop, Knight, Queen, and King.
 
+"""
 import arcade
-import copy
 
+# Define constants
 MOVE_SPEED = 5
 SCREEN_WIDTH, SCREEN_HEIGHT = arcade.get_display_size()
 CAPTURE_BOX = 100 // 4
@@ -15,23 +16,12 @@ BOARD_HEIGHT = 600
 SQUARE_WIDTH = (BOARD_WIDTH - 200) // 8
 SQUARE_HEIGHT = BOARD_HEIGHT // 8
 
-"""
-TODO: 
-dont allow pieces to put their own king in check
-force pieces to only have moves that stop their king from being in check
-pawn promotion (reaches last row opposing)
-check if in check -- this is done in board now, with check_game_over()
-check if checkmate -- see above
-stalemate (tie, show message) and resign (quit game) -- stalemate is determined in check_game_over()
-pinning solution: we really should create a new board state/object to 'test' a move in order to
-                  determine if a move will put the king in check due to a pin
-                  
-                  
-TODO: castling!
-"""
-
 
 class Piece(arcade.AnimatedTimeBasedSprite):
+    """
+        Piece acts as a superclass which holds functions used by all the Piece subclasses
+        to move pieces, print to board, etc.
+    """
     def __init__(self, allegiance, board, current_pos):
         super().__init__()
         self.captured = False
@@ -71,54 +61,36 @@ class Piece(arcade.AnimatedTimeBasedSprite):
     def get_value(self):
         return self.value
 
-    def move(self, new_pos) -> bool:
+    def move(self, new_pos):
+        """
+            The move function takes in the row and the column that the piece will move to
+            and updates its current position on the board accordingly.
+            :param new_pos: # A list containing the row and column, respectfully
+        """
         new_row = new_pos[0]
         new_col = new_pos[1]
 
-        destination = self.board[new_row][new_col]
-        if destination is not None and destination.allegiance != self.allegiance:
-            print(f"Captured {destination} at position ({new_row}, {new_col})")
-        elif destination is not None:
-            print(f"Cannot capture {destination}!")
-            return False
-
-        # All conditions passed so move Bishop piece
-        print(f"Moved {self} to position ({new_row}, {new_col})")
-
-        """
-        ---KEEP FOR TESTING PURPOSES---
-        
-
-        if isinstance(self, Pawn):
-            cap = self.en_passant([new_row, new_col])
-            if cap is not None:
-                self.board[cap[0]][cap[1]] = None
-
-
-        self.board[self.current_row][self.current_col] = None
-        self.board[new_row][new_col] = self
-        """
-
+        # Get rank based on allegiance
         if self.allegiance == "White":
             self.rank = new_row + 1
         else:
             self.rank = abs(8 - new_row)
 
-        print(f"{self} Rank = {self.rank}")
-        # Update variables
+        # Update variables based on move
         self.moves += 1
-        print(f"{self} Moves = {self.moves}")
         self.current_row = new_row
         self.current_col = new_col
         self.temp_current_col = new_col
         self.temp_current_row = new_row
 
-        return True
-
-    # Used to test move a piece
-    # WILL NOT actually move the piece on the board
-    # Used to check if a piece moving will put/keep its king in check
     def test_player_move(self, new_pos, board) -> bool:
+        """
+            The test_player_move function checks if a given move will put or keep
+            its king in check. Does not actually make a move, but tests possible moves.
+            :param new_pos:
+            :param board:
+            :return bool:
+        """
         og_row = self.current_row
         og_col = self.current_col
         new_row = new_pos[0]
@@ -126,51 +98,49 @@ class Piece(arcade.AnimatedTimeBasedSprite):
 
         destination = board[new_row][new_col]
 
+        # If capture
         if destination is not None and destination.allegiance != self.allegiance:
-            # is capture
             pass
+        # If its own piece
         elif destination is not None and destination.allegiance == self.allegiance:
-            # is own piece
             return False
 
+        # Record and attempt move
         self.temp_current_row = new_row
         self.temp_current_col = new_col
 
         board[new_row][new_col] = self
         board[og_row][og_col] = None
-        # for row in reversed(self.board):
-        #     printable_row = [0 if square is None else square for square in row]
-        #     print(printable_row)
-        # board.print_board()
 
-        placehold = 1
-
-        # find the king:
+        # Find the king on the board
         for row in range(8):
             for col in range(8):
                 square = board[row][col]
                 if isinstance(square, King):
                     if square.allegiance == self.allegiance:
-                        # If the king is in check still, return false
+                        # If the king is still in check, return false
                         king_in_check = square.under_attack(row, col)
                         if not king_in_check:
-                            # print("king no check")
                             board[og_row][og_col] = self
                             board[new_row][new_col] = destination
                             return True
                         else:
-                            # print("king check")
                             board[og_row][og_col] = self
                             board[new_row][new_col] = destination
                             return False
 
     def template_move(self, new_pos, board):
+        """
+            The template_move function makes a temporary move for testing purposes.
+            Allows us to check if a given move is valid by returning the resulting board
+            after making a temporary move.
+            :param new_pos:
+            :param board:
+            :return board:
+        """
+
         new_row = new_pos[0]
         new_col = new_pos[1]
-
-        destination = board[new_row][new_col]
-
-        # All conditions passed so move Bishop piece
 
         if self.allegiance == "White":
             self.rank = new_row + 1
@@ -185,7 +155,7 @@ class Piece(arcade.AnimatedTimeBasedSprite):
 
     def under_attack(self, row, col) -> bool:
         """
-        Checks if the given move will put the king under attack
+        Checks if the given move will put the king under attack / in check
         :param row:
         :param col:
         :return:
@@ -213,10 +183,7 @@ class Piece(arcade.AnimatedTimeBasedSprite):
                                 pass
                             else:
                                 attacked.append((final_row, final_col))
-                        # print(curr_square.allegiance + " KING ATTACKING SQUARES: ")
-                        # print(attacked)
                         if (row, col) in attacked:
-                            # If not, it gets added to the kings available moves
                             return True
         return False
 
@@ -228,10 +195,6 @@ class Piece(arcade.AnimatedTimeBasedSprite):
         else:
             self.target_x = x + (CAPTURE_BOX // 2) + 100
             self.target_y = y + CAPTURE_BOX // 2
-
-    def animate_promote(self, row, col):
-        queen = Queen(self.allegiance, self.board, [row, col])
-        self.board[row][col] = queen
 
     def update(self):
         # Move the dot towards the target position
@@ -264,15 +227,16 @@ class Piece(arcade.AnimatedTimeBasedSprite):
         :param position:
         :return row, col:
         """
-
         if not isinstance(self, Pawn):
             return None
 
+        # Change direction of move based on allegiance
         if self.allegiance == "White":
             direction = 1
         else:
             direction = -1
 
+        # Check if pawn is currently making an en passant move
         row, col = position[0] - direction, position[1]
         piece = self.board[row][col]
         if isinstance(self, Pawn) and self.rank >= 3:
@@ -284,22 +248,24 @@ class Piece(arcade.AnimatedTimeBasedSprite):
 
     def castle(self):
         """
-            Does the castle. Checks if the king or rook on either side has made any moves, then checks if
-            there are any pieces in the first rank between the king and the rook, then returns whether or
-            not it is possible
-        :return:
+            Checks if castle move is possible for current piece. If so, it returns all
+            valid castle moves to be added to the King's available moves. Otherwise, it
+            returns None.
         """
 
+        # If castle not possible
         if not isinstance(self, King) or self.moves != 0 or self.current_col - 4 < 0 or self.current_col + 3 >= 8:
-            # print(f"Self: {self} left rook: {self.current_col - 4} right rook: {self.current_col + 3}")
             return None
 
+        # List to record valid castle moves
         castle_moves = []
+
         # Get corner squares adjacent to King
         left = self.board[self.current_row][self.current_col - 4]
         right = self.board[self.current_row][self.current_col + 3]
 
-        row = self.current_row
+        row = self.current_row  # Row remains unchanged
+        # Possible columns the king could move to
         left_none = self.current_col - 2
         left_rook = self.current_col - 4
         right_none = self.current_col + 2
@@ -328,7 +294,6 @@ class Piece(arcade.AnimatedTimeBasedSprite):
         else:
             return castle_moves
 
-
     def promotable(self) -> bool:
         """
         Returns true if the current piece is a promotable pawn
@@ -340,8 +305,15 @@ class Piece(arcade.AnimatedTimeBasedSprite):
             return False
 
     def check_castle(self, row, col):
+        """
+            Checks if the given move is a castle move. Returns the row, the column of the nearest
+            rook, and the column the rook will move to. Returns None if not castle move.
+            :param row:
+            :param col:
+            :return row, rook_col, new_rook_col:
+        """
+        # Return None if castle not possible
         if not isinstance(self, King) or self.moves != 0 or abs(self.current_col - col) < 2:
-            # print(f"Self: {self} left rook: {self.current_col - 4} right rook: {self.current_col + 3}")
             return None
 
         destination = self.board[row][col]
@@ -364,9 +336,14 @@ class Piece(arcade.AnimatedTimeBasedSprite):
         return None
 
 
-
 class Pawn(Piece):
     def __init__(self, allegiance, board, current_pos):
+        """
+            Extended Constructor for Pawn Piece, adds the texture based on the allegiance of the piece
+            :param allegiance: String
+            :param board: Board
+            :param current_pos: [Int, Int]
+        """
         super().__init__(allegiance, board, current_pos)
         if self.allegiance == 'Black':
             self.texture = arcade.load_texture("pieces_png/black-pawn.png")
@@ -386,6 +363,12 @@ class Pawn(Piece):
         ]
 
     def available_moves(self, testing_move):
+        """
+            Records valid moves available for the pawn. Pawns can move one or two squares
+            forward on their first move and one square forward otherwise. Pawns capture enemy
+            pieces diagonally. Pawns may also make en passant moves.
+            :param testing_move:
+        """
         moves = []
         caps = []
         attacking = []
@@ -403,7 +386,7 @@ class Pawn(Piece):
             pawn_regular_moves = [(-1, 0)]
             pawn_captures = [(-1, -1), (-1, 1)]
 
-        # If first move
+        # If pawn's first move
         if self.moves == 0:
             # Attempt first moves
             for pawn_row, pawn_col in pawn_first_moves:
@@ -420,6 +403,7 @@ class Pawn(Piece):
                     if not testing_move:
                         if self.test_player_move((row, col), self.board):
                             moves.append((row, col))
+
             # Attempt captures
             for cap_row, cap_col in pawn_captures:
                 row, col = self.current_row + cap_row, self.current_col + cap_col
@@ -464,8 +448,8 @@ class Pawn(Piece):
                             if self.test_player_move((row, col), self.board):
                                 caps.append((row, col))
 
-            """En Passant"""
-            # Determine direction
+            """ En Passant """
+            # Determine direction based on allegiance
             if self.allegiance == "White":
                 direction = 1
             else:
@@ -509,9 +493,12 @@ class Pawn(Piece):
 
 
 class Knight(Piece):
+    """
+        Implements Knight-specific functions.
+    """
     def __init__(self, allegiance, board, current_pos):
         """
-        Extended Constructor for Bishop Piece, adds the texture based on the allegiance of the piece
+        Extended Constructor for Knight Piece, adds the texture based on the allegiance of the piece
         :param allegiance: String
         :param board: Board
         :param current_pos: [Int, Int]
@@ -534,38 +521,33 @@ class Knight(Piece):
             [-5, -4, -3, -3, -3, -3, -4, -5]
         ]
 
-
-    # this way we can track which squares/pieces are under attack and we know
-    # if a king can move to a square
     def available_moves(self, testing_move):
+        """
+            Records valid moves available for the knight.
+            :param testing_move:
+        """
         movements = []
         captures = []
         attacking = []
-        # print(f"{self.current_row} {self.current_col}")
-        # Bishop moves diagonally, so we check all four diagonal directions
+
+        # Knight moves in L shapes
         for L_row, L_col in [(2, -1), (2, 1), (-2, -1), (-2, 1), (1, 2), (-1, 2), (-1, -2), (1, -2)]:
             row, col = self.current_row + L_row, self.current_col + L_col
             if 0 <= row < 8 and 0 <= col < 8:
-                # print(f"{row} {col}")
                 attacking.append((row, col))
                 if self.board[row][col] is not None:
                     if self.board[row][col].allegiance == self.allegiance:
                         pass
-                        # print(":D")
                     else:
                         # Can capture piece but cannot move past it so exit loop
                         if not testing_move:
                             if self.test_player_move((row, col), self.board):
                                 captures.append((row, col))
-                        # print(":D")
                 else:
                     if not testing_move:
                         if self.test_player_move((row, col), self.board):
                             movements.append((row, col))
 
-                # row += diagonal_row
-                # col += diagonal_col
-        # print(f"Moves: {movements + captures}")
         return movements, captures, attacking
 
     def __repr__(self):
@@ -576,6 +558,12 @@ class Knight(Piece):
 
 class Rook(Piece):
     def __init__(self, allegiance, board, current_pos):
+        """
+            Extended Constructor for Rook Piece, adds the texture based on the allegiance of the piece
+            :param allegiance: String
+            :param board: Board
+            :param current_pos: [Int, Int]
+        """
         super().__init__(allegiance, board, current_pos)
         if self.allegiance == 'Black':
             self.texture = arcade.load_texture("pieces_png/black-rook.png")
@@ -593,11 +581,12 @@ class Rook(Piece):
             [-.5, 0, 0, 0, 0, 0, 0, -.5],
             [0, 0, 0, .5, .5, 0, 0, 0]
         ]
-        # TODO: We need to implement an 'attacking_squares' return for each piece
 
-    # this way we can track which squares/pieces are under attack and we know
-    # if a king can move to a square
     def available_moves(self, testing_move):
+        """
+            Records valid moves available for the rook.
+            :param testing_move:
+        """
         moves = []
         caps = []
         attacking = []
@@ -606,11 +595,6 @@ class Rook(Piece):
         for horiz_row, horiz_col in [(1, 0), (-1, 0)]:
             row, col = self.current_row + horiz_row, self.current_col + horiz_col
             while 0 <= row < 8 and 0 <= col < 8:
-                # TODO: Currently, attacking stops updating after it hits a piece
-                #       This is an issue if say a rook is covering a row and an
-                #       opposing King moves down that row; the square over isn't
-                #       being read as attacked
-                # TEMP FIX: Add the next square as being attacked in that row/column
                 attacking.append((row, col))
                 if self.board[row][col] is not None:
                     if self.board[row][col].allegiance == self.allegiance:
@@ -631,8 +615,8 @@ class Rook(Piece):
 
                 row += horiz_row
                 col += horiz_col
-        # an or statement here?
-        # vertical vals
+
+        # Vertical values
         for vert_row, vert_col in [(0, 1), (0, -1)]:
             row, col = self.current_row + vert_row, self.current_col + vert_col
             while 0 <= row < 8 and 0 <= col < 8:
@@ -691,9 +675,6 @@ class Bishop(Piece):
             [-2, -1, -1, -1, -1, -1, -1, -2]
         ]
 
-
-    # this way we can track which squares/pieces are under attack and we know
-    # if a king can move to a square
     def available_moves(self, testing_move):
         """
         Determines the Bishop's valid moves based on its current index
@@ -708,11 +689,6 @@ class Bishop(Piece):
         for diagonal_row, diagonal_col in [(-1, -1), (-1, 1), (1, -1), (1, 1)]:
             row, col = self.current_row + diagonal_row, self.current_col + diagonal_col
             while 0 <= row < 8 and 0 <= col < 8:
-                # TODO: Currently, attacking stops updating after it hits a piece
-                #       This is an issue if say a rook is covering a row and an
-                #       opposing King moves down that row; the square over isn't
-                #       being read as attacked
-                # TEMP FIX: Add the next square as being attacked in that diagonal
                 attacking.append((row, col))
                 if self.board[row][col] is not None:
                     if self.board[row][col].allegiance == self.allegiance:
@@ -769,10 +745,11 @@ class Queen(Piece):
             [-2, -1, -1, -.5, -.5, -1, -1, -2]
         ]
 
-
-    # this way we can track which squares/pieces are under attack and we know
-    # if a king can move to a square
     def available_moves(self, testing_move):
+        """
+            Records valid moves available for the queen.
+            :param testing_move:
+        """
         movements = []
         captures = []
         attacking = []
@@ -784,11 +761,6 @@ class Queen(Piece):
             counter += 1
             row, col = self.current_row + diagonal_row, self.current_col + diagonal_col
             while 0 <= row < 8 and 0 <= col < 8:
-                # TODO: Currently, attacking stops updating after it hits a piece
-                #       This is an issue if say a rook is covering a row and an
-                #       opposing King moves down that row; the square over isn't
-                #       being read as attacked
-                # TEMP FIX: Add the next square as being attacked in that row/column
                 attacking.append((row, col))
                 if self.board[row][col] is not None:
                     if self.board[row][col].allegiance == self.allegiance:
@@ -884,25 +856,3 @@ class King(Piece):
         if self.allegiance == 'Black':
             return '♚'
         return '♔'
-
-
-if __name__ == "__main__":
-    chess_board = [[None for _ in range(8)] for _ in range(8)]
-
-    # bish = Bishop("Black", chess_board, 0, 0)
-    # bish = Bishop("White", chess_board, [3, 3])
-    ###kween = Queen("White", chess_board, [3, 3])
-    # king = King("White", chess_board, 2, 2)
-    white_king = King("White", chess_board, [0, 4])
-    black_king = King("Black", chess_board, [7, 4])
-    white_rook_left = Rook("White", chess_board, [0, 0])
-    white_rook_right = Rook("White", chess_board, [0, 7])
-    black_rook_left = Rook("Black", chess_board, [7, 0])
-    black_rook_right = Rook("Black", chess_board, [7, 7])
-
-    for row in range(7, -1, -1):
-        print(chess_board[row])
-
-    print(white_king.available_moves(False))
-    print(black_king.available_moves(False))
-
