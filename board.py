@@ -708,30 +708,30 @@ class Board(arcade.View):
         piece.move([row, col])
 
         """Check if castle move"""
-        # castle = self.selected_piece.castle()
-        # if castle is not None:
-        #     print(f"Piece during move {self.selected_piece}")
-        #
-        #     for cas_row, cas_col, rook_col, new_rook_col in castle:
-        #         if cas_row == row and cas_col == col:
-        #             print("CASTLE HAPPENING....")
-        #             # Move the King
-        #             # self.selected_piece.on_click(col * SQUARE_WIDTH - 37, row * SQUARE_HEIGHT - 35)
-        #             # self.selected_piece.move([row, col])
-        #             print(f"Piece during move {self.selected_piece}")
-        #             # self.board[self.selected_row][self.selected_col] = None
-        #             # self.board[row][col] = piece
-        #
-        #             print("CASTLE MOVE")
-        #             self.deselect_all()
-        #             self.selected_piece = self.board[cas_row][rook_col]
-        #             self.selected_piece.on_click(new_rook_col * SQUARE_WIDTH - 37, cas_row * SQUARE_HEIGHT - 35)
-        #             self.selected_piece.move([cas_row, new_rook_col])
-        #             print(f"Piece during rook move {self.selected_piece}")
-        #             self.board[cas_row][rook_col] = None
-        #             self.board[cas_row][new_rook_col] = self.selected_piece
-        #
-        #             break
+        castle = self.selected_piece.castle()
+        if castle is not None:
+            print(f"Piece during move {self.selected_piece}")
+
+            for cas_row, cas_col, rook_col, new_rook_col in castle:
+                if cas_row == row and cas_col == col:
+                    print("CASTLE HAPPENING....")
+                    # Move the King
+                    # self.selected_piece.on_click(col * SQUARE_WIDTH - 37, row * SQUARE_HEIGHT - 35)
+                    # self.selected_piece.move([row, col])
+                    print(f"Piece during move {self.selected_piece}")
+                    # self.board[self.selected_row][self.selected_col] = None
+                    # self.board[row][col] = piece
+
+                    print("CASTLE MOVE")
+                    self.deselect_all()
+                    self.selected_piece = self.board[cas_row][rook_col]
+                    self.selected_piece.on_click(new_rook_col * SQUARE_WIDTH - 37, cas_row * SQUARE_HEIGHT - 35)
+                    self.selected_piece.move([cas_row, new_rook_col])
+                    print(f"Piece during rook move {self.selected_piece}")
+                    self.board[cas_row][rook_col] = None
+                    self.board[cas_row][new_rook_col] = self.selected_piece
+
+                    break
 
         """ Check if move is en passant """
         cap = self.selected_piece.en_passant([row, col])
