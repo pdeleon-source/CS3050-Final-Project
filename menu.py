@@ -141,7 +141,7 @@ class MenuView(arcade.View):
         def on_click_switch_button(event):
             sound_manager.play_button_sound()
             time.sleep(.15)
-            sys.exit()
+            arcade.exit()
 
         @settings_button.event("on_click")
         def on_click_switch_button(event):
@@ -376,15 +376,3 @@ class GameView(arcade.View):
     def on_hide_view(self):
         # Disable the UIManager when the view is hidden.
         self.manager.disable()
-
-def main():
-    screen_width, screen_height = arcade.get_display_size()
-
-    window = arcade.Window(screen_width, screen_height, "Chess")
-    menu_view = MenuView("default", 1.0)
-    window.show_view(menu_view)
-    arcade.run()
-
-
-if __name__ == "__main__":
-    main()
