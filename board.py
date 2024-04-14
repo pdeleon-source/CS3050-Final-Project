@@ -10,6 +10,8 @@ import computer
 
 import numpy as np
 
+import time
+
 import copy
 
 from datetime import datetime, timedelta
@@ -534,7 +536,7 @@ class Board(arcade.View):
                 # self.explosions_list.append(explosion)
                 # # arcade.play_sound(audio, 1.0, -1, False)
 
-                self.move_piece(row, col)
+                # self.move_piece(row, col)
 
             # If the clicked spot is another piece
             elif isinstance(self.board[row][col], p.Piece):
@@ -801,9 +803,12 @@ class Board(arcade.View):
         # Handle computer input for black's turn
         if self.current_turn == black_allegiance:
 
-            computer_piece, coords = self.computer.make_best_move(2)
+            computer_piece, coords, computer_cap, capped_piece = self.computer.make_best_move(2)
 
             print(f"Move {computer_piece} to {coords}")
+
+            if computer_cap:
+                self.make_capture(capped_piece)
 
             self.computer_piece = computer_piece
             x = (coords[1] * SQUARE_WIDTH) + (SCREEN_WIDTH / 3.25)
