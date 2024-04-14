@@ -328,31 +328,6 @@ class Piece(arcade.AnimatedTimeBasedSprite):
         else:
             return castle_moves
 
-    """
-        if isinstance(self, King) and self.current_row == row:
-            # If king is moving two or more squares
-            if abs(self.current_col - col) >= 2:
-                return True
-
-        return False
-
-        def king_side(self, col):
-            if isinstance(self, King) and self.moves == 0:
-                # Then check to see if the rook is there
-                if isinstance(self, Rook) and self.moves == 0:
-                    # if there are no pieces between the king and the rook
-                    if self.board[0][col + 1] is None and self.board[0][col + 2] is None:
-                        return True
-
-        def queen_side(self, col):
-            if isinstance(self, King) and self.moves == 0:
-                # Then check to see if the rook is there
-                if isinstance(self, Rook) and self.moves == 0:
-                    # if there are no pieces between the king and the rook
-                    if self.board[0][col - 1] is None and self.board[0][col - 2] is None and self.board[0][col - 3] is None:
-                        return True
-                    
-    """
 
     def promotable(self) -> bool:
         """
@@ -363,6 +338,31 @@ class Piece(arcade.AnimatedTimeBasedSprite):
             return True
         else:
             return False
+
+    def check_castle(self, row, col):
+        if not isinstance(self, King) or self.moves != 0 or abs(self.current_col - col) < 2:
+            # print(f"Self: {self} left rook: {self.current_col - 4} right rook: {self.current_col + 3}")
+            return None
+
+        destination = self.board[row][col]
+        # If player chooses rook spot
+        if isinstance(destination, Rook):
+            # Return rook future position
+            # If left rook
+            if col == 0:
+                return row, col, col + 1
+            # If right rook
+            else:
+                return row, col, col - 1
+        # If player chooses empty spot
+        elif destination is None:
+            if col == 6:
+                return row, 7, col - 1  # Rook at position 7
+            elif col == 2 or col == 1:
+                return row, 0, col + 1  # Rook at position 0
+
+        return None
+
 
 
 class Pawn(Piece):

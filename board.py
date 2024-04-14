@@ -89,6 +89,8 @@ sound_manager = ManageSound(1)
 BULLET_SPEED = 5
 
 EXPLOSION_TEXTURE_COUNT = 60
+
+
 class Explosion(arcade.Sprite):
     """ This class creates an explosion animation """
 
@@ -229,7 +231,6 @@ class Board(arcade.View):
         self.manager.disable()
 
 
-
     def on_update(self, delta_time):
         self.explosions_list.update()
 
@@ -268,20 +269,21 @@ class Board(arcade.View):
                         self.promote_pawn_to_queen(self.computer_piece.current_row, self.computer_piece.current_col)
                         self.promotion_triggered = True
 
-                """ Check if castle move """
+                """ Check if castle move
                 if not self.castle_triggered:
-                    castle = self.selected_piece.castle()
+                    castle = self.selected_piece.check_castle(self.selected_row, self.selected_col)
 
                     if castle is not None:
-                        print("CASTLE1")
-                        print(f"curr: {self.selected_piece.current_row} col: {self.selected_piece.current_col}")
-                        print(f"selected: {self.selected_row} col: {self.selected_col}")
-                        for cas_row, cas_col, rook_col, new_rook_col in castle:
-                            if cas_row == self.selected_row and cas_col == self.selected_col:
-                                print("CASTLE...")
-                                # TODO: Play sound
-                                # self.castle_rook(cas_row, rook_col, new_rook_col)
-                                # self.castle_triggered = True
+                        #print("CASTLE1")
+                        #print(f"curr: {self.selected_piece.current_row} col: {self.selected_piece.current_col}")
+                        #print(f"selected: {self.selected_row} col: {self.selected_col}")
+                        for cas_row, rook_col, cas_col in castle:
+                            #print("CASTLE...")
+                            # TODO: Play sound
+                            self.castle_rook(cas_row, rook_col, cas_col)
+                            self.castle_triggered = True
+                            break
+            """
 
         if game_manager.get_game_type() == "Replay":
             game_manager.set_game_type("_")
@@ -290,7 +292,6 @@ class Board(arcade.View):
             game_manager.set_game_type("_")
             game_view = menu.MenuView(theme_manager.theme, sound_manager.get_volume())
             self.window.show_view(game_view)
-
 
 
     def on_draw(self):
@@ -499,7 +500,6 @@ class Board(arcade.View):
         col = int((x - (SCREEN_WIDTH / 3.25)) // square_width)
         row = int((y - (SCREEN_HEIGHT // 6)) // square_height)
 
-
         # If a piece is selected
         if any(self.selected[r][c] for r in range(ROWS) for c in range(COLS)):
             # If the clicked spot is a valid move
@@ -585,57 +585,57 @@ class Board(arcade.View):
 
     def make_black_set(self):
         allegiance = 'Black'
-
-        # Bishops in Column 2, 4 Row 0
-        bishop_1 = p.Bishop(allegiance, self.board, BLK_POS['bishop'][0])
-        self.add_to_board(bishop_1, BLK_POS['bishop'][0])
-
-        bishop_2 = p.Bishop(allegiance, self.board, BLK_POS['bishop'][1])
-        self.add_to_board(bishop_2, BLK_POS['bishop'][1])
-
-        # # Queen
-        queen = p.Queen(allegiance, self.board, BLK_POS['queen'])
-        self.add_to_board(queen, BLK_POS['queen'])
-
-
-        # # King
-        king = p.King(allegiance, self.board, BLK_POS['king'])
-        self.add_to_board(king, BLK_POS['king'])
-
-        # Rooks
-        rook1 = p.Rook(allegiance, self.board, BLK_POS['rook'][0])
-        self.add_to_board(rook1, BLK_POS['rook'][0])
-
-        rook2 = p.Rook(allegiance, self.board, BLK_POS['rook'][1])
-        self.add_to_board(rook2, BLK_POS['rook'][1])
-
-        # # Knight
-        knight1 = p.Knight(allegiance, self.board, BLK_POS['knight'][0])
-        self.add_to_board(knight1, BLK_POS['knight'][0])
-
-        knight2 = p.Knight(allegiance, self.board, BLK_POS['knight'][1])
-        self.add_to_board(knight2, BLK_POS['knight'][1])
-
-        # Pawn
-        for col in range(COLS):
-            pawn = p.Pawn(allegiance, self.board, [6, col])
-            self.add_to_board(pawn, [6, col])
+        #
+        # # Bishops in Column 2, 4 Row 0
+        # bishop_1 = p.Bishop(allegiance, self.board, BLK_POS['bishop'][0])
+        # self.add_to_board(bishop_1, BLK_POS['bishop'][0])
+        #
+        # bishop_2 = p.Bishop(allegiance, self.board, BLK_POS['bishop'][1])
+        # self.add_to_board(bishop_2, BLK_POS['bishop'][1])
+        #
+        # # # Queen
+        # queen = p.Queen(allegiance, self.board, BLK_POS['queen'])
+        # self.add_to_board(queen, BLK_POS['queen'])
+        #
+        #
+        # # # King
+        # king = p.King(allegiance, self.board, BLK_POS['king'])
+        # self.add_to_board(king, BLK_POS['king'])
+        #
+        # # Rooks
+        # rook1 = p.Rook(allegiance, self.board, BLK_POS['rook'][0])
+        # self.add_to_board(rook1, BLK_POS['rook'][0])
+        #
+        # rook2 = p.Rook(allegiance, self.board, BLK_POS['rook'][1])
+        # self.add_to_board(rook2, BLK_POS['rook'][1])
+        #
+        # # # Knight
+        # knight1 = p.Knight(allegiance, self.board, BLK_POS['knight'][0])
+        # self.add_to_board(knight1, BLK_POS['knight'][0])
+        #
+        # knight2 = p.Knight(allegiance, self.board, BLK_POS['knight'][1])
+        # self.add_to_board(knight2, BLK_POS['knight'][1])
+        #
+        # # Pawn
+        # for col in range(COLS):
+        #     pawn = p.Pawn(allegiance, self.board, [6, col])
+        #     self.add_to_board(pawn, [6, col])
 
 
     def make_white_set(self):
         # Bishops in Column 2, 4 Row 0
         allegiance = 'White'
 
-        # Bishops
-        bishop_1 = p.Bishop(allegiance, self.board, WHT_POS['bishop'][0])
-        self.add_to_board(bishop_1, WHT_POS['bishop'][0])
-
-        bishop_2 = p.Bishop(allegiance, self.board, WHT_POS['bishop'][1])
-        self.add_to_board(bishop_2, WHT_POS['bishop'][1])
-
-        # # Queen
-        queen = p.Queen(allegiance, self.board, WHT_POS['queen'])
-        self.add_to_board(queen, WHT_POS['queen'])
+        # # Bishops
+        # bishop_1 = p.Bishop(allegiance, self.board, WHT_POS['bishop'][0])
+        # self.add_to_board(bishop_1, WHT_POS['bishop'][0])
+        #
+        # bishop_2 = p.Bishop(allegiance, self.board, WHT_POS['bishop'][1])
+        # self.add_to_board(bishop_2, WHT_POS['bishop'][1])
+        #
+        # # # Queen
+        # queen = p.Queen(allegiance, self.board, WHT_POS['queen'])
+        # self.add_to_board(queen, WHT_POS['queen'])
 
 
         # King
@@ -649,22 +649,22 @@ class Board(arcade.View):
         rook2 = p.Rook(allegiance, self.board, WHT_POS['rook'][1])
         self.add_to_board(rook2, WHT_POS['rook'][1])
 
-        # #Knight
-
-        knight1 = p.Knight(allegiance, self.board, WHT_POS['knight'][0])
-        self.add_to_board(knight1, WHT_POS['knight'][0])
-
-        knight2 = p.Knight(allegiance, self.board, WHT_POS['knight'][1])
-        self.add_to_board(knight2, WHT_POS['knight'][1])
-
-        # demoPawn = p.Pawn(allegiance, self.board, [0, 0])
-        # demoPawn.capture()
-        # self.white_capture_board[0][0] = demoPawn
-
-        # Pawn
-        for col in range(COLS):
-            pawn = p.Pawn(allegiance, self.board, [1, col])
-            self.add_to_board(pawn, [1, col])
+        # # #Knight
+        #
+        # knight1 = p.Knight(allegiance, self.board, WHT_POS['knight'][0])
+        # self.add_to_board(knight1, WHT_POS['knight'][0])
+        #
+        # knight2 = p.Knight(allegiance, self.board, WHT_POS['knight'][1])
+        # self.add_to_board(knight2, WHT_POS['knight'][1])
+        #
+        # # demoPawn = p.Pawn(allegiance, self.board, [0, 0])
+        # # demoPawn.capture()
+        # # self.white_capture_board[0][0] = demoPawn
+        #
+        # # Pawn
+        # for col in range(COLS):
+        #     pawn = p.Pawn(allegiance, self.board, [1, col])
+        #     self.add_to_board(pawn, [1, col])
 
         # pawn = p.Pawn(allegiance, self.board, [5, 5])
         # self.add_to_board(pawn, [5, 5])
@@ -699,69 +699,84 @@ class Board(arcade.View):
         x = (col * SQUARE_WIDTH) + (SCREEN_WIDTH / 3.25)
         y = (row * SQUARE_HEIGHT) + (SCREEN_HEIGHT // 6)
 
-        self.selected_piece.on_click(x, y)
-        print(self.selected_piece)
-
-        # Deselect the piece and switch turn after animation is complete
-        piece.move([row, col])
+        # self.selected_piece.on_click(x, y)
+        # print(self.selected_piece)
+        #
+        # # Deselect the piece and switch turn after animation is complete
+        # piece.move([row, col])
 
         """Check if castle move"""
-        # castle = self.selected_piece.castle()
-        # if castle is not None:
-        #     print(f"Piece during move {self.selected_piece}")
-        #
-        #     for cas_row, cas_col, rook_col, new_rook_col in castle:
-        #         if cas_row == row and cas_col == col:
-        #             print("CASTLE HAPPENING....")
-        #             # Move the King
-        #             # self.selected_piece.on_click(col * SQUARE_WIDTH - 37, row * SQUARE_HEIGHT - 35)
-        #             # self.selected_piece.move([row, col])
-        #             print(f"Piece during move {self.selected_piece}")
-        #             # self.board[self.selected_row][self.selected_col] = None
-        #             # self.board[row][col] = piece
-        #
-        #             print("CASTLE MOVE")
-        #             self.deselect_all()
-        #             self.selected_piece = self.board[cas_row][rook_col]
-        #             self.selected_piece.on_click(new_rook_col * SQUARE_WIDTH - 37, cas_row * SQUARE_HEIGHT - 35)
-        #             self.selected_piece.move([cas_row, new_rook_col])
-        #             print(f"Piece during rook move {self.selected_piece}")
-        #             self.board[cas_row][rook_col] = None
-        #             self.board[cas_row][new_rook_col] = self.selected_piece
-        #
-        #             break
+        castle = self.selected_piece.check_castle(row, col)
+        if castle is not None:
+            # print(f"Piece during move {self.selected_piece}")
+            cas_row, rook_col, new_rook_col = castle
+            self.selected_piece = self.board[cas_row][rook_col]
+            print(f"row: {cas_row} col: {rook_col}")
+            self.selected_piece.on_click(x, y)
+            self.selected_piece.move([cas_row, new_rook_col])
+            print(f"new row: {cas_row} new col: {new_rook_col}")
+            print(f"Piece during rook move {self.selected_piece}")
+            self.board[cas_row][rook_col] = None
+            self.board[cas_row][new_rook_col] = self.selected_piece
 
-        """ Check if move is en passant """
-        cap = self.selected_piece.en_passant([row, col])
-        if cap is not None:
-            # self.captures.append(self.board[cap[0]][cap[1]])
-            # self.imprison_piece(self.board[cap[0]][cap[1]])
-            self.make_capture(self.board[cap[0]][cap[1]])
-            self.captured_piece = self.board[row][col]
-            self.board[cap[0]][cap[1]] = None
+            print("CASTLE HAPPENING....")
+            piece.on_click(x, y)
+            print(self.selected_piece)
 
-        # Update board position
-        self.board[self.selected_row][self.selected_col] = None
-        self.board[row][col] = piece
+            # Deselect the piece and switch turn after animation is complete
+            piece.move([row, col])
+            self.board[self.selected_row][self.selected_col] = None
+            self.board[row][col] = piece
 
-        # Wait for the animation to finish
-        # time.sleep(1)  # Adjust the delay as needed
+            # Move the King
+            # self.selected_piece.on_click(x, y)
+            # self.selected_piece.move([row, col])
+            # print(f"Piece during move {self.selected_piece}")
+            # self.board[self.selected_row][self.selected_col] = None
+            # self.board[row][col] = piece
 
-        """ Change to queen if pawn promotable """
-        # TODO: Save me
-        # if self.selected_piece.promotable():
-        #     self.promote_pawn_to_queen(row, col)
+            # print("CASTLE MOVE")
+            # self.deselect_all()
+
+
+        else:
+            self.selected_piece.on_click(x, y)
+            print(self.selected_piece)
+
+            # Deselect the piece and switch turn after animation is complete
+            piece.move([row, col])
+
+            """ Check if move is en passant """
+            cap = self.selected_piece.en_passant([row, col])
+            if cap is not None:
+                # self.captures.append(self.board[cap[0]][cap[1]])
+                # self.imprison_piece(self.board[cap[0]][cap[1]])
+                self.make_capture(self.board[cap[0]][cap[1]])
+                self.captured_piece = self.board[row][col]
+                self.board[cap[0]][cap[1]] = None
+
+            # Update board position
+            self.board[self.selected_row][self.selected_col] = None
+            self.board[row][col] = piece
+
+            # Wait for the animation to finish
+            # time.sleep(1)  # Adjust the delay as needed
+
+            """ Change to queen if pawn promotable """
+            # TODO: Save me
+            # if self.selected_piece.promotable():
+            #     self.promote_pawn_to_queen(row, col)
 
         self.deselect_all()
 
         print("============= Whites Turn ===========")
         self.print_board()
 
-        if piece.allegiance == 'White':
-            self.check_game_over('Black')
-        else:
-            self.check_game_over('White')
-        # self.print_capture()
+        # if piece.allegiance == 'White':
+        #     self.check_game_over('Black')
+        # else:
+        #     self.check_game_over('White')
+        # # self.print_capture()
         self.switch_turn()
 
     def promote_pawn_to_queen(self, row, col):
@@ -892,8 +907,3 @@ class Board(arcade.View):
             win_menu = w.WinLoseMenu(theme_manager, "draw", game_manager)
             self.manager.add(win_menu)
 
-
-
-
-        # print("PIECES")
-        # print(pieces)

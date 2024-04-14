@@ -7,6 +7,7 @@ from pieces import Piece
 
 from copy import copy
 import arcade
+from sound_manager import ManageSound
 
 SCREEN_WIDTH, SCREEN_HEIGHT = arcade.get_display_size()
 
@@ -28,6 +29,7 @@ class Computer:
 
         self.allegiance = allegiance
         self.demo_board = copy(board)
+        self.sound_manager = ManageSound(1)
         # self.make_demo_board()
 
     # computer player will select a piece; returns a piece object
@@ -103,6 +105,7 @@ class Computer:
 
         # Move piece to square
         valid_move = piece.move(move_coords)
+        # self.sound_manager.play_move_sound()
 
         # Update the piece's position in the board_array
         if valid_move:
