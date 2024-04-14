@@ -717,6 +717,7 @@ class Bishop(Piece):
                 if self.board[row][col] is not None:
                     if self.board[row][col].allegiance == self.allegiance:
                         attacking.append((row + diagonal_row, col + diagonal_col))
+                        break
                     else:
                         # Can capture piece but cannot move past it so exit loop
                         if not testing_move:

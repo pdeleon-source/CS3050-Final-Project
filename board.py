@@ -191,6 +191,7 @@ class Board(arcade.View):
             self.manager.add(
                 settings_menu
             )
+
         @tutorial_button.event("on_click")
         def on_click_switch_button(event):
             sound_manager.play_button_sound()
@@ -301,16 +302,18 @@ class Board(arcade.View):
         self.light_square_color, self.dark_square_color = theme_manager.get_theme(self.theme)
 
         if self.theme == "midnight":
-            background = arcade.load_texture("pieces_png/midnight1.jpg")
+            background = arcade.load_texture("pieces_png/midnight.jpg")
             background.draw_sized(center_x=SCREEN_WIDTH / 2, center_y=SCREEN_HEIGHT / 2,
-                                  width=SCREEN_WIDTH, height=SCREEN_HEIGHT)
-
-        elif self.theme == "ocean":
-            background = arcade.load_texture("pieces_png/ocean.jpg")
-            background.draw_sized(center_x=SCREEN_WIDTH / 2, center_y=SCREEN_HEIGHT / 2,
-                                  width=SCREEN_WIDTH, height=SCREEN_HEIGHT)
+                                   width=SCREEN_WIDTH, height=SCREEN_HEIGHT)
         else:
             arcade.set_background_color(self.bg_color)
+        #
+        # elif self.theme == "ocean":
+        #     background = arcade.load_texture("pieces_png/ocean.jpg")
+        #     background.draw_sized(center_x=SCREEN_WIDTH / 2, center_y=SCREEN_HEIGHT / 2,
+        #                           width=SCREEN_WIDTH, height=SCREEN_HEIGHT)
+        # else:
+
 
         # Make even squares
         square_width = (BOARD_WIDTH - 200) // COLS
@@ -514,22 +517,22 @@ class Board(arcade.View):
                 # Move the selected piece to the clicked spot
                 self.move_piece(row, col)
 
-                # Make an explosion
-                explosion = Explosion(self.explosion_texture_list)
-
-                x = (col * SQUARE_WIDTH) + (SCREEN_WIDTH / 3.25) + SQUARE_WIDTH // 2
-                y = (row * SQUARE_HEIGHT) + (SCREEN_HEIGHT // 6) + SQUARE_HEIGHT // 2
-
-                # Move it to the location of the coin
-                explosion.center_x = x
-                explosion.center_y = y
-
-                # Call update() because it sets which image we start on
-                explosion.update()
-
-                # Add to a list of sprites that are explosions
-                self.explosions_list.append(explosion)
-                # arcade.play_sound(audio, 1.0, -1, False)
+                # # Make an explosion
+                # explosion = Explosion(self.explosion_texture_list)
+                #
+                # x = (col * SQUARE_WIDTH) + (SCREEN_WIDTH / 3.25) + SQUARE_WIDTH // 2
+                # y = (row * SQUARE_HEIGHT) + (SCREEN_HEIGHT // 6) + SQUARE_HEIGHT // 2
+                #
+                # # Move it to the location of the coin
+                # explosion.center_x = x
+                # explosion.center_y = y
+                #
+                # # Call update() because it sets which image we start on
+                # explosion.update()
+                #
+                # # Add to a list of sprites that are explosions
+                # self.explosions_list.append(explosion)
+                # # arcade.play_sound(audio, 1.0, -1, False)
 
                 self.move_piece(row, col)
 

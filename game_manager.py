@@ -6,6 +6,7 @@ Parameters:
 - game_type (str): The initial game type, "_"
 """
 
+
 class ManageGame:
     _instance = None  # Private class variable to hold the singleton instance
 
