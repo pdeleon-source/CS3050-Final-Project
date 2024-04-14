@@ -18,8 +18,8 @@ class SettingsMenu(arcade.gui.UIMouseFilterMixin, arcade.gui.UIAnchorLayout):
 
         # Add a background to the window.
         frame.with_background(texture=arcade.load_texture("pieces_png/grey_panel.png"),
-                              end=(17, 17),
-                              start=(17, 17))
+                              end=(25, 25),
+                              start=(25, 25))
 
         # The type of event listener we used earlier for the button will not work here.
         back_button = arcade.gui.UIFlatButton(text="Back", width=250)

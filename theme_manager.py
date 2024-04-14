@@ -40,5 +40,17 @@ class ManageTheme:
         else:  # Default colors
             return arcade.color.ALMOND, arcade.color.SADDLE_BROWN
 
+    def get_background(self, theme):
+        # TODO: Pass in theme manager object instead?
+        """Set colors based on theme"""
+        if theme == "midnight":
+            return arcade.color.MIDNIGHT_BLUE, (0, 0, 139, 75), (0, 0, 255, 75)
+        elif theme == "pink":
+            return arcade.color.DUST_STORM, (222, 111, 161, 75), (238, 187, 204, 75)
+        elif theme == "ocean":
+            return arcade.color.OCEAN_BOAT_BLUE, (0, 0, 255, 75), (173, 216, 230, 75)
+        else:  # Default colors
+            return arcade.color.BRUNSWICK_GREEN, (139, 69, 19, 75), (234, 222, 203, 75)
+
 # Usage:
 theme_manager = ManageTheme("default")

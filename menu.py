@@ -105,12 +105,6 @@ default_style = {
 def set_volume(self, lvl):
     self.volume = lvl
 
-
-"""
-    TODO: Pass in theme manager object instead?
-"""
-
-
 def play_button_sound():
     audio = arcade.load_sound(BUTTON_SOUND, False)
     arcade.play_sound(audio, VOLUME, -1, False)
@@ -124,7 +118,6 @@ class MenuView(arcade.View):
         self.logo = arcade.load_texture("pieces_png/chess_logo.png")
         self.settings_png = arcade.load_texture("pieces_png/settings_cog.png")
         self.tutorial_png = arcade.load_texture("pieces_png/Black_question_mark.png")
-        self.result = ""
 
         play_button = arcade.gui.UIFlatButton(x=CENTER_WIDTH - 100,
                                               y=CENTER_HEIGHT - 70,
@@ -156,7 +149,7 @@ class MenuView(arcade.View):
         @play_button.event("on_click")
         def on_click_switch_button(event):
             play_button_sound()
-            game_view = GameView(theme_manager.theme)
+            game_view = GameView(theme_manager)
             self.window.show_view(game_view)
 
         @quit_button.event("on_click")
@@ -240,26 +233,42 @@ class GameView(arcade.View):
         super().__init__()
 
         self.manager = arcade.gui.UIManager()
+        self.logo = arcade.load_texture("pieces_png/game_banner.png")
+        self.settings_png = arcade.load_texture("pieces_png/settings_cog.png")
+        self.tutorial_png = arcade.load_texture("pieces_png/Black_question_mark.png")
 
-        self.logo = arcade.load_texture("pieces_png/game_mode.png")
-
-        player_button = arcade.gui.UIFlatButton(x=CENTER_WIDTH - 250,
-                                                y=CENTER_HEIGHT - 60 - 40,
+        player_button = arcade.gui.UIFlatButton(x=CENTER_WIDTH - 125,
+                                                y=CENTER_HEIGHT,
                                                 width=250,
                                                 height=60,
-                                                text="Player vs Player")
+                                                text="Player vs Player",
+                                                style=default_style)
 
-        computer_button = arcade.gui.UIFlatButton(x=CENTER_WIDTH - 250,
-                                                  y=CENTER_HEIGHT - 110 - 40,
+        computer_button = arcade.gui.UIFlatButton(x=CENTER_WIDTH - 125,
+                                                  y=CENTER_HEIGHT - 70,
                                                   width=250,
                                                   height=60,
-                                                  text="Player vs Computer")
+                                                  text="Player vs Computer",
+                                                  style=default_style)
 
-        return_button = arcade.gui.UIFlatButton(x=CENTER_WIDTH - 250,
-                                                y=CENTER_HEIGHT - 180 - 40,
+        return_button = arcade.gui.UIFlatButton(x=CENTER_WIDTH - 125,
+                                                y=CENTER_HEIGHT - 140,
                                                 width=250,
                                                 height=60,
-                                                text="Return to Main Menu")
+                                                text="Return to Main Menu",
+                                                style=default_style)
+
+        settings_button = arcade.gui.UITextureButton(x=SCREEN_WIDTH - (SQUARE_WIDTH // 2) - 30,
+                                                     y=(SCREEN_HEIGHT - SQUARE_HEIGHT // 2) - 60,
+                                                     width=60,
+                                                     height=60,
+                                                     texture=self.settings_png)
+
+        tutorial_button = arcade.gui.UITextureButton(x=(SCREEN_WIDTH - (SQUARE_WIDTH // 2) * 3) - 30,
+                                                     y=(SCREEN_HEIGHT - SQUARE_HEIGHT // 2) - 60,
+                                                     width=60,
+                                                     height=60,
+                                                     texture=self.tutorial_png)
 
         @player_button.event("on_click")
         def on_click_switch_button(event):
@@ -275,6 +284,31 @@ class GameView(arcade.View):
         def on_click_switch_button(event):
             game_view = MenuView(theme_manager.theme)
             self.window.show_view(game_view)
+
+        @settings_button.event("on_click")
+        def on_click_switch_button(event):
+            play_button_sound()
+            settings_menu = s.SettingsMenu(
+                "Settings",
+                "Volume",
+                theme_manager
+            )
+            self.manager.add(
+                settings_menu
+            )
+
+        @tutorial_button.event("on_click")
+        def on_click_switch_button(event):
+            play_button_sound()
+            tutorial_menu = t.SubMenu(
+                "Tutorial Menu"
+            )
+            self.manager.add(
+                tutorial_menu
+            )
+
+        self.manager.add(tutorial_button)
+        self.manager.add(settings_button)
 
         self.manager.add(player_button)
         self.manager.add(computer_button)
@@ -302,7 +336,9 @@ class GameView(arcade.View):
         r = SCREEN_HEIGHT // SQUARE_WIDTH
         c = SCREEN_WIDTH // SQUARE_HEIGHT
 
-        light_square_color, dark_square_color = theme_manager.get_colors()
+        theme = theme_manager.theme
+        bg_color, black_capture_bg, white_capture_bg = theme_manager.get_background(theme)
+        light_square_color, dark_square_color = theme_manager.get_theme(theme)
 
         for row in range(r + 1):
             for col in range(c + 1):
@@ -317,6 +353,27 @@ class GameView(arcade.View):
                 arcade.draw_rectangle_filled(x + SQUARE_WIDTH // 2, y + SQUARE_HEIGHT // 2, SQUARE_WIDTH, SQUARE_HEIGHT,
                                              color)
 
+        arcade.draw_rectangle_outline(center_x= CENTER_WIDTH,
+                                      center_y=CENTER_HEIGHT - 40,
+                                      width=295,
+                                      height=260,
+                                      color=arcade.color.WHITE,
+                                      border_width=4)
+
+        arcade.draw_rectangle_outline(center_x=CENTER_WIDTH,
+                                      center_y=CENTER_HEIGHT - 40,
+                                      width=275,
+                                      height=240,
+                                      color=bg_color,
+                                      border_width=3)
+
+        arcade.draw_rectangle_filled(center_x=CENTER_WIDTH,
+                                     center_y=CENTER_HEIGHT - 40,
+                                     width=270,
+                                     height=230,
+                                     color=black_capture_bg)
+
+        self.logo.draw_sized(center_x=CENTER_WIDTH, center_y=CENTER_HEIGHT + 100, width=700, height=580)
         self.manager.draw()
 
     def on_hide_view(self):

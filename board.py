@@ -167,7 +167,8 @@ class Board(arcade.View):
         self.make_black_set()
         self.make_white_set()
         self.theme = theme_manager.theme
-        self.create_background()
+        self.bg_color, self.black_capture_bg, self.white_capture_bg = theme_manager.get_background(self.theme)
+        arcade.set_background_color(self.bg_color)
 
         self.settings_png = arcade.load_texture("pieces_png/settings_cog.png")
         self.tutorial_png = arcade.load_texture("pieces_png/Black_question_mark.png")
@@ -228,26 +229,7 @@ class Board(arcade.View):
         # Disable the UIManager when the view is hidden.
         self.manager.disable()
 
-    def create_background(self):
-        # TODO: Pass in theme manager object instead?
-        """Set colors based on theme"""
-        if self.theme == "midnight":
-            self.bg_color = arcade.color.MIDNIGHT_BLUE
-            self.black_capture_bg = (0, 0, 139, 75)
-            self.white_capture_bg = (0, 0, 255, 75)
-        elif self.theme == "pink":
-            self.bg_color = arcade.color.DUST_STORM
-            self.black_capture_bg = (222, 111, 161, 75)
-            self.white_capture_bg = (238, 187, 204, 75)
-        elif self.theme == "ocean":
-            self.bg_color = arcade.color.OCEAN_BOAT_BLUE
-            self.black_capture_bg = (0, 0, 255, 75)
-            self.white_capture_bg = (173, 216, 230, 75)
-        else:  # Default colors
-            self.bg_color = arcade.color.BRUNSWICK_GREEN
-            self.black_capture_bg = (139, 69, 19, 75)
-            self.white_capture_bg = (234, 222, 203, 75)
-        arcade.set_background_color(self.bg_color)
+
 
     def on_update(self, delta_time):
         self.explosions_list.update()
@@ -292,7 +274,7 @@ class Board(arcade.View):
         arcade.start_render()
 
         self.theme = theme_manager.theme
-        self.create_background()
+        self.bg_color, self.black_capture_bg, self.white_capture_bg = theme_manager.get_background(self.theme)
         self.light_square_color, self.dark_square_color = theme_manager.get_theme(self.theme)
 
         # Make even squares
