@@ -40,6 +40,18 @@ class ManageTheme:
         else:  # Default colors
             return arcade.color.ALMOND, arcade.color.SADDLE_BROWN
 
+    """
+    if self.theme == "midnight":
+        background = arcade.load_texture("pieces_png/midnight1.jpg")
+        background.draw_sized(center_x=SCREEN_WIDTH/2, center_y=SCREEN_HEIGHT/2,
+                              width=SCREEN_WIDTH, height=SCREEN_HEIGHT)
+
+    elif self.theme == "ocean":
+        background = arcade.load_texture("pieces_png/ocean.jpg")
+        background.draw_sized(center_x=SCREEN_WIDTH / 2, center_y=SCREEN_HEIGHT / 2,
+                              width=SCREEN_WIDTH, height=SCREEN_HEIGHT)
+    """
+
     def get_background(self, theme):
         # TODO: Pass in theme manager object instead?
         """Set colors based on theme"""

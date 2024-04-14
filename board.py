@@ -4,8 +4,6 @@ import arcade
 
 import arcade.gui
 
-import menu
-
 import pieces as p
 
 import computer
@@ -111,7 +109,7 @@ class Explosion(arcade.Sprite):
 
 
 class Board(arcade.View):
-    def __init__(self, versus, theme, volume):
+    def __init__(self, versus, volume):
         super().__init__()
         self.versus = versus
         self.manager = arcade.gui.UIManager()
@@ -204,7 +202,6 @@ class Board(arcade.View):
         self.promotion_triggered = False
         self.castle_triggered = False
 
-        self.theme = theme
         self.volume = volume
 
     def setup_explosions(self):
@@ -283,10 +280,10 @@ class Board(arcade.View):
 
         if game_manager.get_game_type() == "Replay":
             game_manager.set_game_type("_")
-            self.__init__(self.versus)
+            self.__init__(self.versus, self.volume)
         elif game_manager.get_game_type() == "Main_Menu":
             game_manager.set_game_type("_")
-            game_view = menu.MenuView(theme_manager.theme)
+            game_view = menu.MenuView(theme_manager.theme, self.volume)
             self.window.show_view(game_view)
 
 
@@ -360,17 +357,6 @@ class Board(arcade.View):
                                      width=square_width * 2,
                                      height=square_height * 8,
                                      color=self.white_capture_bg)
-        """
-        if self.theme == "midnight":
-            background = arcade.load_texture("pieces_png/midnight1.jpg")
-            background.draw_sized(center_x=SCREEN_WIDTH/2, center_y=SCREEN_HEIGHT/2,
-                                  width=SCREEN_WIDTH, height=SCREEN_HEIGHT)
-        
-        elif self.theme == "ocean":
-            background = arcade.load_texture("pieces_png/ocean.jpg")
-            background.draw_sized(center_x=SCREEN_WIDTH / 2, center_y=SCREEN_HEIGHT / 2,
-                                  width=SCREEN_WIDTH, height=SCREEN_HEIGHT)
-        """
 
         for row in range(ROWS):
             for col in range(COLS):

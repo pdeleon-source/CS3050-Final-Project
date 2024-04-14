@@ -96,91 +96,12 @@ default_style = {
     )
 }
 
-
-class Button:
-    """
-        Creates an interactive button that the user can click
-    """
-    def __init__(self, x, y, width, height, volume):
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
-
-        self.hover_color = arcade.color.LIGHT_GRAY
-        self.clicked_color = arcade.color.GREEN
-        self.is_hovered = False
-        self.is_clicked = False
-
-        # Volume of sound
-        self.volume = volume
-
-
-    def draw(self, text, color):
-        """
-            Draws the button to the screen based on its current state
-            :param text:
-            :param color:
-        """
-        # Button will look different based on if it is clicked or hovered over
-        if self.is_clicked:
-            arcade.draw_rectangle_filled(self.x, self.y, self.width, self.height, self.clicked_color)
-        elif self.is_hovered:
-            arcade.draw_rectangle_filled(self.x, self.y, self.width, self.height, self.hover_color)
-        else:
-            arcade.draw_rectangle_filled(self.x, self.y, self.width + 5, self.height + 5, TEXT_COLOR)
-            arcade.draw_rectangle_filled(self.x, self.y, self.width, self.height, color)
-
-            # If the button is a theme button
-            if color == arcade.color.ALMOND:
-                self.draw_checkers(arcade.color.SADDLE_BROWN)
-            elif color == arcade.color.CAMEO_PINK:
-                self.draw_checkers(arcade.color.CHINA_PINK)
-            elif color == arcade.color.QUEEN_BLUE:
-                self.draw_checkers(arcade.color.DARK_MIDNIGHT_BLUE)
-            elif color == arcade.color.PALE_ROBIN_EGG_BLUE:
-                self.draw_checkers(arcade.color.DARK_CYAN)
-
-        # Write text to button
-        arcade.draw_text(text, self.x - len(text) * 5, self.y - self.height // 10, TEXT_COLOR, 16)
-
-    def on_mouse_motion(self, x, y, dx, dy):
-        # Detect user mouse movement
-        self.is_hovered = (self.x - self.width / 2 < x < self.x + self.width / 2 and
-                           self.y - self.height / 2 < y < self.y + self.height / 2)
-
-    def on_mouse_press(self, x, y, button, modifiers):
-        # Detect user clicks
-        if self.is_hovered:
-            # Play sound if button clicked
-            audio = arcade.load_sound(BUTTON_SOUND, False)
-            arcade.play_sound(audio, self.volume, -1, False)
-
-            self.is_clicked = True
-
-    def on_mouse_release(self, x, y, button, modifiers):
-        self.is_clicked = False
-
-    def draw_checkers(self, color):
-        """
-        This method is for theme buttons, which have a special design. Draws
-        a checkered pattern of a specified color on the button.
-        :param color:
-        """
-        arcade.draw_rectangle_filled(self.x + self.width // 4, self.y +
-                                     self.width // 4, self.width // 2,
-                                     self.height // 2, color)
-        arcade.draw_rectangle_filled(self.x - self.width // 4, self.y -
-                                     self.width // 4, self.width // 2,
-                                     self.height // 2, color)
-
 def set_volume(self, lvl):
     self.volume = lvl
 
 def play_button_sound():
     audio = arcade.load_sound(BUTTON_SOUND, False)
     arcade.play_sound(audio, VOLUME, -1, False)
-
 
 class MenuView(arcade.View):
     """
@@ -197,12 +118,6 @@ class MenuView(arcade.View):
         self.tutorial_png = arcade.load_texture("pieces_png/Black_question_mark.png")
 
         # Create button objects for each option
-        # self.play_button = Button(CENTER_WIDTH, CENTER_HEIGHT - 25, 200, 40, volume)  # Center - 40, Height was 60
-        # self.tutorial_button = Button(CENTER_WIDTH, CENTER_HEIGHT - 70, 200, 40, volume)  # Center - 110, Height was 60
-        # self.settings_button = Button(CENTER_WIDTH, CENTER_HEIGHT - 115, 200, 40, volume)
-        # self.quit_button = Button(CENTER_WIDTH, CENTER_HEIGHT - 160, 200, 40, volume)
-
-
         play_button = arcade.gui.UIFlatButton(x=CENTER_WIDTH - 100,
                                               y=CENTER_HEIGHT - 70,
                                               width=200,
@@ -363,17 +278,17 @@ class GameView(arcade.View):
 
         @player_button.event("on_click")
         def on_click_switch_button(event):
-            game_view = board.Board("player")
+            game_view = board.Board("player", VOLUME)
             self.window.show_view(game_view)
 
         @computer_button.event("on_click")
         def on_click_switch_button(event):
-            game_view = board.Board("computer")
+            game_view = board.Board("computer", VOLUME)
             self.window.show_view(game_view)
 
         @return_button.event("on_click")
         def on_click_switch_button(event):
-            game_view = MenuView(theme_manager.theme)
+            game_view = MenuView(theme_manager.theme, VOLUME)
             self.window.show_view(game_view)
 
         @settings_button.event("on_click")
