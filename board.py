@@ -630,16 +630,16 @@ class Board(arcade.View):
         # Bishops in Column 2, 4 Row 0
         allegiance = 'White'
 
-        # # Bishops
-        # bishop_1 = p.Bishop(allegiance, self.board, WHT_POS['bishop'][0])
-        # self.add_to_board(bishop_1, WHT_POS['bishop'][0])
-        #
-        # bishop_2 = p.Bishop(allegiance, self.board, WHT_POS['bishop'][1])
-        # self.add_to_board(bishop_2, WHT_POS['bishop'][1])
-        #
-        # # # Queen
-        # queen = p.Queen(allegiance, self.board, WHT_POS['queen'])
-        # self.add_to_board(queen, WHT_POS['queen'])
+        # Bishops
+        bishop_1 = p.Bishop(allegiance, self.board, WHT_POS['bishop'][0])
+        self.add_to_board(bishop_1, WHT_POS['bishop'][0])
+        
+        bishop_2 = p.Bishop(allegiance, self.board, WHT_POS['bishop'][1])
+        self.add_to_board(bishop_2, WHT_POS['bishop'][1])
+        
+        # # Queen
+        queen = p.Queen(allegiance, self.board, WHT_POS['queen'])
+        self.add_to_board(queen, WHT_POS['queen'])
 
 
         # King
@@ -653,22 +653,22 @@ class Board(arcade.View):
         rook2 = p.Rook(allegiance, self.board, WHT_POS['rook'][1])
         self.add_to_board(rook2, WHT_POS['rook'][1])
 
-        # # #Knight
-        #
-        # knight1 = p.Knight(allegiance, self.board, WHT_POS['knight'][0])
-        # self.add_to_board(knight1, WHT_POS['knight'][0])
-        #
-        # knight2 = p.Knight(allegiance, self.board, WHT_POS['knight'][1])
-        # self.add_to_board(knight2, WHT_POS['knight'][1])
-        #
-        # # demoPawn = p.Pawn(allegiance, self.board, [0, 0])
-        # # demoPawn.capture()
-        # # self.white_capture_board[0][0] = demoPawn
-        #
-        # # Pawn
-        # for col in range(COLS):
-        #     pawn = p.Pawn(allegiance, self.board, [1, col])
-        #     self.add_to_board(pawn, [1, col])
+        # #Knight
+        
+        knight1 = p.Knight(allegiance, self.board, WHT_POS['knight'][0])
+        self.add_to_board(knight1, WHT_POS['knight'][0])
+        
+        knight2 = p.Knight(allegiance, self.board, WHT_POS['knight'][1])
+        self.add_to_board(knight2, WHT_POS['knight'][1])
+        
+        # demoPawn = p.Pawn(allegiance, self.board, [0, 0])
+        # demoPawn.capture()
+        # self.white_capture_board[0][0] = demoPawn
+        
+        # Pawn
+        for col in range(COLS):
+            pawn = p.Pawn(allegiance, self.board, [1, col])
+            self.add_to_board(pawn, [1, col])
 
         # pawn = p.Pawn(allegiance, self.board, [5, 5])
         # self.add_to_board(pawn, [5, 5])
