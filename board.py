@@ -21,6 +21,7 @@ import setting as s
 
 from theme_manager import ManageTheme
 from game_manager import ManageGame
+from sound_manager import ManageSound
 
 import win_lose_menu as w
 
@@ -83,6 +84,7 @@ black_allegiance = "Black"
 
 theme_manager = ManageTheme("default")
 game_manager = ManageGame("_")
+sound_manager = ManageSound(1)
 
 BULLET_SPEED = 5
 
@@ -109,7 +111,7 @@ class Explosion(arcade.Sprite):
 
 
 class Board(arcade.View):
-    def __init__(self, versus, volume):
+    def __init__(self, versus):
         super().__init__()
         self.versus = versus
         self.manager = arcade.gui.UIManager()
@@ -156,6 +158,7 @@ class Board(arcade.View):
         self.make_white_set()
         self.theme = theme_manager.theme
         self.bg_color, self.black_capture_bg, self.white_capture_bg = theme_manager.get_background(self.theme)
+
         arcade.set_background_color(self.bg_color)
 
         self.settings_png = arcade.load_texture("pieces_png/settings_cog.png")
@@ -178,16 +181,19 @@ class Board(arcade.View):
         def on_click_switch_button(event):
             # game_view = SettingsView(self.theme_manager.theme)
             # self.window.show_view(game_view)
+            sound_manager.play_button_sound()
             settings_menu = s.SettingsMenu(
                 "Settings",
                 "Volume",
-                theme_manager
+                theme_manager,
+                sound_manager
             )
             self.manager.add(
                 settings_menu
             )
         @tutorial_button.event("on_click")
         def on_click_switch_button(event):
+            sound_manager.play_button_sound()
             tutorial_menu = t.SubMenu(
                 "Tutorial Menu"
             )
@@ -201,8 +207,6 @@ class Board(arcade.View):
         # Bools to avoid loops
         self.promotion_triggered = False
         self.castle_triggered = False
-
-        self.volume = volume
 
     def setup_explosions(self):
         columns = 16
@@ -280,10 +284,10 @@ class Board(arcade.View):
 
         if game_manager.get_game_type() == "Replay":
             game_manager.set_game_type("_")
-            self.__init__(self.versus, self.volume)
+            self.__init__(self.versus)
         elif game_manager.get_game_type() == "Main_Menu":
             game_manager.set_game_type("_")
-            game_view = menu.MenuView(theme_manager.theme, self.volume)
+            game_view = menu.MenuView(theme_manager.theme, sound_manager.get_volume())
             self.window.show_view(game_view)
 
 
@@ -295,6 +299,18 @@ class Board(arcade.View):
         self.theme = theme_manager.theme
         self.bg_color, self.black_capture_bg, self.white_capture_bg = theme_manager.get_background(self.theme)
         self.light_square_color, self.dark_square_color = theme_manager.get_theme(self.theme)
+
+        if self.theme == "midnight":
+            background = arcade.load_texture("pieces_png/midnight1.jpg")
+            background.draw_sized(center_x=SCREEN_WIDTH / 2, center_y=SCREEN_HEIGHT / 2,
+                                  width=SCREEN_WIDTH, height=SCREEN_HEIGHT)
+
+        elif self.theme == "ocean":
+            background = arcade.load_texture("pieces_png/ocean.jpg")
+            background.draw_sized(center_x=SCREEN_WIDTH / 2, center_y=SCREEN_HEIGHT / 2,
+                                  width=SCREEN_WIDTH, height=SCREEN_HEIGHT)
+        else:
+            arcade.set_background_color(self.bg_color)
 
         # Make even squares
         square_width = (BOARD_WIDTH - 200) // COLS
@@ -480,8 +496,6 @@ class Board(arcade.View):
         col = int((x - (SCREEN_WIDTH / 3.25)) // square_width)
         row = int((y - (SCREEN_HEIGHT // 6)) // square_height)
 
-        # Init sound
-        move_audio = arcade.load_sound(MOVE_SOUND, False)
 
         # If a piece is selected
         if any(self.selected[r][c] for r in range(ROWS) for c in range(COLS)):
@@ -489,7 +503,7 @@ class Board(arcade.View):
             if (row, col) in self.valid_moves:
                 # Move the selected piece to the clicked spot
                 self.move_piece(row, col)
-                arcade.play_sound(move_audio, self.volume, -1, False)
+                sound_manager.play_move_sound()
 
             # If the clicked spot is a capture move
             elif (row, col) in self.capture_moves:
@@ -748,8 +762,7 @@ class Board(arcade.View):
         self.switch_turn()
 
     def promote_pawn_to_queen(self, row, col):
-        promote_audio = arcade.load_sound(PROMOTE_SOUND, False)
-        arcade.play_sound(promote_audio, self.volume, -1, False)
+        sound_manager.play_promote_sound()
 
         piece = p.Queen(self.selected_piece.allegiance, self.board, [row, col])
         self.board[row][col] = piece
@@ -810,8 +823,7 @@ class Board(arcade.View):
         # allegiance = piece.allegiance
         offset = SQUARE_WIDTH
 
-        cap_audio = arcade.load_sound(CAPTURE_SOUND, False)
-        arcade.play_sound(cap_audio, self.volume, -1, False)
+        sound_manager.play_capture_sound()
 
         for row in range(8):
             for col in range(2):

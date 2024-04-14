@@ -1,6 +1,5 @@
 import arcade
 import arcade.gui
-from arcade.gui import UIManager
 
 SCREEN_WIDTH, SCREEN_HEIGHT = arcade.get_display_size()
 

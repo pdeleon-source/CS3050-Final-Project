@@ -13,6 +13,7 @@ import setting as s
 import arcade.gui
 from theme_manager import ManageTheme
 from game_manager import ManageGame
+from sound_manager import ManageSound
 
 import arcade.gui.widgets
 import arcade.gui.widgets
@@ -57,6 +58,7 @@ MENU_SOUND = "sounds/bob.wav"
 
 theme_manager = ManageTheme("default")
 game_manager = ManageGame("_")
+sound_manager = ManageSound(1)
 
 VOLUME = 1
 
@@ -96,12 +98,9 @@ default_style = {
     )
 }
 
-def set_volume(self, lvl):
-    self.volume = lvl
-
 def play_button_sound():
     audio = arcade.load_sound(BUTTON_SOUND, False)
-    arcade.play_sound(audio, VOLUME, -1, False)
+    arcade.play_sound(audio, sound_manager.get_volume(), -1, False)
 
 class MenuView(arcade.View):
     """
@@ -147,23 +146,24 @@ class MenuView(arcade.View):
         # Initialise the button with an on_click event.
         @play_button.event("on_click")
         def on_click_switch_button(event):
-            play_button_sound()
+            sound_manager.play_button_sound()
             game_view = GameView(theme_manager)
             self.window.show_view(game_view)
 
         @quit_button.event("on_click")
         def on_click_switch_button(event):
-            play_button_sound()
+            sound_manager.play_button_sound()
             time.sleep(.15)
             sys.exit()
 
         @settings_button.event("on_click")
         def on_click_switch_button(event):
-            play_button_sound()
+            sound_manager.play_button_sound()
             settings_menu = s.SettingsMenu(
                 "Settings",
                 "Volume",
-                theme_manager
+                theme_manager,
+                sound_manager
             )
             self.manager.add(
                 settings_menu
@@ -171,7 +171,7 @@ class MenuView(arcade.View):
 
         @tutorial_button.event("on_click")
         def on_click_switch_button(event):
-            play_button_sound()
+            sound_manager.play_button_sound()
             tutorial_menu = t.SubMenu(
                 "Tutorial Menu"
             )
@@ -278,26 +278,30 @@ class GameView(arcade.View):
 
         @player_button.event("on_click")
         def on_click_switch_button(event):
-            game_view = board.Board("player", VOLUME)
+            sound_manager.play_button_sound()
+            game_view = board.Board("player")
             self.window.show_view(game_view)
 
         @computer_button.event("on_click")
         def on_click_switch_button(event):
-            game_view = board.Board("computer", VOLUME)
+            sound_manager.play_button_sound()
+            game_view = board.Board("computer")
             self.window.show_view(game_view)
 
         @return_button.event("on_click")
         def on_click_switch_button(event):
+            sound_manager.play_button_sound()
             game_view = MenuView(theme_manager.theme, VOLUME)
             self.window.show_view(game_view)
 
         @settings_button.event("on_click")
         def on_click_switch_button(event):
-            play_button_sound()
+            sound_manager.play_button_sound()
             settings_menu = s.SettingsMenu(
                 "Settings",
                 "Volume",
-                theme_manager
+                theme_manager,
+                sound_manager
             )
             self.manager.add(
                 settings_menu
@@ -305,7 +309,7 @@ class GameView(arcade.View):
 
         @tutorial_button.event("on_click")
         def on_click_switch_button(event):
-            play_button_sound()
+            sound_manager.play_button_sound()
             tutorial_menu = t.SubMenu(
                 "Tutorial Menu"
             )

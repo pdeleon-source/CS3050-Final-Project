@@ -9,7 +9,7 @@ import time
 class SettingsMenu(arcade.gui.UIMouseFilterMixin, arcade.gui.UIAnchorLayout):
     """Acts like a fake view/window."""
 
-    def __init__(self, title: str, toggle_label: str, theme_manager):
+    def __init__(self, title: str, toggle_label: str, theme_manager, sound_manager):
         super().__init__(size_hint=(1, 1))
 
         # Setup frame which will act like the window.
@@ -86,6 +86,12 @@ class SettingsMenu(arcade.gui.UIMouseFilterMixin, arcade.gui.UIAnchorLayout):
         widget_layout.add(toggle_group)
         widget_layout.add(grid)
         frame.add(child=widget_layout, anchor_x="center_x", anchor_y="top")
+
+        @toggle.event("on_click")
+        def on_click_switch_button(event):
+            volume = sound_manager.get_volume()
+            volume_chart = [1, 0]
+            sound_manager.set_volume(volume_chart[volume])
 
         @default_button.event("on_click")
         def on_click_switch_button(event):
