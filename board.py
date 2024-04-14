@@ -594,57 +594,57 @@ class Board(arcade.View):
 
     def make_black_set(self):
         allegiance = 'Black'
-        #
-        # # Bishops in Column 2, 4 Row 0
-        # bishop_1 = p.Bishop(allegiance, self.board, BLK_POS['bishop'][0])
-        # self.add_to_board(bishop_1, BLK_POS['bishop'][0])
-        #
-        # bishop_2 = p.Bishop(allegiance, self.board, BLK_POS['bishop'][1])
-        # self.add_to_board(bishop_2, BLK_POS['bishop'][1])
-        #
-        # # # Queen
-        # queen = p.Queen(allegiance, self.board, BLK_POS['queen'])
-        # self.add_to_board(queen, BLK_POS['queen'])
-        #
-        #
-        # # # King
-        # king = p.King(allegiance, self.board, BLK_POS['king'])
-        # self.add_to_board(king, BLK_POS['king'])
-        #
-        # # Rooks
-        # rook1 = p.Rook(allegiance, self.board, BLK_POS['rook'][0])
-        # self.add_to_board(rook1, BLK_POS['rook'][0])
-        #
-        # rook2 = p.Rook(allegiance, self.board, BLK_POS['rook'][1])
-        # self.add_to_board(rook2, BLK_POS['rook'][1])
-        #
-        # # # Knight
-        # knight1 = p.Knight(allegiance, self.board, BLK_POS['knight'][0])
-        # self.add_to_board(knight1, BLK_POS['knight'][0])
-        #
-        # knight2 = p.Knight(allegiance, self.board, BLK_POS['knight'][1])
-        # self.add_to_board(knight2, BLK_POS['knight'][1])
-        #
-        # # Pawn
-        # for col in range(COLS):
-        #     pawn = p.Pawn(allegiance, self.board, [6, col])
-        #     self.add_to_board(pawn, [6, col])
+
+        # Bishops in Column 2, 4 Row 0
+        bishop_1 = p.Bishop(allegiance, self.board, BLK_POS['bishop'][0])
+        self.add_to_board(bishop_1, BLK_POS['bishop'][0])
+
+        bishop_2 = p.Bishop(allegiance, self.board, BLK_POS['bishop'][1])
+        self.add_to_board(bishop_2, BLK_POS['bishop'][1])
+
+        # # Queen
+        queen = p.Queen(allegiance, self.board, BLK_POS['queen'])
+        self.add_to_board(queen, BLK_POS['queen'])
+
+
+        # # King
+        king = p.King(allegiance, self.board, BLK_POS['king'])
+        self.add_to_board(king, BLK_POS['king'])
+
+        # Rooks
+        rook1 = p.Rook(allegiance, self.board, BLK_POS['rook'][0])
+        self.add_to_board(rook1, BLK_POS['rook'][0])
+
+        rook2 = p.Rook(allegiance, self.board, BLK_POS['rook'][1])
+        self.add_to_board(rook2, BLK_POS['rook'][1])
+
+        # Knight
+        knight1 = p.Knight(allegiance, self.board, BLK_POS['knight'][0])
+        self.add_to_board(knight1, BLK_POS['knight'][0])
+
+        knight2 = p.Knight(allegiance, self.board, BLK_POS['knight'][1])
+        self.add_to_board(knight2, BLK_POS['knight'][1])
+
+        # Pawn
+        for col in range(COLS):
+            pawn = p.Pawn(allegiance, self.board, [6, col])
+            self.add_to_board(pawn, [6, col])
 
 
     def make_white_set(self):
         # Bishops in Column 2, 4 Row 0
         allegiance = 'White'
 
-        # # Bishops
-        # bishop_1 = p.Bishop(allegiance, self.board, WHT_POS['bishop'][0])
-        # self.add_to_board(bishop_1, WHT_POS['bishop'][0])
-        #
-        # bishop_2 = p.Bishop(allegiance, self.board, WHT_POS['bishop'][1])
-        # self.add_to_board(bishop_2, WHT_POS['bishop'][1])
-        #
-        # # # Queen
-        # queen = p.Queen(allegiance, self.board, WHT_POS['queen'])
-        # self.add_to_board(queen, WHT_POS['queen'])
+        # Bishops
+        bishop_1 = p.Bishop(allegiance, self.board, WHT_POS['bishop'][0])
+        self.add_to_board(bishop_1, WHT_POS['bishop'][0])
+        
+        bishop_2 = p.Bishop(allegiance, self.board, WHT_POS['bishop'][1])
+        self.add_to_board(bishop_2, WHT_POS['bishop'][1])
+        
+        # # Queen
+        queen = p.Queen(allegiance, self.board, WHT_POS['queen'])
+        self.add_to_board(queen, WHT_POS['queen'])
 
 
         # King
@@ -658,22 +658,22 @@ class Board(arcade.View):
         rook2 = p.Rook(allegiance, self.board, WHT_POS['rook'][1])
         self.add_to_board(rook2, WHT_POS['rook'][1])
 
-        # # #Knight
-        #
-        # knight1 = p.Knight(allegiance, self.board, WHT_POS['knight'][0])
-        # self.add_to_board(knight1, WHT_POS['knight'][0])
-        #
-        # knight2 = p.Knight(allegiance, self.board, WHT_POS['knight'][1])
-        # self.add_to_board(knight2, WHT_POS['knight'][1])
-        #
-        # # demoPawn = p.Pawn(allegiance, self.board, [0, 0])
-        # # demoPawn.capture()
-        # # self.white_capture_board[0][0] = demoPawn
-        #
-        # # Pawn
-        # for col in range(COLS):
-        #     pawn = p.Pawn(allegiance, self.board, [1, col])
-        #     self.add_to_board(pawn, [1, col])
+        # #Knight
+        
+        knight1 = p.Knight(allegiance, self.board, WHT_POS['knight'][0])
+        self.add_to_board(knight1, WHT_POS['knight'][0])
+        
+        knight2 = p.Knight(allegiance, self.board, WHT_POS['knight'][1])
+        self.add_to_board(knight2, WHT_POS['knight'][1])
+        
+        # demoPawn = p.Pawn(allegiance, self.board, [0, 0])
+        # demoPawn.capture()
+        # self.white_capture_board[0][0] = demoPawn
+        
+        # Pawn
+        for col in range(COLS):
+            pawn = p.Pawn(allegiance, self.board, [1, col])
+            self.add_to_board(pawn, [1, col])
 
         # pawn = p.Pawn(allegiance, self.board, [5, 5])
         # self.add_to_board(pawn, [5, 5])
@@ -702,6 +702,7 @@ class Board(arcade.View):
         self.capture_moves = []
 
     def move_piece(self, row, col):
+        end_game = False
         piece = self.board[self.selected_row][self.selected_col]
         print(f"Piece before move {piece} and selected {self.selected_piece}")
 
@@ -781,12 +782,13 @@ class Board(arcade.View):
         print("============= Whites Turn ===========")
         self.print_board()
 
-        # if piece.allegiance == 'White':
-        #     self.check_game_over('Black')
-        # else:
-        #     self.check_game_over('White')
-        # # self.print_capture()
-        self.switch_turn()
+        if piece.allegiance == 'White':
+            end_game = self.check_game_over('Black')
+        else:
+            end_game = self.check_game_over('White')
+        # self.print_capture()
+        if not end_game:
+            self.switch_turn()
 
     def promote_pawn_to_queen(self, row, col):
         sound_manager.play_promote_sound()
@@ -821,6 +823,7 @@ class Board(arcade.View):
             self.handle_computer_turn()
 
     def handle_computer_turn(self):
+        end_game = False
 
         # Handle computer input for black's turn
         if self.current_turn == black_allegiance:
@@ -844,10 +847,11 @@ class Board(arcade.View):
             print("CAPTURES")
             self.print_capture()
             if computer_piece.allegiance == 'White':
-                self.check_game_over('Black')
+                end_game = self.check_game_over('Black')
             else:
-                self.check_game_over('White')
-            self.switch_turn()
+                end_game = self.check_game_over('White')
+            if not end_game:
+                self.switch_turn()
 
     def make_capture(self, piece):
         # allegiance = piece.allegiance
@@ -877,6 +881,7 @@ class Board(arcade.View):
     # This function will check if a side is in checkmate
     # This will end the game and declare a winner
     def check_game_over(self, allegiance):
+        end_game = False
         # get all the pieces of a specific allegiance
         pieces = []
         # for each square
@@ -912,10 +917,21 @@ class Board(arcade.View):
             if pieces[0].allegiance == 'White':
                 win_menu = w.WinLoseMenu(theme_manager, "black", game_manager)
                 self.manager.add(win_menu)
+                end_game = True
             else:
                 win_menu = w.WinLoseMenu(theme_manager, "white", game_manager)
                 self.manager.add(win_menu)
+                end_game = True
         elif all_moves == [] and not king_in_check:
             win_menu = w.WinLoseMenu(theme_manager, "draw", game_manager)
             self.manager.add(win_menu)
+            end_game = True
 
+        return end_game
+
+        return end_game
+
+
+
+        # print("PIECES")
+        # print(pieces)

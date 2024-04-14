@@ -28,7 +28,7 @@ class WinLoseMenu(arcade.gui.UIMouseFilterMixin, arcade.gui.UIAnchorLayout):
                 sprite=arcade.Sprite(texture=arcade.load_texture("pieces_png/black_banner.png")),
                 width=450,
                 height=110)
-        elif winner == "black":
+        elif winner == "white":
             banner_image = arcade.gui.UISpriteWidget(
                 sprite=arcade.Sprite(texture=arcade.load_texture("pieces_png/white_banner.png")),
                 width=450,
