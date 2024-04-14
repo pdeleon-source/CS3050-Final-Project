@@ -611,7 +611,7 @@ class Board(arcade.View):
         rook2 = p.Rook(allegiance, self.board, BLK_POS['rook'][1])
         self.add_to_board(rook2, BLK_POS['rook'][1])
 
-        # # Knight
+        # Knight
         knight1 = p.Knight(allegiance, self.board, BLK_POS['knight'][0])
         self.add_to_board(knight1, BLK_POS['knight'][0])
 
@@ -695,6 +695,7 @@ class Board(arcade.View):
         self.capture_moves = []
 
     def move_piece(self, row, col):
+        end_game = False
         piece = self.board[self.selected_row][self.selected_col]
         print(f"Piece before move {piece} and selected {self.selected_piece}")
 
@@ -760,11 +761,12 @@ class Board(arcade.View):
         self.print_board()
 
         if piece.allegiance == 'White':
-            self.check_game_over('Black')
+            end_game = self.check_game_over('Black')
         else:
-            self.check_game_over('White')
+            end_game = self.check_game_over('White')
         # self.print_capture()
-        self.switch_turn()
+        if not end_game:
+            self.switch_turn()
 
     def promote_pawn_to_queen(self, row, col):
         sound_manager.play_promote_sound()
@@ -799,6 +801,7 @@ class Board(arcade.View):
             self.handle_computer_turn()
 
     def handle_computer_turn(self):
+        end_game = False
 
         # Handle computer input for black's turn
         if self.current_turn == black_allegiance:
@@ -822,10 +825,11 @@ class Board(arcade.View):
             print("CAPTURES")
             self.print_capture()
             if computer_piece.allegiance == 'White':
-                self.check_game_over('Black')
+                end_game = self.check_game_over('Black')
             else:
-                self.check_game_over('White')
-            self.switch_turn()
+                end_game = self.check_game_over('White')
+            if not end_game:
+                self.switch_turn()
 
     def make_capture(self, piece):
         # allegiance = piece.allegiance
@@ -855,6 +859,7 @@ class Board(arcade.View):
     # This function will check if a side is in checkmate
     # This will end the game and declare a winner
     def check_game_over(self, allegiance):
+        end_game = False
         # get all the pieces of a specific allegiance
         pieces = []
         # for each square
@@ -890,12 +895,17 @@ class Board(arcade.View):
             if pieces[0].allegiance == 'White':
                 win_menu = w.WinLoseMenu(theme_manager, "black", game_manager)
                 self.manager.add(win_menu)
+                end_game = True
             else:
                 win_menu = w.WinLoseMenu(theme_manager, "white", game_manager)
                 self.manager.add(win_menu)
+                end_game = True
         elif all_moves == [] and not king_in_check:
             win_menu = w.WinLoseMenu(theme_manager, "draw", game_manager)
             self.manager.add(win_menu)
+            end_game = True
+
+        return end_game
 
 
 
