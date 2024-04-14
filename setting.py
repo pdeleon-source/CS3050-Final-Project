@@ -5,7 +5,6 @@ import arcade.gui.widgets
 from arcade.experimental.uistyle import UIFlatButtonStyle
 
 import time
-import sys
 
 class SettingsMenu(arcade.gui.UIMouseFilterMixin, arcade.gui.UIAnchorLayout):
     """Acts like a fake view/window."""

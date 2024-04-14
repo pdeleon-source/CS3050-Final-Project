@@ -19,6 +19,7 @@ import tutorial as t
 import setting as s
 import arcade.gui
 from theme_manager import ManageTheme
+from game_manager import ManageGame
 
 import arcade.gui.widgets
 import arcade.gui.widgets
@@ -63,6 +64,7 @@ MENU_SOUND = "sounds/bob.wav"
 VOLUME = 1
 
 theme_manager = ManageTheme("default")
+game_manager = ManageGame("_")
 
 # Render button
 default_style = {
@@ -122,6 +124,7 @@ class MenuView(arcade.View):
         self.logo = arcade.load_texture("pieces_png/chess_logo.png")
         self.settings_png = arcade.load_texture("pieces_png/settings_cog.png")
         self.tutorial_png = arcade.load_texture("pieces_png/Black_question_mark.png")
+        self.result = ""
 
         play_button = arcade.gui.UIFlatButton(x=CENTER_WIDTH - 100,
                                               y=CENTER_HEIGHT - 70,
@@ -178,15 +181,11 @@ class MenuView(arcade.View):
         def on_click_switch_button(event):
             play_button_sound()
             tutorial_menu = t.SubMenu(
-                "Tutorial Menu",
-                "This is a tutorial submenu.",
-                "OK"
+                "Tutorial Menu"
             )
             self.manager.add(
                 tutorial_menu
             )
-
-        # self.anchor = self.manager.add(arcade.gui.UIAnchorLayout())
 
         self.manager.add(play_button)
         self.manager.add(tutorial_button)
@@ -234,7 +233,6 @@ class MenuView(arcade.View):
     def on_hide_view(self):
         # Disable the UIManager when the view is hidden.
         self.manager.disable()
-
 
 # Testing
 class GameView(arcade.View):

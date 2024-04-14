@@ -19,6 +19,7 @@ import arcade
 
 import arcade.gui
 
+import menu
 import pieces as p
 
 import computer
@@ -33,8 +34,9 @@ import tutorial as t
 import setting as s
 
 from theme_manager import ManageTheme
+from game_manager import ManageGame
 
-theme_manager = ManageTheme("default")
+import win_lose_menu as w
 
 # How fast to move, and how fast to run the animation
 MOVEMENT_SPEED = 5
@@ -90,6 +92,7 @@ white_allegiance = "White"
 black_allegiance = "Black"
 
 theme_manager = ManageTheme("default")
+game_manager = ManageGame("_")
 
 BULLET_SPEED = 5
 
@@ -197,9 +200,7 @@ class Board(arcade.View):
         @tutorial_button.event("on_click")
         def on_click_switch_button(event):
             tutorial_menu = t.SubMenu(
-                "Tutorial Menu",
-                "This is a tutorial submenu.",
-                "OK"
+                "Tutorial Menu"
             )
             self.manager.add(
                 tutorial_menu
@@ -275,6 +276,16 @@ class Board(arcade.View):
                     self.computer_piece.update()
                     if self.captured_piece is not None:
                         self.captured_piece.update()
+
+        if game_manager.get_game_type() == "Replay":
+            game_manager.set_game_type("_")
+            self.__init__(self.versus)
+        elif game_manager.get_game_type() == "Main_Menu":
+            game_manager.set_game_type("_")
+            game_view = menu.MenuView(theme_manager.theme)
+            self.window.show_view(game_view)
+
+
 
     def on_draw(self):
         self.clear()
@@ -815,28 +826,16 @@ class Board(arcade.View):
 
         # if there are no possible moves and the king is in check
         if all_moves == [] and king_in_check:
-            # end the game, other side wins
             if pieces[0].allegiance == 'White':
-                print('Black wins!')
+                win_menu = w.WinLoseMenu(theme_manager, "black", game_manager)
+                self.manager.add(win_menu)
             else:
-                print('White wins!')
-            # TODO: End the game
-            # I'm thinking this gives an end game screen that says who won (if anyone did)
-            # and a button to view the board or quit back to menu
-            # If the user views the board, they should still have a button to return to menu
-            exit()
-
-        # if there are no possible moves and the king is NOT in check
+                win_menu = w.WinLoseMenu(theme_manager, "white", game_manager)
+                self.manager.add(win_menu)
         elif all_moves == [] and not king_in_check:
-            # end the game, draw
-            print("It's a draw!")
-            # TODO: End the game
-            # I'm thinking this gives an end game screen that says who won (if anyone did)
-            # and a button to view the board or quit back to menu
-            # If the user views the board, they should still have a button to return to menu
-            exit()
+            win_menu = w.WinLoseMenu(theme_manager, "draw", game_manager)
+            self.manager.add(win_menu)
 
-        # print("PIECES")
-        # print(pieces)
+
 
 
