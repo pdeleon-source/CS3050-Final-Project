@@ -493,9 +493,6 @@ class Pawn(Piece):
 
 
 class Knight(Piece):
-    """
-        Implements Knight-specific functions.
-    """
     def __init__(self, allegiance, board, current_pos):
         """
         Extended Constructor for Knight Piece, adds the texture based on the allegiance of the piece
@@ -523,7 +520,8 @@ class Knight(Piece):
 
     def available_moves(self, testing_move):
         """
-            Records valid moves available for the knight.
+            Records valid moves available for the knight. The knight may move two squares horizontally
+            and one square vertically, or one square horizontally and two squares vertically.
             :param testing_move:
         """
         movements = []

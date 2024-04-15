@@ -140,7 +140,7 @@ class MenuView(arcade.View):
         @quit_button.event("on_click")
         def on_click_switch_button(event):
             sound_manager.play_button_sound()
-            time.sleep(.15)
+            # time.sleep(.15)
             sys.exit()
 
         @settings_button.event("on_click")
@@ -172,7 +172,6 @@ class MenuView(arcade.View):
         self.manager.add(settings_button)
 
         self.game_view = None  # Placeholder for the game view instance
-
 
         self.theme_manager = ManageTheme(theme)
         self.volume = volume
@@ -220,6 +219,7 @@ class MenuView(arcade.View):
     def on_hide_view(self):
         # Disable the UIManager when the view is hidden.
         self.manager.disable()
+
 
 class GameView(arcade.View):
     def __init__(self, theme):

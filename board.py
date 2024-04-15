@@ -524,22 +524,22 @@ class Board(arcade.View):
                 # Move the selected piece to the clicked spot
                 self.move_piece(row, col)
 
-                # # Make an explosion
-                # explosion = Explosion(self.explosion_texture_list)
-                #
-                # x = (col * SQUARE_WIDTH) + (SCREEN_WIDTH / 3.25) + SQUARE_WIDTH // 2
-                # y = (row * SQUARE_HEIGHT) + (SCREEN_HEIGHT // 6) + SQUARE_HEIGHT // 2
-                #
-                # # Move it to the location of the coin
-                # explosion.center_x = x
-                # explosion.center_y = y
-                #
-                # # Call update() because it sets which image we start on
-                # explosion.update()
-                #
-                # # Add to a list of sprites that are explosions
-                # self.explosions_list.append(explosion)
-                # # arcade.play_sound(audio, 1.0, -1, False)
+                # Make an explosion
+                explosion = Explosion(self.explosion_texture_list)
+
+                x = (col * SQUARE_WIDTH) + (SCREEN_WIDTH / 3.25) + SQUARE_WIDTH // 2
+                y = (row * SQUARE_HEIGHT) + (SCREEN_HEIGHT // 6) + SQUARE_HEIGHT // 2
+
+                # Move it to the location of the coin
+                explosion.center_x = x
+                explosion.center_y = y
+
+                # Call update() because it sets which image we start on
+                explosion.update()
+
+                # Add to a list of sprites that are explosions
+                self.explosions_list.append(explosion)
+                # arcade.play_sound(audio, 1.0, -1, False)
 
                 # self.move_piece(row, col)
 
