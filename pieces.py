@@ -1,8 +1,8 @@
 """
     This program implements the functionality for all the pieces in the game. It has a Piece superclass
     and subclasses to represent the Pawn, Rook, Bishop, Knight, Queen, and King.
-
 """
+
 import arcade
 
 # Define constants
@@ -368,6 +368,7 @@ class Pawn(Piece):
             forward on their first move and one square forward otherwise. Pawns capture enemy
             pieces diagonally. Pawns may also make en passant moves.
             :param testing_move:
+            :return movements, captures, attacking:
         """
         moves = []
         caps = []
@@ -582,19 +583,23 @@ class Rook(Piece):
 
     def available_moves(self, testing_move):
         """
-            Records valid moves available for the rook.
+            Records valid moves available for the rook. The rook can move vertically and horizontally
+            as many squares as it likes as long as there is not a piece in the way.
             :param testing_move:
+            :return movements, captures, attacking:
         """
         moves = []
         caps = []
         attacking = []
 
-        # Try horizontal vals first
+        # Try horizontal values first
         for horiz_row, horiz_col in [(1, 0), (-1, 0)]:
             row, col = self.current_row + horiz_row, self.current_col + horiz_col
             while 0 <= row < 8 and 0 <= col < 8:
                 attacking.append((row, col))
+                # There is a piece in the way
                 if self.board[row][col] is not None:
+                    # Capture if enemy piece and exit loop
                     if self.board[row][col].allegiance == self.allegiance:
                         attacking.append((row + horiz_row, col + horiz_col))
                         break
@@ -605,6 +610,7 @@ class Rook(Piece):
                             if isinstance(self.board[row][col], King):
                                 attacking.append((row + horiz_row, col + horiz_col))
                         break
+                # Add empty squares to moves
                 else:
                     if not testing_move:
                         if self.test_player_move((row, col), self.board):
@@ -619,7 +625,9 @@ class Rook(Piece):
             row, col = self.current_row + vert_row, self.current_col + vert_col
             while 0 <= row < 8 and 0 <= col < 8:
                 attacking.append((row, col))
+                # There is a piece in the way
                 if self.board[row][col] is not None:
+                    # Capture if enemy piece and exit loop
                     if self.board[row][col].allegiance == self.allegiance:
                         attacking.append((row + vert_row, col + vert_col))
                         break
@@ -630,6 +638,7 @@ class Rook(Piece):
                         if isinstance(self.board[row][col], King):
                             attacking.append((row + vert_row, col + vert_col))
                         break
+                # Add empty squares to moves
                 else:
                     if not testing_move:
                         if self.test_player_move((row, col), self.board):
@@ -675,19 +684,21 @@ class Bishop(Piece):
 
     def available_moves(self, testing_move):
         """
-        Determines the Bishop's valid moves based on its current index
-        :return: a list of available moves and a list of potential captures
+            Records valid moves available for the bishop. Bishops may move diagonally in any
+            direction as long as there is not a piece in the way.
+            :param testing_move:
+            :return movements, captures, attacking:
         """
         movements = []
         captures = []
         attacking = []
 
-        # print(f"{self.current_row} {self.current_col}")
         # Bishop moves diagonally, so we check all four diagonal directions
         for diagonal_row, diagonal_col in [(-1, -1), (-1, 1), (1, -1), (1, 1)]:
             row, col = self.current_row + diagonal_row, self.current_col + diagonal_col
             while 0 <= row < 8 and 0 <= col < 8:
                 attacking.append((row, col))
+                # There is a piece in the way
                 if self.board[row][col] is not None:
                     if self.board[row][col].allegiance == self.allegiance:
                         attacking.append((row + diagonal_row, col + diagonal_col))
@@ -700,6 +711,7 @@ class Bishop(Piece):
                         if isinstance(self.board[row][col], King):
                             attacking.append((row + diagonal_row, col + diagonal_col))
                         break
+                # Append empty squares to moves
                 else:
                     if not testing_move:
                         if self.test_player_move((row, col), self.board):
@@ -708,7 +720,7 @@ class Bishop(Piece):
 
                 row += diagonal_row
                 col += diagonal_col
-        # print(f"Moves: {movements + captures}")
+
         return movements, captures, attacking
 
     def __repr__(self):
@@ -745,8 +757,10 @@ class Queen(Piece):
 
     def available_moves(self, testing_move):
         """
-            Records valid moves available for the queen.
+            Records valid moves available for the queen. The queen may move diagonally, horizontally,
+            and vertically as long as there is not a piece in the way.
             :param testing_move:
+            :return movements, captures, attacking:
         """
         movements = []
         captures = []
@@ -760,11 +774,13 @@ class Queen(Piece):
             row, col = self.current_row + diagonal_row, self.current_col + diagonal_col
             while 0 <= row < 8 and 0 <= col < 8:
                 attacking.append((row, col))
+                # There is a piece in the way
                 if self.board[row][col] is not None:
                     if self.board[row][col].allegiance == self.allegiance:
                         attacking.append((row + diagonal_row, col + diagonal_col))
                         break
                     else:
+                        # Capture enemy piece or check king
                         if not testing_move:
                             if self.test_player_move((row, col), self.board):
                                 captures.append((row, col))
@@ -816,12 +832,13 @@ class King(Piece):
 
     def available_moves(self, testing_move):
         """
-        Determines the King's valid moves based on its current position
-        :return: a list of available moves and a list of potential captures
+            Determines the King's valid moves. The King may move one square in any direction.
+            :return movements, captures, attacking:
         """
         movements = []
         captures = []
         attacking = []
+
         # King can move one spot in any direction
         for move_row, move_col in [(-1, -1), (-1, 1), (1, -1), (1, 1), (-1, 0), (0, -1), (1, 0), (0, 1)]:
             row, col = self.current_row + move_row, self.current_col + move_col
@@ -833,14 +850,11 @@ class King(Piece):
                         movements.append((row, col))
                     elif self.board[row][col].allegiance != self.allegiance:
                         captures.append((row, col))
-                # Otherwise, king is in check - attempt to capture adjacent pieces
-                # else:
-                #     if self.board[row][col] is not None and self.board[row][col].allegiance != self.allegiance:
-                #         captures.append((row, col))
 
                 row += move_row
                 col += move_col
 
+        # Check castle moves and add to available moves
         castle = self.castle()
         if castle is not None:
             for cas_row, cas_col, rook_col, new_rook_col in castle:
