@@ -1,15 +1,25 @@
+"""
+Tutorial class for creating a window for a settings menu that appears on top of the existing screen
+"""
+
 import arcade.gui
 
 import arcade.gui.widgets
 import arcade.gui.widgets
 from arcade.experimental.uistyle import UIFlatButtonStyle
-
 import time
 
 
 class SettingsMenu(arcade.gui.UIMouseFilterMixin, arcade.gui.UIAnchorLayout):
-    """Acts like a fake view/window."""
+    """
+    Represents a settings menu with options for theme selection, volume control, and quitting.
 
+    Parameters:
+    - title (str): The title of the settings menu.
+    - toggle_label (str): The label for the toggle option.
+    - theme_manager: The theme manager object.
+    - sound_manager: The sound manager object.
+    """
     def __init__(self, title: str, toggle_label: str, theme_manager, sound_manager):
         super().__init__(size_hint=(1, 1))
 
@@ -18,7 +28,7 @@ class SettingsMenu(arcade.gui.UIMouseFilterMixin, arcade.gui.UIAnchorLayout):
         frame.with_padding(all=20)
 
         # Add a background to the window.
-        frame.with_background(texture=arcade.load_texture("pieces_png/grey_panel.png"),
+        frame.with_background(texture=arcade.load_texture("assets/grey_panel.png"),
                               end=(25, 25),
                               start=(25, 25))
 
@@ -116,15 +126,18 @@ class SettingsMenu(arcade.gui.UIMouseFilterMixin, arcade.gui.UIAnchorLayout):
             theme_manager.set_theme("midnight")
 
     def on_click_back_button(self, event):
+        """Handle the back button click event."""
         # Removes the widget from the manager.
         # After this the manager will respond to its events like it previously did.
         self.parent.remove(self)
 
     def on_click_quit_button(self, event):
+        """Handle the quit button click event."""
         time.sleep(.15)
         arcade.exit()
 
     def get_button_color(self, color):
+        """Return a styled button color based on the given color."""
         return UIFlatButtonStyle(
             font_size=12,
             font_name=("calibri", "arial"),
@@ -135,6 +148,7 @@ class SettingsMenu(arcade.gui.UIMouseFilterMixin, arcade.gui.UIAnchorLayout):
         )
 
     def get_button_styled(self, color):
+        """Return styled button properties based on the given color."""
         return {"normal": self.get_button_color(color),
                 "hover": self.get_button_color(color),
                 "press": self.get_button_color(color),

@@ -1,6 +1,6 @@
-# TODO: Prioritize Capture over random position :)
-# ^^ Knight becomes kind of a problem...but its fine!!
-
+"""
+Chess AI Logic
+"""
 
 import random
 from pieces import Piece
@@ -9,22 +9,26 @@ from copy import copy
 import arcade
 from sound_manager import ManageSound
 
+# Get screen dimensions
 SCREEN_WIDTH, SCREEN_HEIGHT = arcade.get_display_size()
 
+# Set dimensions for the chessboard
 BOARD_WIDTH = 800
 BOARD_HEIGHT = 600
 
+# Calculate square dimensions based on board size
 SQUARE_WIDTH = (BOARD_WIDTH - 200) // 8
 SQUARE_HEIGHT = BOARD_HEIGHT // 8
 
-# SQUARE_WIDTH = 400 // 8
-# SQUARE_HEIGHT = 400 // 8
-
-
-# this will be a class that can move pieces legally around the chess board
-# Note: Doesn't have to be smart, just has to be "correct"
 class Computer:
     def __init__(self, allegiance: str, board):
+        """
+        Initialize the Computer object.
+
+        Parameters:
+        - allegiance (str): The allegiance of the computer player ("White" or "Black").
+        - board: The game board representing the current game state.
+        """
         self.board_array = board
 
         self.allegiance = allegiance
@@ -34,6 +38,12 @@ class Computer:
 
     # computer player will select a piece; returns a piece object
     def select_piece(self):
+        """
+        Select a piece to move.
+
+        Returns:
+        - available_pieces (list): List of available pieces for the computer player to move.
+        """
         available_pieces = []
         # for each square in the array representing the board
         for row in self.board_array:
@@ -47,6 +57,15 @@ class Computer:
         return available_pieces
 
     def temp_select_piece(self, allegiance):
+        """
+        Temporary selection of pieces for simulation.
+
+        Parameters:
+        - allegiance (str): The allegiance of the pieces to select ("White" or "Black").
+
+        Returns:
+        - available_pieces (list): List of available pieces for simulation.
+        """
         available_pieces = []
         # for each square in the array representing the board
         for row in self.demo_board:
@@ -59,61 +78,17 @@ class Computer:
 
         return available_pieces
 
-    def select_random_piece(self, available_pieces):
-
-        # select a random piece in the list and return it
-        piece_location = random.randrange(0, len(available_pieces))
-        piece_selection = available_pieces[piece_location]
-
-        all_moves = []
-
-        while all_moves == []:
-            piece_location = random.randrange(0, len(available_pieces))
-            piece_selection = available_pieces[piece_location]
-            possible_moves, possible_captures, attacks = piece_selection.available_moves(False)
-            all_moves = possible_moves + possible_captures
-
-        # select a random square
-        random_move_square = random.randrange(0, len(all_moves))
-
-        # get the coords of that square
-        move_coords = [all_moves[random_move_square][0], all_moves[random_move_square][1]]
-
-        return piece_selection, move_coords
-
-    # def select_random_piece(self, available_pieces):
-    #     # Check for capturing moves first
-    #     capturing_moves = [piece for piece in available_pieces if piece.available_captures()]
-    #     if capturing_moves:
-    #         piece_selection = random.choice(capturing_moves)
-    #     else:
-    #         piece_selection = random.choice(available_pieces)
-    #
-    #     # Select a random valid move for the selected piece
-    #     possible_moves, possible_captures, _ = piece_selection.available_moves()
-    #     all_moves = possible_moves + possible_captures
-    #     random_move = random.choice(all_moves)
-    #     return piece_selection, random_move
-
-    # computer player will move a piece
-    # use select_piece() and feed it in to the piece param
-    def move_piece(self, piece: Piece, move_coords):
-
-        # Store the piece's current position
-        current_row = piece.current_row
-        current_col = piece.current_col
-
-        # Move piece to square
-        valid_move = piece.move(move_coords)
-        # self.sound_manager.play_move_sound()
-
-        # Update the piece's position in the board_array
-        if valid_move:
-            print(f"moved {piece} from [{current_row} {current_col}]")
-            self.board_array[current_row][current_col] = None
-            self.board_array[move_coords[0]][move_coords[1]] = piece
-
     def template_move_piece(self, piece: Piece, move_coords):
+        """
+        Simulate moving a piece for evaluation.
+
+        Parameters:
+        - piece (Piece): The piece object to simulate moving.
+        - move_coords (list): Coordinates of the simulated move.
+
+        Returns:
+        - None
+        """
 
         # Store the piece's current position
         current_row = piece.temp_current_row
@@ -127,23 +102,26 @@ class Computer:
         self.demo_board[move_coords[0]][move_coords[1]] = piece
 
     def evaluate(self, depth):
+        """
+        Evaluate possible moves based on a given depth.
+
+        Parameters:
+        - depth (int): The depth of evaluation for the minimax algorithm.
+
+        Returns:
+        - best_move (list): List of the best moves determined by evaluation.
+        """
         best_move = []
         max_score = float('-inf')
 
         available_pieces = self.select_piece()
         for piece in available_pieces:
             possible_moves, possible_captures, attacks = piece.available_moves(False)
-            old_position = [piece.temp_current_row, piece.temp_current_col]
-            print("=========================")
-            print(f"Piece: {piece}")
             for new_position in possible_moves + possible_captures:
-                old_value = self.demo_board[new_position[0]][new_position[1]]
 
                 # Simulate the move
-                # self.template_move_piece(piece, new_position)
                 score = self.minimax(depth - 1, False, piece, new_position)  # Opponent's turn
 
-                # TODO: Figure out what to do with this
                 # Add computer position evaluation !!!
                 target_piece = self.demo_board[new_position[0]][new_position[1]]
                 position_value = target_piece.get_value() if target_piece is not None else 0
@@ -155,13 +133,7 @@ class Computer:
                         evaluation_board = reversed(target_piece.eval)[new_position[0]][new_position[1]]
 
                 score += position_value + evaluation_board
-                print(f"Value: {score}")
-                print("=========================")
-                # Undo the move
-                # self.demo_board[old_position[0]][old_position[1]] = piece
-                # self.demo_board[new_position[0]][new_position[1]] = old_value
 
-                # TODO: Figure out some logic here
                 # Computer should do the move that will get the player the LEAST amount of points
                 # Currently it's doing moves that will get player the most points <-- aka bad? i think??
                 if score > max_score:
@@ -176,6 +148,15 @@ class Computer:
         return best_move
 
     def get_best(self, moves):
+        """
+        Get the best move from a list of moves.
+
+        Parameters:
+        - moves (list): List of moves to evaluate.
+
+        Returns:
+        - best_move (tuple): Tuple containing the best move and its piece.
+        """
         max_points = float('-inf')
         best_move = None
 
@@ -198,6 +179,18 @@ class Computer:
         return best_move
 
     def make_best_move(self, depth):
+        """
+        Make the best move based on evaluation depth.
+
+        Parameters:
+        - depth (int): Depth of evaluation for the best move.
+
+        Returns:
+        - piece (Piece): The piece selected for the best move.
+        - move (list): Coordinates of the best move.
+        - is_cap (bool): Whether the move results in a capture.
+        - capped_piece (Piece): The piece captured (if any).
+        """
         is_cap = False
         capped_piece = None
         self.demo_board = copy(self.board_array)
@@ -206,27 +199,24 @@ class Computer:
         piece, move = self.get_best(best_moves)
 
         if self.board_array[move[0]][move[1]] != self.allegiance and self.board_array[move[0]][move[1]] is not None:
-            # print("***CAPTURE***")
             is_cap = True
             capped_piece = self.board_array[move[0]][move[1]]
 
-
-        if piece is not None and move is not None:
-            self.move_piece(piece, move)
-
-        print("=========================")
-        print(f"Piece: {piece}, Move: {move}")
-        print("=========================")
-
         return piece, move, is_cap, capped_piece
 
-    # Fix alpha beta pruning, need to pass in min and max as parameters, so they can be checked :D
-    # Also have the computer assess picking the best move for itself, right now it picks a move
-    # that gives the player the least amount of points, i think
-
-    # also alpha-beta/max-min pruning means we can disregard certain brances in the search tree, meaning we can go
-    # deeper while not making our poor program explode :D <--- hopefully!!!
     def minimax(self, depth, is_maximizing_player, curr_piece, position):
+        """
+        Minimax algorithm for evaluating moves.
+
+        Parameters:
+        - depth (int): Depth of evaluation for the minimax algorithm.
+        - is_maximizing_player (bool): Flag indicating if the player is maximizing the score.
+        - curr_piece (Piece): Current piece being evaluated.
+        - position (list): Coordinates of the move.
+
+        Returns:
+        - eval (int): Evaluation score for the move.
+        """
         if depth == 0:
 
             # Evaluate the position
@@ -245,29 +235,16 @@ class Computer:
             available_pieces = self.temp_select_piece("Black")
             for piece in available_pieces:
                 possible_moves, possible_captures, attacks = piece.available_moves(False)
-                old_position = [piece.temp_current_row, piece.temp_current_col]
                 for new_position in possible_moves + possible_captures:
-                    # Simulate the move
-                    old_value = self.demo_board[new_position[0]][new_position[1]]
-
-                    # move = new position
-                    # self.template_move_piece(piece, new_position)
 
                     eval = self.minimax(depth - 1, False, piece, new_position)  # Opponent's turn
-
-                    # Undo the move
-                    # self.demo_board[old_position[0]][old_position[1]] = piece
-                    # self.demo_board[new_position[0]][new_position[1]] = old_value
 
                     if eval < max_eval:
                         max_eval = eval
                         best_move = (piece, new_position)
-                        # print(f"New best move for black: {best_move}, Eval: {min_eval}")
 
             if best_move:
-                print(f"Best move for black: {best_move}, Eval: {max_eval}")
                 self.template_move_piece(best_move[0], best_move[1])
-                best_move = None
             return max_eval
         else:
             # Human's Turn
@@ -276,37 +253,16 @@ class Computer:
             available_pieces = self.temp_select_piece("White")
             for piece in available_pieces:
                 possible_moves, possible_captures, attacks = piece.available_moves(False)
-                old_position = (piece.temp_current_row, piece.temp_current_col)
 
                 for move in possible_moves + possible_captures:
-                    # Simulate the move
-                    old_value = self.demo_board[move[0]][move[1]]
 
                     eval = self.minimax(depth - 1, True, piece, move)  # Computer's turn
-                    # self.template_move_piece(piece, move)
-                    #
-                    #
-                    # # Undo the move
-                    # self.demo_board[old_position[0]][old_position[1]] = piece
-                    # self.demo_board[move[0]][move[1]] = old_value
 
                     if eval < min_eval:
                         min_eval = eval
                         best_move = (piece, move)
-                        # print(f"New best move for white: {best_move}, Eval: {max_eval}")
 
             if best_move:
-                print(f"Best move for white: {best_move}, Eval: {min_eval}")
                 self.template_move_piece(best_move[0], best_move[1])
-                best_move = None
 
             return min_eval
-
-# Example usage:
-# Initialize your board and computer player
-# board = [[None for _ in range(8)] for _ in range(8)]
-# computer_player = Computer('Black', board)
-
-
-# computer_player.make_best_move()
-# computer_player.print_board()

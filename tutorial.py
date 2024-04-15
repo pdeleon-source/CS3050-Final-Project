@@ -1,10 +1,25 @@
+"""
+Tutorial class for creating a window to tutorial guide in the form of a SubMenu that
+appears on top of the screen.
+"""
+
 import arcade
 import arcade.gui
 
+# Get screen dimension
 SCREEN_WIDTH, SCREEN_HEIGHT = arcade.get_display_size()
 
 
 class Page:
+    """
+    Represents a page with an image.
+
+    Parameters:
+    - image (str): The path to the image file for the page.
+
+    Returns:
+    - get_image(): Returns a UI widget containing the image.
+    """
     def __init__(self, image):
         self.image = arcade.load_texture(image)
 
@@ -15,6 +30,18 @@ class Page:
 
 class SubMenu(arcade.gui.UIMouseFilterMixin, arcade.gui.UIAnchorLayout):
     """Acts like a fake view/window."""
+    """
+    Represents a sub-menu within the GUI.
+    
+    Parameters:
+    - title (str): The title of the sub-menu.
+    
+    Returns:
+    - __init__(title): Initializes the SubMenu object with the given title.
+    - create_page(): Creates and displays the contents of the sub-menu.
+    - on_click_back_button(event): Event handler for the back button click.
+    - on_key_press(key, modifiers): Event handler for key presses.
+    """
 
     def __init__(self, title: str):
         super().__init__(size_hint=(1, 1))
@@ -78,13 +105,14 @@ class SubMenu(arcade.gui.UIMouseFilterMixin, arcade.gui.UIAnchorLayout):
                 self.create_page()
 
     def create_page(self):
+        """Create and display the contents of the sub-menu."""
         self.frame = self.add(arcade.gui.UIAnchorLayout(width=800, height=600, size_hint=None))
         self.frame.with_padding(all=20)
 
         # Add a background to the window.
         # Nine patch smoothes the edges.
         self.frame.with_background(texture=arcade.load_texture(
-            "pieces_png/grey_panel.png"), start=(7, 7), end=(7, 7))
+            "assets/grey_panel.png"), start=(7, 7), end=(7, 7))
 
         widget_layout = arcade.gui.UIBoxLayout(align="center", space_between=10)
         widget_layout.add(self.title_label)
@@ -96,6 +124,7 @@ class SubMenu(arcade.gui.UIMouseFilterMixin, arcade.gui.UIAnchorLayout):
         self.frame.add(child=self.back_button, anchor_x="right", anchor_y="top")
 
     def on_key_press(self, key, modifiers):
+        """Handle key presses for navigation within the sub-menu."""
         if key == arcade.key.LEFT:
             self.current_menu = (self.current_menu - 1) % len(self.menus)
         elif key == arcade.key.RIGHT:
@@ -103,6 +132,7 @@ class SubMenu(arcade.gui.UIMouseFilterMixin, arcade.gui.UIAnchorLayout):
             # self.show_current_menu()
 
     def on_click_back_button(self, event):
+        """Handle the back button click event."""
         # Removes the widget from the manager.
         # After this the manager will respond to its events like it previously did.
         self.parent.remove(self)
