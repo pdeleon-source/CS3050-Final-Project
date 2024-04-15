@@ -60,6 +60,7 @@ BLK_POS = {
 white_allegiance = "White"
 black_allegiance = "Black"
 
+
 class Board(arcade.View):
     def __init__(self, versus):
         super().__init__()
@@ -225,7 +226,6 @@ class Board(arcade.View):
             game_manager.set_game_type("_")
             game_view = menu.MenuView(theme_manager.theme, sound_manager.get_volume())
             self.window.show_view(game_view)
-
 
     def on_draw(self):
         self.clear()
@@ -422,7 +422,6 @@ class Board(arcade.View):
         col = int((x - (SCREEN_WIDTH / 3.25)) // square_width)
         row = int((y - (SCREEN_HEIGHT // 6)) // square_height)
 
-
         # If a piece is selected
         if any(self.selected[r][c] for r in range(ROWS) for c in range(COLS)):
             # If the clicked spot is a valid move
@@ -439,7 +438,6 @@ class Board(arcade.View):
 
                 # Move the selected piece to the clicked spot
                 self.move_piece(row, col)
-
 
             # If the clicked spot is another piece
             elif isinstance(self.board[row][col], p.Piece):
@@ -526,7 +524,6 @@ class Board(arcade.View):
             pawn = p.Pawn(allegiance, self.board, [6, col])
             self.add_to_board(pawn, [6, col])
 
-
     def make_white_set(self):
         # Bishops in Column 2, 4 Row 0
         allegiance = 'White'
@@ -542,7 +539,6 @@ class Board(arcade.View):
         queen = p.Queen(allegiance, self.board, WHT_POS['queen'])
         self.add_to_board(queen, WHT_POS['queen'])
 
-
         # King
         king = p.King(allegiance, self.board, WHT_POS['king'])
         self.add_to_board(king, WHT_POS['king'])
@@ -554,7 +550,7 @@ class Board(arcade.View):
         rook2 = p.Rook(allegiance, self.board, WHT_POS['rook'][1])
         self.add_to_board(rook2, WHT_POS['rook'][1])
 
-        # #Knight
+        #Knight
 
         knight1 = p.Knight(allegiance, self.board, WHT_POS['knight'][0])
         self.add_to_board(knight1, WHT_POS['knight'][0])
@@ -580,9 +576,13 @@ class Board(arcade.View):
         self.capture_moves = []
 
     def move_piece(self, row, col):
+        """
+            Moves a piece to the given index and animates the motion
+            Also handles switching turns
+        """
         end_game = False
+
         piece = self.board[self.selected_row][self.selected_col]
-        print(f"Piece before move {piece} and selected {self.selected_piece}")
 
         x = (col * SQUARE_WIDTH) + (SCREEN_WIDTH / 3.25)
         y = (row * SQUARE_HEIGHT) + (SCREEN_HEIGHT // 6)
@@ -590,26 +590,15 @@ class Board(arcade.View):
         """Check if castle move"""
         castle = self.selected_piece.check_castle(row, col)
         if castle is not None:
-
             cas_row, rook_col, new_rook_col = castle
-
-            rook_x = (new_rook_col * SQUARE_WIDTH) + (SCREEN_WIDTH / 3.25)
-            rook_y = (cas_row * SQUARE_HEIGHT) + (SCREEN_HEIGHT // 6)
-            rook = self.board[cas_row][rook_col]
-
-            self.board[cas_row][rook_col] = None
-            self.board[cas_row][new_rook_col] = rook
-
-            print(f"row: {cas_row} col: {rook_col}")
-
-            rook.on_click(rook_x, rook_y)
-            rook.move([cas_row, new_rook_col])
-            print(f"new row: {cas_row} new col: {new_rook_col}")
-            print(f"Piece during rook move {self.selected_piece}")
+            self.castle_triggered = True
 
             self.selected_piece.on_click(x, y)
 
             self.selected_piece.move([row, col])
+
+            self.castle_rook(cas_row, rook_col, new_rook_col)
+
             self.board[self.selected_row][self.selected_col] = None
             self.board[row][col] = piece
 
@@ -646,20 +635,31 @@ class Board(arcade.View):
             self.switch_turn()
 
     def promote_pawn_to_queen(self, row, col):
+        """
+            Creates a Queen object and replaces the pawn with it
+            :param row:
+            :param col:
+        """
         sound_manager.play_promote_sound()
 
         piece = p.Queen(self.selected_piece.allegiance, self.board, [row, col])
         self.board[row][col] = piece
 
-        #self.deselect_all()
-
     def castle_rook(self, row, col, new_col):
-        # Need to pass in index chosen (so where king moved to) minus or plus one
-        # So pass in cas_row and rook_col
-        print("CASTLE ROOK FUNC")
+        """
+            Moves the rook for castle
+            :param row: the old rook row
+            :param col: the old rook col
+            :param new_col: the new col the rook will move to
+        """
+        rook_x = (new_col * SQUARE_WIDTH) + (SCREEN_WIDTH / 3.25)
+        rook_y = (row * SQUARE_HEIGHT) + (SCREEN_HEIGHT // 6)
         rook = self.board[row][col]
-        rook.on_click(new_col * SQUARE_WIDTH - 37, row * SQUARE_HEIGHT - 35)
+
+        rook.on_click(rook_x, rook_y)
         rook.move([row, new_col])
+
+        self.board[row][col] = None
         self.board[row][new_col] = rook
 
     def switch_turn(self):

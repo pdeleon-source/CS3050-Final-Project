@@ -246,54 +246,6 @@ class Piece(arcade.AnimatedTimeBasedSprite):
 
         return None
 
-    def castle(self):
-        """
-            Checks if castle move is possible for current piece. If so, it returns all
-            valid castle moves to be added to the King's available moves. Otherwise, it
-            returns None.
-        """
-
-        # If castle not possible
-        if not isinstance(self, King) or self.moves != 0 or self.current_col - 4 < 0 or self.current_col + 3 >= 8:
-            return None
-
-        # List to record valid castle moves
-        castle_moves = []
-
-        # Get corner squares adjacent to King
-        left = self.board[self.current_row][self.current_col - 4]
-        right = self.board[self.current_row][self.current_col + 3]
-
-        row = self.current_row  # Row remains unchanged
-        # Possible columns the king could move to
-        left_none = self.current_col - 2
-        left_rook = self.current_col - 4
-        right_none = self.current_col + 2
-        right_rook = self.current_col + 3
-
-        # If there is a rook to the left
-        if isinstance(left, Rook) and left.moves == 0 and left.allegiance == self.allegiance:
-            # Squares between rook and king are empty
-            if (self.board[self.current_row][self.current_col - 1] is None and
-                    self.board[self.current_row][self.current_col - 2] is None
-                    and self.board[self.current_row][self.current_col - 3] is None):
-                # Returns column king will move to, the location of the rook, and the column rook will move to
-                castle_moves.append((row, left_none, left_rook, left_none + 1))
-                castle_moves.append((row, left_rook, left_rook, left_rook + 1))
-
-        # If there is a rook to the right
-        if isinstance(right, Rook) and right.moves == 0 and right.allegiance == self.allegiance:
-            # Squares between rook and king are empty
-            if (self.board[self.current_row][self.current_col + 1] is None and
-                    self.board[self.current_row][self.current_col + 2] is None):
-                castle_moves.append((self.current_row, right_none, right_rook, right_none - 1))
-                castle_moves.append((self.current_row, right_rook, right_rook, right_rook - 1))
-
-        if len(castle_moves) == 0:
-            return None
-        else:
-            return castle_moves
-
     def promotable(self) -> bool:
         """
         Returns true if the current piece is a promotable pawn
@@ -863,6 +815,55 @@ class King(Piece):
                     movements.append((cas_row, cas_col))
 
         return movements, captures, attacking
+
+    def castle(self):
+        """
+            Checks if castle move is possible for current piece. If so, it returns all
+            valid castle moves to be added to the King's available moves. Otherwise, it
+            returns None.
+        """
+
+        # If castle not possible
+        if self.moves != 0 or self.current_col - 4 < 0 or self.current_col + 3 >= 8:
+            return None
+
+        # List to record valid castle moves
+        castle_moves = []
+
+        # Get corner squares adjacent to King
+        left = self.board[self.current_row][self.current_col - 4]
+        right = self.board[self.current_row][self.current_col + 3]
+
+        row = self.current_row  # Row remains unchanged
+
+        # Possible columns the king could move to
+        left_none = self.current_col - 2
+        left_rook = self.current_col - 4
+        right_none = self.current_col + 2
+        right_rook = self.current_col + 3
+
+        # If there is a rook to the left
+        if isinstance(left, Rook) and left.moves == 0 and left.allegiance == self.allegiance:
+            # Squares between rook and king are empty
+            if (self.board[self.current_row][self.current_col - 1] is None and
+                    self.board[self.current_row][self.current_col - 2] is None
+                    and self.board[self.current_row][self.current_col - 3] is None):
+                # Returns column king will move to, the location of the rook, and the column rook will move to
+                castle_moves.append((row, left_none, left_rook, left_none + 1))
+                castle_moves.append((row, left_rook, left_rook, left_rook + 1))
+
+        # If there is a rook to the right
+        if isinstance(right, Rook) and right.moves == 0 and right.allegiance == self.allegiance:
+            # Squares between rook and king are empty
+            if (self.board[self.current_row][self.current_col + 1] is None and
+                    self.board[self.current_row][self.current_col + 2] is None):
+                castle_moves.append((self.current_row, right_none, right_rook, right_none - 1))
+                castle_moves.append((self.current_row, right_rook, right_rook, right_rook - 1))
+
+        if len(castle_moves) == 0:
+            return None
+        else:
+            return castle_moves
 
     def __repr__(self):
         if self.allegiance == 'Black':
