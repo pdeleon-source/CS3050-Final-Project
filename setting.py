@@ -7,7 +7,6 @@ import arcade.gui
 import arcade.gui.widgets
 import arcade.gui.widgets
 from arcade.experimental.uistyle import UIFlatButtonStyle
-
 import time
 
 

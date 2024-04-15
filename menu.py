@@ -10,12 +10,9 @@ import time
 import tutorial as t
 import setting as s
 import arcade.gui
-
 from theme_manager import ManageTheme
 from sound_manager import ManageSound
-
 import game as g
-
 import arcade.gui.widgets
 import arcade.gui.widgets
 from arcade.experimental.uistyle import UIFlatButtonStyle

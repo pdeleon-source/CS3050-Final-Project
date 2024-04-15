@@ -9,7 +9,6 @@ import menu
 from theme_manager import ManageTheme
 from sound_manager import ManageSound
 
-
 import arcade.gui.widgets
 import arcade.gui.widgets
 from arcade.experimental.uistyle import UIFlatButtonStyle
@@ -126,7 +125,7 @@ class GameView(arcade.View):
         @return_button.event("on_click")
         def on_click_switch_button(event):
             sound_manager.play_button_sound()
-            game_view = MenuView(theme_manager.theme, sound_manager.get_volume())
+            game_view = menu.MenuView(theme_manager.theme, sound_manager.get_volume())
             self.window.show_view(game_view)
 
         @settings_button.event("on_click")
@@ -158,9 +157,6 @@ class GameView(arcade.View):
         self.manager.add(player_button)
         self.manager.add(computer_button)
         self.manager.add(return_button)
-
-        # self.chess_piece = arcade.Sprite("pieces_png/white-pawn.png", center_x=SCREEN_WIDTH // 2,
-        # s center_y=SCREEN_HEIGHT // 2)
 
         # Create theme manager object and set theme
         theme_manager = ManageTheme(theme)
