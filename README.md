@@ -1,6 +1,6 @@
 # CS3050-Final-Project
 
-Welcome to Team 10's Game of Chess! Before you start please run the following in terminal:
+Welcome to a Game of Chess! Before you start please run the following in terminal:
 
 pip install -r requirements. txt
 
