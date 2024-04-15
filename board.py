@@ -1,33 +1,24 @@
-# Board Class
+"""
+Board Management and Game Logic
+"""
 
 import arcade
-
 import arcade.gui
 
 import pieces as p
-
 import computer
-
-import numpy as np
-
-import copy
-
-from datetime import datetime, timedelta
-
 import menu as menu
-
 import tutorial as t
 import setting as s
+import win_lose_menu as w
+
+import numpy as np
+import copy
+from datetime import datetime, timedelta
 
 from theme_manager import ManageTheme
 from game_manager import ManageGame
 from sound_manager import ManageSound
-
-import win_lose_menu as w
-
-# How fast to move, and how fast to run the animation
-MOVEMENT_SPEED = 5
-UPDATES_PER_FRAME = 5
 
 # Set the dimensions of the chessboard
 SCREEN_WIDTH, SCREEN_HEIGHT = arcade.get_display_size()
@@ -42,20 +33,12 @@ SQUARE_HEIGHT = BOARD_HEIGHT // 8
 CAPTURE_HEIGHT = SQUARE_HEIGHT * 8
 CAPTURE_WIDTH = SQUARE_WIDTH * 2
 
-# Set the colors for the chessboard squares
-# LIGHT_SQUARE_COLOR = arcade.color.ALMOND
-# DARK_SQUARE_COLOR = arcade.color.SADDLE_BROWN
-SELECTED_SQUARE_COLOR = arcade.color.CYAN
-VALID_MOVE_COLOR = arcade.color.GREEN
-VALID_CAPTURE_COLOR = arcade.color.RED
+# Define colors for various game elements
+SELECTED_SQUARE_COLOR = arcade.color.SILVER_LAKE_BLUE
+VALID_MOVE_COLOR = arcade.color.LIGHT_MOSS_GREEN
+VALID_CAPTURE_COLOR = arcade.color.DARK_PASTEL_RED
 
-GAME_DURATION = timedelta(minutes=10)  # Total game duration
-
-BLACK_TIMER_POSITION = (50, SCREEN_HEIGHT - 50)
-WHITE_TIMER_POSITION = (SCREEN_WIDTH - 50, SCREEN_HEIGHT - (SCREEN_HEIGHT - 50))
-TIMER_FONT_SIZE = 9
-
-# Set containing all black piece default positions
+# Set containing all white piece default positions
 WHT_POS = {
     "bishop": [[0, 2], [0, 5]],
     "knight": [[0, 1], [0, 6]],
@@ -64,6 +47,7 @@ WHT_POS = {
     "king": [0, 4]
 }
 
+# Set containing all black piece default positions
 BLK_POS = {
     "bishop": [[7, 2], [7, 5]],
     "knight": [[7, 1], [7, 6]],
@@ -72,51 +56,23 @@ BLK_POS = {
     "king": [7, 4]
 }
 
-# Sound effects
-MOVE_SOUND = "sounds/make_move.wav"
-CAPTURE_SOUND = "sounds/capture.wav"
-PROMOTE_SOUND = "sounds/promote.wav"
-CASTLE_SOUND = "sounds/castle.wav" # TODO: Add sound to castle function
-
-# p = pieces.Piece
+# Define allegiances for white and black pieces
 white_allegiance = "White"
 black_allegiance = "Black"
-
-theme_manager = ManageTheme("default")
-game_manager = ManageGame("_")
-sound_manager = ManageSound(1)
-
-BULLET_SPEED = 5
-
-EXPLOSION_TEXTURE_COUNT = 60
-
-
-class Explosion(arcade.Sprite):
-    """ This class creates an explosion animation """
-
-    def __init__(self, texture_list):
-        super().__init__()
-
-        # Start at the first frame
-        self.current_texture = 0
-        self.textures = texture_list
-
-    def update(self):
-
-        # Update to the next frame of the animation. If we are at the end
-        # of our frames, then delete this sprite.
-        self.current_texture += 1
-        if self.current_texture < len(self.textures):
-            self.set_texture(self.current_texture)
-        else:
-            self.remove_from_sprite_lists()
-
 
 class Board(arcade.View):
     def __init__(self, versus):
         super().__init__()
         self.versus = versus
         self.manager = arcade.gui.UIManager()
+
+        # Define Managers
+        global theme_manager, game_manager, sound_manager
+
+        # Open Managers
+        theme_manager = ManageTheme("default")
+        game_manager = ManageGame("_")
+        sound_manager = ManageSound(1)
 
         # Add a variable to track whose turn it is
         self.current_turn = white_allegiance  # Start with white's turn
@@ -138,12 +94,6 @@ class Board(arcade.View):
         self.captured_piece = None
         self.selected_row = None
         self.selected_col = None
-
-        self.explosions_list = arcade.SpriteList()
-        self.explosion_texture_list = []
-
-        # Setup explosions
-        self.setup_explosions()
 
         self.WHITE_TIME = timedelta(minutes=5)
         self.BLACK_TIME = timedelta(minutes=5)
@@ -214,16 +164,6 @@ class Board(arcade.View):
         self.promotion_triggered = False
         self.castle_triggered = False
 
-    def setup_explosions(self):
-        columns = 16
-        count = 60
-        sprite_width = 256
-        sprite_height = 256
-        file_name = ":resources:images/spritesheets/explosion.png"
-
-        # Load the explosions from a sprite sheet
-        self.explosion_texture_list = arcade.load_spritesheet(file_name, sprite_width, sprite_height, columns, count)
-
     def on_show(self):
         arcade.set_background_color(self.bg_color)
         self.manager.enable()
@@ -233,8 +173,6 @@ class Board(arcade.View):
         self.manager.disable()
 
     def on_update(self, delta_time):
-        self.explosions_list.update()
-
         # Provide conditions for the timer, check to see if the turn has begun
         if self.current_turn_start is not None:
             if self.versus == "player":
@@ -243,7 +181,7 @@ class Board(arcade.View):
                     self.WHITE_TIME -= elapsed_time
                 else:
                     self.BLACK_TIME -= elapsed_time
-           
+
             else:
                 elapsed_time = datetime.now() - self.current_turn_start
                 if self.current_turn == "White":
@@ -279,22 +217,6 @@ class Board(arcade.View):
                     elif self.computer_piece is not None and self.computer_piece.promotable():
                         self.promote_pawn_to_queen(self.computer_piece.current_row, self.computer_piece.current_col)
                         self.promotion_triggered = True
-
-                """ Check if castle move
-                if not self.castle_triggered:
-                    castle = self.selected_piece.check_castle(self.selected_row, self.selected_col)
-
-                    if castle is not None:
-                        #print("CASTLE1")
-                        #print(f"curr: {self.selected_piece.current_row} col: {self.selected_piece.current_col}")
-                        #print(f"selected: {self.selected_row} col: {self.selected_col}")
-                        for cas_row, rook_col, cas_col in castle:
-                            #print("CASTLE...")
-                            # TODO: Play sound
-                            self.castle_rook(cas_row, rook_col, cas_col)
-                            self.castle_triggered = True
-                            break
-            """
 
         if game_manager.get_game_type() == "Replay":
             game_manager.set_game_type("_")
@@ -423,11 +345,7 @@ class Board(arcade.View):
         self.draw_timer(self.WHITE_TIME, "White")
         self.draw_timer(self.BLACK_TIME, "Black")
 
-
-
         self.manager.draw()
-
-        self.explosions_list.draw()
 
     def draw_timer(self, remaining_time, player):
 
@@ -522,24 +440,6 @@ class Board(arcade.View):
                 # Move the selected piece to the clicked spot
                 self.move_piece(row, col)
 
-                # # Make an explosion
-                # explosion = Explosion(self.explosion_texture_list)
-                #
-                # x = (col * SQUARE_WIDTH) + (SCREEN_WIDTH / 3.25) + SQUARE_WIDTH // 2
-                # y = (row * SQUARE_HEIGHT) + (SCREEN_HEIGHT // 6) + SQUARE_HEIGHT // 2
-                #
-                # # Move it to the location of the coin
-                # explosion.center_x = x
-                # explosion.center_y = y
-                #
-                # # Call update() because it sets which image we start on
-                # explosion.update()
-                #
-                # # Add to a list of sprites that are explosions
-                # self.explosions_list.append(explosion)
-                # # arcade.play_sound(audio, 1.0, -1, False)
-
-                # self.move_piece(row, col)
 
             # If the clicked spot is another piece
             elif isinstance(self.board[row][col], p.Piece):
@@ -662,28 +562,10 @@ class Board(arcade.View):
         knight2 = p.Knight(allegiance, self.board, WHT_POS['knight'][1])
         self.add_to_board(knight2, WHT_POS['knight'][1])
 
-        # demoPawn = p.Pawn(allegiance, self.board, [0, 0])
-        # demoPawn.capture()
-        # self.white_capture_board[0][0] = demoPawn
-
         # Pawn
         for col in range(COLS):
             pawn = p.Pawn(allegiance, self.board, [1, col])
             self.add_to_board(pawn, [1, col])
-
-        # pawn = p.Pawn(allegiance, self.board, [5, 5])
-        # self.add_to_board(pawn, [5, 5])
-
-        # self.add_to_board(pawn, [4, 5])
-
-    # def check_valid_moves(self, movement):
-    #     valid_moves = []
-    #     for move in movement:
-    #         if not isinstance(self.board[move[0]][move[1]], p.Piece):
-    #             valid_moves.append(move)
-    #         elif self.board[move[0]][move[1]].allegiance != self.selected_piece.allegiance:
-    #             valid_moves.append(move)
-    #     return valid_moves
 
     def deselect_all(self):
         # Deselect all squares
@@ -705,10 +587,6 @@ class Board(arcade.View):
         x = (col * SQUARE_WIDTH) + (SCREEN_WIDTH / 3.25)
         y = (row * SQUARE_HEIGHT) + (SCREEN_HEIGHT // 6)
 
-        # self.selected_piece.on_click(x, y)
-        # print(self.selected_piece)
-        # piece.move([row, col])
-
         """Check if castle move"""
         castle = self.selected_piece.check_castle(row, col)
         if castle is not None:
@@ -729,10 +607,8 @@ class Board(arcade.View):
             print(f"new row: {cas_row} new col: {new_rook_col}")
             print(f"Piece during rook move {self.selected_piece}")
 
-            # print("CASTLE HAPPENING....")
             self.selected_piece.on_click(x, y)
-            # print(self.selected_piece)
-            #
+
             self.selected_piece.move([row, col])
             self.board[self.selected_row][self.selected_col] = None
             self.board[row][col] = piece
@@ -910,7 +786,3 @@ class Board(arcade.View):
             end_game = True
 
         return end_game
-
-
-        # print("PIECES")
-        # print(pieces)

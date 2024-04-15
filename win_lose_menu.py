@@ -1,17 +1,25 @@
+"""
+WinLoseMenu class for creating a window to display win/lose/draw results and options.
+This class provides functionalities to display a win/lose/draw banner and buttons for
+replay, main menu, and quitting.
+"""
+
 import arcade.gui
-
 import arcade.gui.widgets
-import arcade.gui.widgets
-from arcade.experimental.uistyle import UIFlatButtonStyle
-
 import arcade
-
 import time
 
 class WinLoseMenu(arcade.gui.UIMouseFilterMixin, arcade.gui.UIAnchorLayout):
     """Acts like a fake view/window."""
 
     def __init__(self, theme_manager, winner, game_manager):
+        """
+        Initialize the WinLoseMenu window.
+        Parameters:
+        - theme_manager: An instance of ManageTheme class for managing themes.
+        - winner (str): The winner of the game ('black', 'white', or 'draw').
+        - game_manager: An instance of ManageGame class for managing game states.
+        """
         super().__init__(size_hint=(1, 1))
 
         theme = theme_manager.theme
@@ -72,37 +80,30 @@ class WinLoseMenu(arcade.gui.UIMouseFilterMixin, arcade.gui.UIAnchorLayout):
 
         @replay_button.event("on_click")
         def on_click_switch_button(event):
+            """
+            Event handler for the Replay button.
+            Parameters:
+            - event: The event object.
+            """
             game_manager.set_game_type("Replay")
             self.parent.remove(self)
 
         @menu_button.event("on_click")
         def on_click_switch_button(event):
+            """
+            Event handler for the Main Menu button.
+            Parameters:
+            - event: The event object.
+            """
             game_manager.set_game_type("Main_Menu")
             self.parent.remove(self)
 
         @quit_button.event("on_click")
         def on_click_switch_button(event):
+            """
+            Event handler for the Quit button.
+            Parameters:
+            - event: The event object.
+            """
             time.sleep(.15)
             arcade.exit()
-
-    def get_button_color(self, color):
-        return UIFlatButtonStyle(
-            font_size=12,
-            font_name=("calibri", "arial"),
-            font_color=arcade.color.BLACK,
-            bg=color,
-            border=None,
-            border_width=2,
-        )
-
-    def get_button_styled(self, color):
-        return {"normal": self.get_button_color(color),
-                "hover": self.get_button_color(color),
-                "press": self.get_button_color(color),
-                "disabled": self.get_button_color(color)}
-
-    def get_result(self):
-        return self.result
-
-    def get_back_clicked(self):
-        return self.back_clicked
