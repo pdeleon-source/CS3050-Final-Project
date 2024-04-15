@@ -611,8 +611,6 @@ class Board(arcade.View):
             """ Check if move is en passant """
             cap = self.selected_piece.en_passant([row, col])
             if cap is not None:
-                # self.captures.append(self.board[cap[0]][cap[1]])
-                # self.imprison_piece(self.board[cap[0]][cap[1]])
                 self.make_capture(self.board[cap[0]][cap[1]])
                 self.captured_piece = self.board[row][col]
                 self.board[cap[0]][cap[1]] = None
@@ -630,7 +628,6 @@ class Board(arcade.View):
             end_game = self.check_game_over('Black')
         else:
             end_game = self.check_game_over('White')
-        # self.print_capture()
         if not end_game:
             self.switch_turn()
 
